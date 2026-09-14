@@ -1,0 +1,13 @@
+tt.*
+.tests
+doc/tags
+debug
+.repro
+foo.*
+*.log
+data
+theme_mode
+
+# 個人環境のprivate設定
+lua/util/ai-usage.lua
+tests/util/ai-usage_spec.lua
