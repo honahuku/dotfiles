@@ -1,0 +1,24 @@
+# plenary.bustedが実行時に注入するグローバル（describe/it/assert等）をseleneに教える。
+# selene組み込みのstdにbusted定義はないため自作する。テストファイルはvim APIを
+# 直接使わない（ロジック層の純粋関数だけをテストする）ため、baseはneovim stdではなく
+# 素のlua51で足りる。
+base: lua51
+globals:
+  describe:
+    args:
+      - type: string
+      - type: function
+  it:
+    args:
+      - type: string
+      - type: function
+  before_each:
+    args:
+      - type: function
+  after_each:
+    args:
+      - type: function
+  # assert.are.same/assert.is_nil等、luassertが動的に生やすメソッドチェーンを
+  # 個別定義しきれないため、プロパティアクセスを制約なしで許可するanyにする。
+  assert:
+    any: true
