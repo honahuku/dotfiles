@@ -22,7 +22,9 @@ do
     local ok, private = pcall(require, "private")
     if not ok then
       vim.notify("private設定の読み込みに失敗しました: " .. tostring(private), vim.log.levels.WARN)
-    elseif type(private.setup) == "function" then
+    elseif type(private) ~= "table" or type(private.setup) ~= "function" then
+      vim.notify("private設定はsetup関数を持つテーブルを返す必要があります", vim.log.levels.WARN)
+    else
       local setup_ok, err = pcall(private.setup)
       if not setup_ok then
         vim.notify("private設定の初期化に失敗しました: " .. tostring(err), vim.log.levels.WARN)
