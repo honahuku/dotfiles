@@ -1,0 +1,11 @@
+.DS_Store
+*.swp
+*.swo
+
+# 公開repoへ外部repoのcloneを含めない
+/vendor/
+/.gitmodules
+
+# LazyVim starter template由来のファイル
+/nvim/LICENSE
+/nvim/README.md

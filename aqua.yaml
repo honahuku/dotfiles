@@ -15,10 +15,9 @@ packages:
   - name: nektos/act@v0.2.89
   - name: mikefarah/yq@v4.53.3
   - name: kubernetes-sigs/kustomize@kustomize/v5.8.1
-  - name: ahmetb/kubectx@v0.11.0
   - name: grafana/k6@v2.1.0
   - name: derailed/k9s@v0.51.0
   - name: kubernetes/kubernetes/kubectl@v1.36.3
   - name: evilmartians/lefthook@v2.1.10
-  - name: trufflesecurity/trufflehog@v3.96.0
+  - name: trufflesecurity/trufflehog@v3.97.4
   - name: openai/codex@rust-v0.152.1

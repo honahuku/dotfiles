@@ -1,0 +1,34 @@
+output:
+  - failure
+  - execution_out
+  - summary
+
+pre-commit:
+  commands:
+    public-policy:
+      glob: "*"
+      run: >-
+        checker="$(find "${DOTFILES_PRIVATE_ROOT:-$HOME/git}" -path '*/dotfiles-private/bin/check-public-candidate.sh' -type f -print -quit)";
+        test -n "$checker" || { echo "private public-policy checker is required" >&2; exit 1; };
+        "$checker" "$PWD"
+    skill-safety-agents:
+      glob: ".agents/skills/**"
+      run: >-
+        checker="$(find "${DOTFILES_PRIVATE_ROOT:-$HOME/git}" -path '*/dotfiles-private/bin/check-skill-safety.sh' -type f -print -quit)";
+        test -n "$checker" || { echo "private skill checker is required" >&2; exit 1; };
+        "$checker" "$PWD"
+    skill-safety-claude:
+      glob: ".claude/skills/**"
+      run: >-
+        checker="$(find "${DOTFILES_PRIVATE_ROOT:-$HOME/git}" -path '*/dotfiles-private/bin/check-skill-safety.sh' -type f -print -quit)";
+        test -n "$checker" || { echo "private skill checker is required" >&2; exit 1; };
+        "$checker" "$PWD"
+    skill-safety-codex:
+      glob: ".codex/skills/**"
+      run: >-
+        checker="$(find "${DOTFILES_PRIVATE_ROOT:-$HOME/git}" -path '*/dotfiles-private/bin/check-skill-safety.sh' -type f -print -quit)";
+        test -n "$checker" || { echo "private skill checker is required" >&2; exit 1; };
+        "$checker" "$PWD"
+    trufflehog:
+      glob: "*"
+      run: trufflehog filesystem {staged_files} --results=verified,unknown --exclude-detectors=Lob --fail --no-update --no-color
