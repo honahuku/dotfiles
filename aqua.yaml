@@ -22,3 +22,4 @@ packages:
   - name: trufflesecurity/trufflehog@v3.97.4
   - name: openai/codex@rust-v0.152.1
   - name: hashicorp/terraform@v1.16.4
+  - name: carvel-dev/vendir@v0.46.2
