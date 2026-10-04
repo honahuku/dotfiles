@@ -15,3 +15,23 @@ directories:
           - skills/yomiyasu/scripts/yomiyasu_diff.py
           - skills/yomiyasu/scripts/yomiyasu_lint.py
         newRootPath: skills/yomiyasu
+  - path: .agents/skills/grill-me
+    contents:
+      - path: .
+        git:
+          url: https://github.com/mattpocock/skills.git
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/productivity/grill-me/SKILL.md
+        newRootPath: skills/productivity/grill-me
+  - path: .agents/skills/grilling
+    contents:
+      - path: .
+        git:
+          url: https://github.com/mattpocock/skills.git
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/productivity/grilling/SKILL.md
+        newRootPath: skills/productivity/grilling
