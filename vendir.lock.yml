@@ -1,0 +1,11 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: 'docs: READMEの出力例のPASS表示文言を現行CLIに統一'
+      sha: 8d5abeebe2dd20c2db005deaddcc50be43c59c0a
+      tags:
+      - v1.0.4
+    path: .
+  path: .agents/skills/yomiyasu
+kind: LockConfig
