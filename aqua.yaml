@@ -23,3 +23,5 @@ packages:
   - name: carvel-dev/vendir@v0.46.2
   - name: hashicorp/terraform@v1.16.5
   - name: trufflesecurity/trufflehog@v3.99.0
+  - name: JohnnyMorganz/StyLua@v2.5.2
+  - name: terraform-linters/tflint@v0.64.0
