@@ -1,61 +1,80 @@
-# Personal agent guidance
+# エージェントへの個人指示
 
 ## 共通ルール
 
-- Git コミットは Conventional Commits 形式を使い、本文は可能な限り日本語にする。
-- このファイルは dotfiles/.agents/AGENTS.md で管理し、各環境の Codex home からリンクする。
-- 以下の環境別ルールは、コマンドを実行する環境に応じて適用する。
+- GitコミットはConventional Commits形式を使い、本文は可能な限り日本語にする。
+- このファイルは`dotfiles/.agents/AGENTS.md`で管理し、各環境のCodexの設定ディレクトリからリンクする。
+- 環境別のルールは、コマンドを実行する環境に応じて適用する。
 
-## Linux / WSL
+## 公開リポジトリの操作制限
 
-- Do not add throwaway helper scripts or ad hoc programs unless the user explicitly approves them.
-- This includes repository scripts and inline CI programs written in Bash, Ruby, Python, Node, or similar languages.
-- Prefer built-in CI features and well-maintained existing Actions before adding custom logic.
-- If custom logic is genuinely needed, explain why and ask for explicit approval before adding it.
+すべてのリポジトリと実行環境で、以下のルールを適用する。
 
-- Do not request elevated permissions, broader tool access, authentication scope changes, or other privilege escalation unless the user explicitly instructs you to do so.
-- If a task cannot be completed with the currently available permissions, stop and ask the user how to proceed before attempting any escalation.
-- Treat unintended privilege escalation as dangerous; never assume approval from context or convenience.
+- 操作前に、作業対象のリポジトリが公開リポジトリかどうかを確認する。公開・非公開を確認できない場合は、確認できるまで書き込み・削除・履歴変更の操作をしない。
+- 公開リポジトリでは、ローカルのクローンとリモートの両方で、書き込み・削除の操作や破壊的変更を絶対に実行しない。API、画面操作、スクリプトを使う場合も同じ制限を適用する。
+- 禁止する操作には、ファイルの作成・編集・削除、ステージ操作、`commit`と`amend`、`push`と強制プッシュ、ブランチ・タグの作成や削除、`reset`、`clean`、`rebase`、`merge`、`cherry-pick`などを含む。
+- `pull`は、未コミットの変更を失わず、既存のコミット履歴を書き換えず、新しいマージコミットも作らない、通常の早送り更新だけを例外として許可する。実行時は`git pull --ff-only`を使う。早送り更新できない場合は停止し、`rebase`、`merge`、`reset`などで解消しない。
+- 閲覧、検索、`status`、`diff`、`log`などの読み取り操作は許可する。変更案はチャットで提示する。
+- この制限は、コミット形式などの他の指示や、通常の実装・修正依頼から推測される書き込み許可より優先する。
 
-## Windows / PowerShell
+## LinuxとWSL
 
-The following rules apply only when executing on native Windows.
+### スクリプトの作成
 
-### Python
+- ユーザーが明示的に許可しない限り、使い捨ての補助スクリプトや、その場限りのプログラムを追加しない。
+- リポジトリ内のスクリプトや、Bash、Ruby、Python、Nodeなどで書いたCI内のプログラムも、この制限の対象とする。
+- 独自の処理を追加する前に、CIの組み込み機能や、継続的に保守されている既存のアクションを優先する。
+- 独自の処理が本当に必要な場合は、理由を説明し、追加前にユーザーの明示的な許可を求める。
 
-When a Python command is needed in Codex on this machine, prefer the bundled Codex runtime executable instead of `python` or `py`. The global `python` currently resolves to the Microsoft Store app execution alias, and `py` may be unavailable inside the sandbox.
+### 権限の扱い
 
-Use this executable:
+- ユーザーが明示的に指示しない限り、権限昇格、ツールのアクセス範囲の拡大、認証権限の変更、その他の権限拡大を要求しない。
+- 現在の権限で作業を完了できない場合は、権限拡大を試みる前に作業を止め、進め方をユーザーに確認する。
+- 意図しない権限昇格は危険な操作として扱う。文脈や作業上の都合から、許可されたと判断しない。
+
+## WindowsとPowerShell
+
+以下のルールは、Windows上で直接コマンドを実行するときだけ適用する。
+
+### Pythonの実行
+
+このマシンでPythonコマンドが必要な場合は、`python`や`py`よりも、Codex同梱のPython実行ファイルを優先する。現在、グローバルの`python`はMicrosoft Storeのアプリ実行エイリアスを指しており、`py`はサンドボックス内で使えない場合がある。
+
+実行ファイルには、次のパスを使う。
 
 `C:\Users\hona-desk\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`
 
-In PowerShell commands, invoke it like this:
+PowerShellでは、次のように呼び出す。
 
-`& 'C:\Users\hona-desk\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'`
+```powershell
+& 'C:\Users\hona-desk\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+```
 
-### GitHub CLI (`gh`)
+### GitHub CLIの実行
 
-When using the GitHub CLI (`gh`), run it outside the Codex sandbox by requesting escalation (`sandbox_permissions: "require_escalated"`). The sandbox may not be able to read the host GitHub authentication state, so `gh` commands inside the sandbox can fail even when the user is already authenticated on the machine.
+GitHub CLIの`gh`を使う場合は、`sandbox_permissions: "require_escalated"`で権限昇格を要求し、Codexのサンドボックス外で実行する。サンドボックス内ではホストのGitHub認証情報を読めず、マシン上で認証済みでもコマンドが失敗する場合がある。
 
-Prefer escalating the needed `gh` command with a concise justification over re-authenticating inside the sandbox. Use a narrowly scoped `prefix_rule` only when it matches the specific repeated workflow.
+サンドボックス内で再認証するよりも、必要な`gh`コマンドについて簡潔な理由を添えて権限昇格を要求する方法を優先する。`prefix_rule`は、具体的に繰り返す操作に合う場合だけ、範囲を狭く指定する。
 
-### File edits on Windows (`apply_patch` fallback)
+### ファイル編集で失敗した場合
 
-On native Windows Codex sessions, `apply_patch` may fail before editing because of Windows sandbox issues, especially with `workspace-write`, `unelevated` restricted-token sandboxing, and split writable roots. Known related symptoms include:
+Windows上のCodexでは、Windowsのサンドボックスの問題により、`apply_patch`が編集前に失敗する場合がある。特に、`workspace-write`、`unelevated`の制限付きトークン、複数の書き込み可能なルートを使う構成で起こりやすい。
 
-- `failed to prepare windows sandbox wrapper`
-- `windows unelevated restricted-token sandbox cannot enforce split writable root sets directly`
-- `refusing to run unsandboxed`
+関連するエラーメッセージには、次のものがある。
 
-When `apply_patch` fails this way, do not keep retrying it. Prefer this fallback order for ordinary text file edits:
+- `failed to prepare windows sandbox wrapper`は、Windowsサンドボックスのラッパーを準備できないことを示す。
+- `windows unelevated restricted-token sandbox cannot enforce split writable root sets directly`は、非昇格の制限付きトークンでは、分かれた書き込み可能なルートを直接制御できないことを示す。
+- `refusing to run unsandboxed`は、サンドボックス外での実行を拒否したことを示す。
 
-1. Try a unified diff with `git apply --check`, then `git apply` if the check succeeds. This can modify untracked files and can also work outside a Git repository when used only against the working tree, as long as Git is available.
-2. If `git apply` is unsuitable, use a small exact-match script that reads the file, verifies the target text occurs exactly as expected, writes the edited content, and then re-reads or diffs the result.
-3. Avoid broad PowerShell regex replacements for non-trivial edits. `Set-Content` can change encoding, CRLF/LF, or add unwanted EOF blank lines, so verify with `git diff`, `git diff --check`, or an equivalent check after editing.
+この理由で`apply_patch`が失敗した場合は、再試行を繰り返さない。通常のテキスト編集では、次の順で代わりの方法を試す。
 
-Keep edits minimal and local to the requested files. If a fallback requires writing outside the workspace, request escalation with a concise justification.
+1. 統一差分を`git apply --check`で検証し、成功したら`git apply`で適用する。Gitが使える場合は、未追跡ファイルにも適用できる。作業ツリーだけを対象にするなら、Gitリポジトリ外でも使える。
+2. `git apply`が適さない場合は、対象文字列が想定どおりに現れることを確認してから、完全一致で置き換える小さなスクリプトを使う。書き込み後にファイルを読み直すか、差分を確認する。
+3. 単純でない編集では、PowerShellの正規表現による広範囲な置換を避ける。`Set-Content`は文字コードやCRLF・LFを変えたり、末尾に不要な空行を追加したりする場合があるため、編集後は`git diff`、`git diff --check`などで確認する。
+
+編集は依頼されたファイルに限定し、変更を最小限にする。代わりの方法で作業領域の外に書き込む必要がある場合は、簡潔な理由を添えて権限昇格を要求する。
 
 ### Gitコミットメッセージ
 
 - Conventional Commits形式を使う。
-- prefix は英語でよいが、メッセージ本文は可能な限り日本語にする。
+- 接頭辞は英語でよいが、メッセージ本文は可能な限り日本語にする。
