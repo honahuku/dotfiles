@@ -11,8 +11,8 @@ alias py='python3'
 export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
 
 # asdf
-. "$HOME/.asdf/asdf.sh"
-. "$HOME/.asdf/completions/asdf.bash"
+[ ! -f "$HOME/.asdf/asdf.sh" ] || . "$HOME/.asdf/asdf.sh"
+[ ! -f "$HOME/.asdf/completions/asdf.bash" ] || . "$HOME/.asdf/completions/asdf.bash"
 
 # kubectx/kubens completion from a system-installed bash-completion package
 for kubectx_completion in \
@@ -25,3 +25,8 @@ do
   fi
 done
 unset kubectx_completion
+
+# Machine-local settings (not tracked in dotfiles)
+if [[ -f "$HOME/.bashrc.local" ]]; then
+  . "$HOME/.bashrc.local"
+fi
