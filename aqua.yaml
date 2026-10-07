@@ -19,7 +19,7 @@ packages:
   - name: derailed/k9s@v0.51.0
   - name: kubernetes/kubernetes/kubectl@v1.36.3
   - name: evilmartians/lefthook@v2.1.10
-  - name: trufflesecurity/trufflehog@v3.97.4
   - name: openai/codex@rust-v0.152.1
-  - name: hashicorp/terraform@v1.16.4
   - name: carvel-dev/vendir@v0.46.2
+  - name: hashicorp/terraform@v1.16.5
+  - name: trufflesecurity/trufflehog@v3.99.0
