@@ -15,4 +15,6 @@ directories:
           - skills/yomiyasu/scripts/yomiyasu_diff.py
           - skills/yomiyasu/scripts/yomiyasu_lint.py
           - skills/yomiyasu/scripts/markdown_visibility.py
+          - skills/yomiyasu/LICENSE
+          - skills/yomiyasu/UNICODE-LICENSE.txt
         newRootPath: skills/yomiyasu
