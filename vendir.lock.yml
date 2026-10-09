@@ -2,11 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: 'fix: restore gh skill install compatibility with a single nested
-        entrypoint'
-      sha: d7869000576a9f811a1542eceec57044219550a9
+      commitTitle: 'feat: yomiyasu v1.1.1の推敲指針とlintを改善...'
+      sha: 373356eb874af5184962c88e925ea7eb58450318
       tags:
-      - v1.0.9
+      - v1.1.1
     path: .
   path: .agents/skills/yomiyasu
 kind: LockConfig
