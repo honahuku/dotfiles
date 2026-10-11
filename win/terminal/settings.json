@@ -1,0 +1,137 @@
+{
+    "$help": "https://aka.ms/terminal-documentation",
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions": [],
+    "copyFormatting": "all",
+    "copyOnSelect": false,
+    "defaultProfile": "{6a94468a-7ca0-4768-8738-4a19a0b314af}",
+    "disabledProfileSources": [
+        "Windows.Terminal.Azure",
+        "Windows.Terminal.VisualStudio"
+    ],
+    "initialCols": 160,
+    "initialRows": 45,
+    "keybindings": [
+        {
+            "id": "Terminal.DuplicatePaneAuto",
+            "keys": "alt+shift+d"
+        },
+        {
+            "id": "Terminal.CopyToClipboard",
+            "keys": "ctrl+c"
+        },
+        {
+            "id": null,
+            "keys": "ctrl+shift+tab"
+        },
+        {
+            "id": null,
+            "keys": "ctrl+tab"
+        },
+        {
+            "id": "Terminal.SwitchToTab0",
+            "keys": "ctrl+alt+n"
+        },
+        {
+            "id": "Terminal.PasteFromClipboard",
+            "keys": "ctrl+v"
+        },
+        {
+            "id": "Terminal.NextTab",
+            "keys": "ctrl+pgdn"
+        },
+        {
+            "id": "Terminal.PrevTab",
+            "keys": "ctrl+pgup"
+        },
+        {
+            "id": "Terminal.ScrollUpPage",
+            "keys": "pgup"
+        },
+        {
+            "id": "Terminal.SwitchToTab1",
+            "keys": "ctrl+alt+c"
+        },
+        {
+            "id": "Terminal.ScrollDownPage",
+            "keys": "pgdn"
+        }
+    ],
+    "newTabMenu": [
+        {
+            "profile": "WSL",
+            "type": "profile"
+        },
+        {
+            "profile": "Codex",
+            "type": "profile"
+        },
+        {
+            "profile": "Claude",
+            "type": "profile"
+        },
+        {
+            "profile": "Neovim",
+            "type": "profile"
+        },
+        {
+            "allowEmpty": false,
+            "entries": [
+                {
+                    "source": "Microsoft.Terminal.Wsl",
+                    "type": "matchProfiles"
+                }
+            ],
+            "name": "WSL",
+            "type": "folder"
+        },
+        {
+            "type": "remainingProfiles"
+        }
+    ],
+    "profiles": {
+        "defaults": {
+            "colorScheme": {
+                "dark": "VSCode Dark Modern",
+                "light": "VSCode Light Modern"
+            },
+            "font": {
+                "face": "UDEV Gothic NF",
+                "size": 11
+            },
+            "historySize": 10000,
+            "padding": "4, 4"
+        },
+        "list": [
+            {
+                "commandline": "wsl.exe --",
+                "guid": "{6a94468a-7ca0-4768-8738-4a19a0b314af}",
+                "hidden": false,
+                "name": "WSL",
+                "startingDirectory": "~"
+            },
+            {
+                "commandline": "wsl.exe -- bash -lc \"cd ~/git && exec codex\"",
+                "guid": "{9a82def7-c1d1-4643-82fd-3cb8022d4cf8}",
+                "hidden": false,
+                "name": "Codex"
+            },
+            {
+                "commandline": "wsl.exe -- bash -lc \"cd ~/git && exec nvim\"",
+                "guid": "{3064a8d8-6f28-5ae6-ba7b-16b90fced242}",
+                "hidden": false,
+                "name": "Neovim"
+            },
+            {
+                "commandline": "wsl.exe -- bash -lc \"cd ~/git && exec claude --permission-mode auto\"",
+                "guid": "{e73aab34-e9a3-45f9-880a-ea6092a416c5}",
+                "hidden": false,
+                "name": "Claude"
+            }
+        ]
+    },
+    "schemes": [],
+    "theme": "system",
+    "themes": [],
+    "windowingBehavior": "useExisting"
+}

@@ -12,7 +12,7 @@ cd ~/git/honahuku/dotfiles
 ./bin/slink.sh
 ```
 
-既存設定の扱いやNeovim、aqua、Windows、Codexの手順は[セットアップガイド](docs/setup.md)と[Codexの設定](docs/codex.md)を参照してください。
+既存設定の扱いやNeovim、aqua、Windows、Codex、Windows Terminalの手順は[セットアップガイド](docs/setup.md)と[Codexの設定](docs/codex.md)を参照してください。
 
 ## 主な構成
 
@@ -30,4 +30,5 @@ cd ~/git/honahuku/dotfiles
 │   │   └── util/
 │   └── tests/
 └── win/
+    └── terminal/
 ```

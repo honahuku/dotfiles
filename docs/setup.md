@@ -1,6 +1,6 @@
 # 新しい環境で dotfiles を使う
 
-cloneしたリポジトリの設定を使うには、ホームディレクトリへのリンクと必要なツールの導入を行います。Linux / WSLでは `bin/slink.sh` を実行してください。Windowsでは、専用スクリプトでCodexの共通指示をリンクします。
+cloneしたリポジトリの設定を使うには、ホームディレクトリへのリンクと必要なツールの導入を行います。Linux / WSLでは `bin/slink.sh` を実行してください。Windowsでは、専用スクリプトでCodexの共通指示とWindows Terminalの設定をリンクします。
 
 このリポジトリでは設定と導入方法を管理し、外部OSSのソースコードやGitサブモジュールは含めません。ツール本体は各プロジェクトの公式配布元から導入します。
 
@@ -112,6 +112,36 @@ Windowsでシンボリックリンクを作るには、管理者権限が必要�
 
 このスクリプトがリンクするのはWindowsのCodex共通指示だけです。Neovimやシェルの設定はWindows側に展開しません。aquaの `openai/codex` はCodex CLI用で、Codex Desktopはインストールされません。CodexとWSLの実行環境、スキルの配置は[Codexの設定手順](codex.md)を参照してください。リンク後、新しいCodexセッションを開くと指示が読み込まれます。
 
+## Windows Terminal
+
+Windows Terminalの共通設定を使う場合は、Windows側にcloneしたリポジトリからリンクスクリプトを実行します。Windows Terminalを終了してから実行してください。
+
+```powershell
+$repo = Join-Path $HOME 'git\honahuku\dotfiles'
+& "$repo\win\link-terminal-settings.ps1"
+```
+
+[`win/link-terminal-settings.ps1`](../win/link-terminal-settings.ps1) は、既存の設定を日時付きでバックアップしてから、Stable版の設定ファイルを `win/terminal/settings.json` へリンクします。すでに同じリンクがある場合は何もしません。
+
+Preview版、Canary版、unpackaged版を使う場合は、`-Distribution` を指定します。
+
+```powershell
+& "$repo\win\link-terminal-settings.ps1" -Distribution Preview
+& "$repo\win\link-terminal-settings.ps1" -Distribution Canary
+& "$repo\win\link-terminal-settings.ps1" -Distribution Unpackaged
+```
+
+共通設定では、WSLのディストリビューションを固定しません。`WSL` プロファイルを既定プロファイルとし、各PCのデフォルトWSLを `~` で起動します。Windows Terminalが自動生成する各ディストリビューションのプロファイルも表示します。Codex、Claude、Neovimは各PCのデフォルトWSLで `~/git` から起動します。各PCで利用するWSLをデフォルトに設定し、その環境に必要なコマンドを導入してください。[Windows Terminalのプロファイル設定](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/profile-general)と[WSLプロファイルの自動生成](https://learn.microsoft.com/en-us/windows/terminal/tips-and-tricks)も参照してください。
+
+インストール済みのディストリビューションと現在のデフォルトは、次で確認できます。デフォルトを変更する場合は、`Ubuntu` を利用するディストリビューション名に置き換えてください。
+
+```powershell
+wsl --list --verbose
+wsl --set-default "Ubuntu"
+```
+
+[WSLの基本コマンド](https://learn.microsoft.com/windows/wsl/reference)も参照してください。
+
 ## Windows用ファイルを個別に使う
 
 `win/` には、アプリの一括導入やWindowsの設定変更に使う既存バッチがあります。dotfilesのcloneや基本リンクには使わず、内容を確認してから実行してください。[`win/chocolatey.bat`](../win/chocolatey.bat) はアプリを導入し、レジストリも変更します。[`win/scoop.bat`](../win/scoop.bat) にはGitの初期化・追加コマンドがあります。Codexの指示だけをリンクするときは `win/link-codex-agents.ps1` を使います。
@@ -125,5 +155,7 @@ Windowsでシンボリックリンクを作るには、管理者権限が必要�
 | Linux / WSLのリンク処理 | `bin/slink.sh` |
 | Codexの共通指示とスキル | `.agents/` |
 | WindowsのCodex共通指示リンク | `win/link-codex-agents.ps1` |
+| Windows Terminalの共通設定 | `win/terminal/settings.json` |
+| Windows Terminalの設定リンク | `win/link-terminal-settings.ps1` |
 
 リンクしたファイルを編集すると、リポジトリ内のファイルが更新されます。ツールやプラグイン本体は設定ファイルとは別に導入します。各バージョンは `aqua.yaml` と `nvim/lazy-lock.json` で管理します。
