@@ -38,12 +38,11 @@ fi
 | `~/.config/mise/config.toml` | `.config/mise/config.toml` |
 | `~/.config/lazygit/config.yml` | `.config/lazygit/config.yml` |
 | `~/aqua.yaml` | `aqua.yaml` |
-| `~/.config/alacritty/alacritty.toml` | `alacritty/alacritty.toml`（ファイルがある場合） |
 | `~/.config/nvim` | `nvim/` 全体 |
 | `~/.agents/skills` | `.agents/skills/` |
 | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | `.agents/AGENTS.md` |
 
-リンク元のファイルがリポジトリにない項目はスキップします。現在はAlacrittyの設定ファイルがないため、Alacrittyのリンクは作られません。
+リンク元のファイルがリポジトリにない項目はスキップします。
 
 ### 3. miseとNode.jsを導入する
 
