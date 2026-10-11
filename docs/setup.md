@@ -36,6 +36,7 @@ fi
 | --- | --- |
 | `~/.bashrc` | `.bashrc` |
 | `~/.config/mise/config.toml` | `.config/mise/config.toml` |
+| `~/.config/lazygit/config.yml` | `.config/lazygit/config.yml` |
 | `~/aqua.yaml` | `aqua.yaml` |
 | `~/.config/alacritty/alacritty.toml` | `alacritty/alacritty.toml`（ファイルがある場合） |
 | `~/.config/nvim` | `nvim/` 全体 |

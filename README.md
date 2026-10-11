@@ -21,6 +21,7 @@ cd ~/git/honahuku/dotfiles
 ├── .agents/
 │   └── skills/
 ├── .config/
+│   ├── lazygit/
 │   └── mise/
 ├── bin/
 ├── docs/
