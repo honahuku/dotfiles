@@ -5,6 +5,7 @@
 - GitコミットはConventional Commits形式を使い、本文は可能な限り日本語にする。
 - このファイルは`dotfiles/.agents/AGENTS.md`で管理し、各環境のCodexの設定ディレクトリからリンクする。
 - 環境別のルールは、コマンドを実行する環境に応じて適用する。
+- worktreeは`/tmp`に作らず、対象リポジトリ内の`.worktrees/<用途>`に作る。既存の適切なworktreeがあれば再利用する。
 
 ## 公開リポジトリの操作制限
 

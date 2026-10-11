@@ -5,6 +5,7 @@
 # 公開repoへ外部repoのcloneを含めない
 /vendor/
 /.gitmodules
+/.worktrees/
 
 # LazyVim starter template由来のファイル
 /nvim/LICENSE
