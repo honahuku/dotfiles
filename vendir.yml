@@ -6,7 +6,7 @@ directories:
       - path: .
         git:
           url: https://github.com/nanaism/yomiyasu.git
-          ref: v1.0.9
+          ref: v1.1.1
           depth: 1
           subPath: skills/yomiyasu
         includePaths:
