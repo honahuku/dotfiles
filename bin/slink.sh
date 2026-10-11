@@ -39,6 +39,7 @@ link_path() {
 }
 
 link_path "$DOTFILES/.bashrc" "$HOME/.bashrc"
+link_path "$DOTFILES/.config/mise/config.toml" "$HOME/.config/mise/config.toml"
 link_path "$DOTFILES/aqua.yaml" "$HOME/aqua.yaml"
 link_path "$DOTFILES/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
 link_path "$DOTFILES/nvim" "$HOME/.config/nvim"

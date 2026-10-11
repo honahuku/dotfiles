@@ -35,6 +35,7 @@ fi
 | ホーム側のリンク先 | リポジトリ内のリンク元 |
 | --- | --- |
 | `~/.bashrc` | `.bashrc` |
+| `~/.config/mise/config.toml` | `.config/mise/config.toml` |
 | `~/aqua.yaml` | `aqua.yaml` |
 | `~/.config/alacritty/alacritty.toml` | `alacritty/alacritty.toml`（ファイルがある場合） |
 | `~/.config/nvim` | `nvim/` 全体 |
@@ -43,7 +44,28 @@ fi
 
 リンク元のファイルがリポジトリにない項目はスキップします。現在はAlacrittyの設定ファイルがないため、Alacrittyのリンクは作られません。
 
-### 3. aquaとCLIを導入する
+### 3. miseとNode.jsを導入する
+
+miseはNode.jsのバージョンを管理し、プロジェクトごとに指定されたバージョンへ切り替えます。[公式インストール手順](https://mise.jdx.dev/installing-mise.html)に従ってmiseを導入してください。Linuxでは次のコマンドを使えます。
+
+```sh
+curl https://mise.run | sh
+```
+
+このリポジトリの `.bashrc` は `~/.local/bin` を `PATH` に加え、miseが存在する場合にbashを有効化します。[miseのBash設定](https://mise.jdx.dev/ide-integration.html#bash)を読み込むことで、ホームの `~/.config/mise/config.toml` に定義したNode.jsをシェルで使えます。
+
+リンクスクリプトの実行後に新しいシェルを開くか、次を実行してNode.jsをインストールします。
+
+```sh
+source ~/.bashrc
+mise install
+node --version
+npx --version
+```
+
+設定ではNode.jsのLTSを選びます。プロジェクトに `.mise.toml` や `mise.toml` がある場合、そのプロジェクトの指定がホームの設定より優先されます。`npx` はNode.jsに付属するnpmのコマンドで、miseはNode.jsの実行環境を提供します。
+
+### 4. aquaとCLIを導入する
 
 [`aqua.yaml`](../aqua.yaml) には、aquaで管理するCLIとバージョンが記録されています。aqua本体は一覧に含まれないため、先に[公式のインストール手順](https://aquaproj.github.io/docs/install/)で導入します。dotfilesの `.bashrc` はaquaのbinディレクトリを `PATH` に追加します。新しいシェルを開くか、次を実行してください。
 
@@ -61,7 +83,7 @@ aqua install stylua tflint
 
 `aqua install` に引数を付けない場合、`aqua.yaml` にあるすべてのCLIを導入します。定義しているのはGitHub CLI、Terraform、Codex CLI、StyLua、TFLintなどです。aquaはカレントディレクトリから親ディレクトリへ設定ファイルを探します。ホームの `aqua.yaml` を使う場合は `cd ~` して実行してください。[aquaの設定探索とinstall](https://aquaproj.github.io/docs/reference/config/)も参照してください。
 
-### 4. Neovimを導入する
+### 5. Neovimを導入する
 
 Neovim本体はaquaの管理対象ではありません。利用するLinuxディストリビューションの手順に従い、NeovimとGitを導入します。Arch Linuxでは次のコマンドを使います。
 
@@ -71,7 +93,7 @@ sudo pacman -S --needed git neovim
 
 他のOSやディストリビューションでは[Neovimの公式インストールガイド](https://github.com/neovim/neovim/blob/master/INSTALL.md)を参照してください。
 
-### 5. Neovimとプラグインを起動する
+### 6. Neovimとプラグインを起動する
 
 ```sh
 nvim
@@ -151,6 +173,7 @@ wsl --set-default "Ubuntu"
 | 目的 | ファイル |
 | --- | --- |
 | Neovimの設定とプラグイン定義 | `nvim/` |
+| Node.jsのバージョン設定 | `.config/mise/config.toml` |
 | aquaで管理するCLIとバージョン | `aqua.yaml` |
 | Linux / WSLのリンク処理 | `bin/slink.sh` |
 | Codexの共通指示とスキル | `.agents/` |
