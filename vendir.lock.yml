@@ -2,10 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: 'feat: yomiyasu v1.1.1の推敲指針とlintを改善...'
-      sha: 373356eb874af5184962c88e925ea7eb58450318
+      commitTitle: 'feat: yomiyasu v1.1.2で、文の種類を保つ推敲の手順と差分の点検を加える (#17)...'
+      sha: 602a3690dadd5d620bb21524353b8d192914eabb
       tags:
-      - v1.1.1
+      - v1.1.2
     path: .
   path: .agents/skills/yomiyasu
 - contents:
