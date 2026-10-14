@@ -10,3 +10,7 @@
 # LazyVim starter template由来のファイル
 /nvim/LICENSE
 /nvim/README.md
+
+# Python bytecode
+__pycache__/
+*.py[cod]
