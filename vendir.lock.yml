@@ -8,4 +8,179 @@ directories:
       - v1.1.1
     path: .
   path: .agents/skills/yomiyasu
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/amazon-bedrock
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-ai-ml
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-auth
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-billing-and-cost-management
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-blocks
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-cdk
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-cloudformation
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-compute
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-containers
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-database
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-deployment
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-iam
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-messaging-and-streaming
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-networking
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-observability
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-sdk-js-v3-usage
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-sdk-python-usage
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-sdk-swift-usage
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-security
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-serverless
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-storage
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/aws-well-architected-review
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/launch-with-aws
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/skills/signing-in-to-aws
+- contents:
+  - git:
+      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
+        redshift-guide storage references (#451)...'
+      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+    path: .
+  path: .agents/licenses/aws-agent-toolkit
 kind: LockConfig
