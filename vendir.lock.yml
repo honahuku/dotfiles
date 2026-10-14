@@ -183,4 +183,16 @@ directories:
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/licenses/aws-agent-toolkit
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #60 from wheresryan22/fix/capture-wait-load...'
+      sha: e6600ffc4e8e6620eeb45bf49bcdbd5e4b84163f
+    path: .
+  path: .agents/skills/anatomy
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #2447 from vercel-labs/qua/fx-universal-skills...'
+      sha: 13e4063a1cf913f5606d57d42ab83a86f5001e04
+    path: .
+  path: .agents/skills/find-skills
 kind: LockConfig

@@ -294,3 +294,23 @@ directories:
         includePaths:
           - LICENSE
           - NOTICE
+  - path: .agents/skills/anatomy
+    contents:
+      - path: .
+        git:
+          url: https://github.com/wheresryan22/anatomy.git
+          ref: e6600ffc4e8e6620eeb45bf49bcdbd5e4b84163f
+          depth: 1
+        excludePaths:
+          - .git
+          - .git/**/*
+  - path: .agents/skills/find-skills
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vercel-labs/skills.git
+          ref: 13e4063a1cf913f5606d57d42ab83a86f5001e04
+          depth: 1
+        includePaths:
+          - skills/find-skills/**/*
+        newRootPath: skills/find-skills
