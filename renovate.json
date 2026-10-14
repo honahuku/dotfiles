@@ -3,5 +3,43 @@
   "extends": [
     "config:recommended",
     "github>aquaproj/aqua-renovate-config#2.8.0"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "description": "aqua の更新はリリースから14日以上経過してから行う",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "aqua.yaml"
+      ],
+      "minimumReleaseAge": "14 days",
+      "minimumReleaseAgeBehaviour": "timestamp-required"
+    },
+    {
+      "description": "CI 成功後に aqua の minor / patch 更新を自動マージする",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "aqua.yaml"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true,
+      "platformAutomerge": false
+    },
+    {
+      "description": "vendir で取り込むスキルの更新は自動マージしない",
+      "matchManagers": [
+        "vendir"
+      ],
+      "automerge": false
+    }
   ]
 }
