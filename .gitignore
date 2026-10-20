@@ -1,6 +1,7 @@
 .DS_Store
 *.swp
 *.swo
+*/yomiyasu/scripts/pycache*
 
 # 公開repoへ外部repoのcloneを含めない
 /vendor/
