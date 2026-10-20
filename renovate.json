@@ -40,6 +40,39 @@
         "vendir"
       ],
       "automerge": false
+    },
+    {
+      "matchManagers": [
+        "vendir"
+      ],
+      "matchPackageNames": [
+        "https://github.com/mattpocock/skills.git"
+      ],
+      "enabled": false
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDepNames": [
+        "mattpocock/skills"
+      ],
+      "automerge": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^vendir\\.yml$/"
+      ],
+      "matchStrings": [
+        "url: (?<packageName>https://github\\.com/mattpocock/skills\\.git)\\s+ref: (?<currentDigest>[a-f0-9]{40})"
+      ],
+      "depNameTemplate": "mattpocock/skills",
+      "datasourceTemplate": "git-refs",
+      "currentValueTemplate": "main",
+      "versioningTemplate": "git"
     }
   ]
 }

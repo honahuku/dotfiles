@@ -1,6 +1,26 @@
 apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
 directories:
+  - path: .agents/skills/grill-me
+    contents:
+      - path: .
+        git:
+          url: https://github.com/mattpocock/skills.git
+          ref: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+          depth: 1
+        includePaths:
+          - skills/productivity/grill-me/SKILL.md
+        newRootPath: skills/productivity/grill-me
+  - path: .agents/skills/grilling
+    contents:
+      - path: .
+        git:
+          url: https://github.com/mattpocock/skills.git
+          ref: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+          depth: 1
+        includePaths:
+          - skills/productivity/grilling/SKILL.md
+        newRootPath: skills/productivity/grilling
   - path: .agents/skills/yomiyasu
     contents:
       - path: .
