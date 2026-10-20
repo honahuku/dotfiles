@@ -21,3 +21,316 @@ directories:
         includePaths:
           - skills/productivity/grilling/SKILL.md
         newRootPath: skills/productivity/grilling
+  - path: .agents/skills/yomiyasu
+    contents:
+      - path: .
+        git:
+          url: https://github.com/nanaism/yomiyasu.git
+          ref: v1.1.2
+          depth: 1
+          subPath: skills/yomiyasu
+        includePaths:
+          - skills/yomiyasu/SKILL.md
+          - skills/yomiyasu/references/**/*
+          - skills/yomiyasu/scripts/yomiyasu_diff.py
+          - skills/yomiyasu/scripts/yomiyasu_lint.py
+          - skills/yomiyasu/scripts/markdown_visibility.py
+          - skills/yomiyasu/LICENSE
+          - skills/yomiyasu/UNICODE-LICENSE.txt
+        newRootPath: skills/yomiyasu
+  - path: .agents/skills/amazon-bedrock
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/amazon-bedrock/**/*
+          - skills/core-skills/amazon-bedrock/SKILL.md
+        newRootPath: skills/core-skills/amazon-bedrock
+  - path: .agents/skills/aws-ai-ml
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-ai-ml/**/*
+          - skills/core-skills/aws-ai-ml/SKILL.md
+        newRootPath: skills/core-skills/aws-ai-ml
+  - path: .agents/skills/aws-auth
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-auth/**/*
+          - skills/core-skills/aws-auth/SKILL.md
+        newRootPath: skills/core-skills/aws-auth
+  - path: .agents/skills/aws-billing-and-cost-management
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-billing-and-cost-management/**/*
+          - skills/core-skills/aws-billing-and-cost-management/SKILL.md
+        newRootPath: skills/core-skills/aws-billing-and-cost-management
+  - path: .agents/skills/aws-blocks
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-blocks/**/*
+          - skills/core-skills/aws-blocks/SKILL.md
+        newRootPath: skills/core-skills/aws-blocks
+  - path: .agents/skills/aws-cdk
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-cdk/**/*
+          - skills/core-skills/aws-cdk/SKILL.md
+          - LICENSE
+          - NOTICE
+        newRootPath: skills/core-skills/aws-cdk
+  - path: .agents/skills/aws-cloudformation
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-cloudformation/**/*
+          - skills/core-skills/aws-cloudformation/SKILL.md
+        newRootPath: skills/core-skills/aws-cloudformation
+  - path: .agents/skills/aws-compute
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-compute/**/*
+          - skills/core-skills/aws-compute/SKILL.md
+        newRootPath: skills/core-skills/aws-compute
+  - path: .agents/skills/aws-containers
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-containers/**/*
+          - skills/core-skills/aws-containers/SKILL.md
+        newRootPath: skills/core-skills/aws-containers
+  - path: .agents/skills/aws-database
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-database/**/*
+          - skills/core-skills/aws-database/SKILL.md
+        newRootPath: skills/core-skills/aws-database
+  - path: .agents/skills/aws-deployment
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-deployment/**/*
+          - skills/core-skills/aws-deployment/SKILL.md
+        newRootPath: skills/core-skills/aws-deployment
+  - path: .agents/skills/aws-iam
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-iam/**/*
+          - skills/core-skills/aws-iam/SKILL.md
+        newRootPath: skills/core-skills/aws-iam
+  - path: .agents/skills/aws-messaging-and-streaming
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-messaging-and-streaming/**/*
+          - skills/core-skills/aws-messaging-and-streaming/SKILL.md
+        newRootPath: skills/core-skills/aws-messaging-and-streaming
+  - path: .agents/skills/aws-networking
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-networking/**/*
+          - skills/core-skills/aws-networking/SKILL.md
+        newRootPath: skills/core-skills/aws-networking
+  - path: .agents/skills/aws-observability
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-observability/**/*
+          - skills/core-skills/aws-observability/SKILL.md
+        newRootPath: skills/core-skills/aws-observability
+  - path: .agents/skills/aws-sdk-js-v3-usage
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-sdk-js-v3-usage/**/*
+          - skills/core-skills/aws-sdk-js-v3-usage/SKILL.md
+        newRootPath: skills/core-skills/aws-sdk-js-v3-usage
+  - path: .agents/skills/aws-sdk-python-usage
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-sdk-python-usage/**/*
+          - skills/core-skills/aws-sdk-python-usage/SKILL.md
+        newRootPath: skills/core-skills/aws-sdk-python-usage
+  - path: .agents/skills/aws-sdk-swift-usage
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-sdk-swift-usage/**/*
+          - skills/core-skills/aws-sdk-swift-usage/SKILL.md
+        newRootPath: skills/core-skills/aws-sdk-swift-usage
+  - path: .agents/skills/aws-security
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-security/**/*
+          - skills/core-skills/aws-security/SKILL.md
+        newRootPath: skills/core-skills/aws-security
+  - path: .agents/skills/aws-serverless
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-serverless/**/*
+          - skills/core-skills/aws-serverless/SKILL.md
+        newRootPath: skills/core-skills/aws-serverless
+  - path: .agents/skills/aws-storage
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/aws-storage/**/*
+          - skills/core-skills/aws-storage/SKILL.md
+        newRootPath: skills/core-skills/aws-storage
+  - path: .agents/skills/aws-well-architected-review
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - plugins/aws-core/skills/aws-well-architected-review/**/*
+          - plugins/aws-core/skills/aws-well-architected-review/SKILL.md
+        newRootPath: plugins/aws-core/skills/aws-well-architected-review
+  - path: .agents/skills/launch-with-aws
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/launch-with-aws/**/*
+          - skills/core-skills/launch-with-aws/SKILL.md
+        newRootPath: skills/core-skills/launch-with-aws
+  - path: .agents/skills/signing-in-to-aws
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - skills/core-skills/signing-in-to-aws/**/*
+          - skills/core-skills/signing-in-to-aws/SKILL.md
+        newRootPath: skills/core-skills/signing-in-to-aws
+  - path: .agents/licenses/aws-agent-toolkit
+    contents:
+      - path: .
+        git:
+          url: https://github.com/aws/agent-toolkit-for-aws
+          ref: main
+          depth: 1
+        includePaths:
+          - LICENSE
+          - NOTICE
+  - path: .agents/skills/anatomy
+    contents:
+      - path: .
+        git:
+          url: https://github.com/wheresryan22/anatomy.git
+          ref: e6600ffc4e8e6620eeb45bf49bcdbd5e4b84163f
+          depth: 1
+        excludePaths:
+          - .git
+          - .git/**/*
+  - path: .agents/skills/find-skills
+    contents:
+      - path: .
+        git:
+          url: https://github.com/vercel-labs/skills.git
+          ref: 13e4063a1cf913f5606d57d42ab83a86f5001e04
+          depth: 1
+        includePaths:
+          - skills/find-skills/**/*
+        newRootPath: skills/find-skills

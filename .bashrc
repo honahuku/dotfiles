@@ -7,12 +7,18 @@ alias l='ls -CF'
 # python aliases
 alias py='python3'
 
+# mise
+export PATH="$HOME/.local/bin:$PATH"
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate bash)"
+fi
+
 # aqua
 export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
 
 # asdf
-. "$HOME/.asdf/asdf.sh"
-. "$HOME/.asdf/completions/asdf.bash"
+[ ! -f "$HOME/.asdf/asdf.sh" ] || . "$HOME/.asdf/asdf.sh"
+[ ! -f "$HOME/.asdf/completions/asdf.bash" ] || . "$HOME/.asdf/completions/asdf.bash"
 
 # kubectx/kubens completion from a system-installed bash-completion package
 for kubectx_completion in \
@@ -25,3 +31,8 @@ do
   fi
 done
 unset kubectx_completion
+
+# Machine-local settings (not tracked in dotfiles)
+if [[ -f "$HOME/.bashrc.local" ]]; then
+  . "$HOME/.bashrc.local"
+fi
