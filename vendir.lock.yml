@@ -1,0 +1,15 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #1120 from mattpocock/release/v1.3...'
+      sha: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+    path: .
+  path: .agents/skills/grill-me
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #1120 from mattpocock/release/v1.3...'
+      sha: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+    path: .
+  path: .agents/skills/grilling
+kind: LockConfig
