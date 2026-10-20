@@ -21,7 +21,9 @@ packages:
   - name: evilmartians/lefthook@v2.1.10
   - name: openai/codex@rust-v0.152.1
   - name: carvel-dev/vendir@v0.46.2
-  - name: hashicorp/terraform@v1.16.5
   - name: trufflesecurity/trufflehog@v3.99.0
   - name: JohnnyMorganz/StyLua@v2.5.2
   - name: terraform-linters/tflint@v0.64.0
+  - name: ahmetb/kubectx@v0.11.0
+  - name: hashicorp/terraform@v1.16.6
+  - name: go-task/task@v3.54.0
