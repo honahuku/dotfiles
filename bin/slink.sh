@@ -4,7 +4,7 @@ set -euo pipefail
 DOTFILES="${DOTFILES:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)}"
 
 if [[ "${1:-}" == "--backup" ]]; then
-  echo "--backup は廃止しました。既存設定を退避し、--dry-run で差分を確認してください。" >&2
+  echo "--backup は廃止しました。--dry-run で確認し、不要な競合対象を手動で rm してください。" >&2
   exit 2
 fi
 

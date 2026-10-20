@@ -6,7 +6,7 @@
 
 ## 公開リポジトリだけを使う
 
-[miseの公式手順](https://mise.jdx.dev/installing-mise.html)で2026.10.15以降を導入し、このリポジトリを`~/git/honahuku/dotfiles`へcloneする。既存環境では、先に[移行時の退避](#既存のリンクスクリプトから移行する)を行う。
+[miseの公式手順](https://mise.jdx.dev/installing-mise.html)で2026.10.15以降を導入し、このリポジトリを`~/git/honahuku/dotfiles`へcloneする。既存環境では、先に[競合する旧設定の確認](#既存のリンクスクリプトから移行する)を行う。
 
 ```sh
 cd ~/git/honahuku/dotfiles
@@ -71,25 +71,24 @@ exclude = ["__pycache__", "*.pyc"]
 
 ## 既存のリンクスクリプトから移行する
 
-miseのリンク設定は[既存の実ファイルや実ディレクトリと競合すると停止する](https://mise.jdx.dev/dotfiles/managed.html#conflicts)。`--force`で置き換えず、必要な内容を保存してから対象を退避する。既存のシンボリックリンクは別のリンク元へ変更されるため、dry-runで配置先を確認する。
+miseのリンク設定は[既存の実ファイルや実ディレクトリと競合すると停止する](https://mise.jdx.dev/dotfiles/managed.html#conflicts)。`--force`で置き換えず、必要な内容を管理元へ引き継いでから、不要と判断した競合対象を手動の`rm`で削除する。既存のシンボリックリンクは別のリンク元へ変更されるため、dry-runで配置先を確認する。
 
-シェル設定の退避例は次のとおりである。退避先がすでにある場合は、別名を選ぶ。
-
-```sh
-mv -i ~/.bashrc ~/.bashrc.before-mise
-```
-
-マシン固有のシェル設定は、適用する`.bashrc`が読み込むローカル設定ファイルへ移す。
-
-旧スクリプトで`~/.agents/skills`全体、または配下のスキルディレクトリをリンクしていた場合は、ファイル単位の配置に移る前に退避する。
+実ファイルとリンク元を確認する。
 
 ```sh
-mv -i ~/.agents/skills ~/.agents/skills.before-mise
+ls -ld "$HOME/.bashrc"
+ls -ld "$HOME/.agents/skills"
+find -L "$HOME/.agents/skills" -type f -print
 ```
 
-退避したディレクトリに独自のスキルがある場合は、管理元のリポジトリへ保存し、設定に追加してから適用する。`~/.codex/skills/.system`はスキルの移行対象に含めない。
+以下は、内容を確認し、必要な設定や独自スキルの引き継ぎを終え、両方を不要と判断した場合だけ実行する。
 
-`bin/slink.sh --backup`は廃止した。退避後は`mise dot apply --dry-run`で競合が解消したことを確認し、`mise dot apply`を実行する。
+```sh
+rm -- "$HOME/.bashrc"
+rm -r -- "$HOME/.agents/skills"
+```
+
+`~/.codex/skills/.system`は削除対象に含めない。削除後は`mise dot apply --dry-run`で競合が解消したことを確認し、`mise dot apply`を実行する。`bin/slink.sh --backup`は廃止した。
 
 ## 設定を更新する
 
