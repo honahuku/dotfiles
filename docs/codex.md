@@ -2,7 +2,7 @@
 
 ## 共通指示をリンクする
 
-共通指示は [`.agents/AGENTS.md`](../.agents/AGENTS.md) で管理します。Linux / WSLでは `bin/slink.sh` がCodexの設定ディレクトリへリンクします。WindowsではPowerShellから `win/link-codex-agents.ps1` を実行してください。
+共通指示は[`.agents/AGENTS.md`](../.agents/AGENTS.md)で管理する。Linux / WSLでは[miseのリンク設定](mise-dotfiles.md)を使う。WindowsではPowerShellから`win/link-codex-agents.ps1`を実行する。
 
 Windowsで実行する例です。
 
@@ -22,7 +22,7 @@ Windowsでリポジトリをcloneし、リンクスクリプトを実行する�
 
 ## WSLでスキルを使う
 
-Windows版Codex DesktopでWSLを実行環境に選ぶと、エージェントはWSL内で動きます。Codexは実行環境の `$HOME/.agents/skills` から個人スキルを読み込みます。Linux / WSLでは `bin/slink.sh` が `.agents/skills/` をこの場所へリンクします。そのため、Codex CLIとDesktopのWSL実行環境で同じスキルを使えます。
+Windows版Codex DesktopでWSLを実行環境に選ぶと、エージェントはWSL内で動きます。Codexは実行環境の `$HOME/.agents/skills` から個人スキルを読み込みます。Linux / WSLではmiseが`.agents/skills/`のファイルをこの場所へリンクする。そのため、Codex CLIとDesktopのWSL実行環境で同じスキルを使えます。
 
 同じスキルをWindows側の `%USERPROFILE%\.codex\skills` にも複製すると、Codexに同名スキルが重複して表示されることがあります。Windows DesktopからWSLで作業する場合も、WSL側でリンクしたスキルを使います。
 

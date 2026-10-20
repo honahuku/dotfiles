@@ -1,6 +1,6 @@
 # 新しい環境で dotfiles を使う
 
-cloneしたリポジトリの設定を使うには、ホームディレクトリへのリンクと必要なツールの導入を行います。Linux / WSLでは `bin/slink.sh` を実行してください。Windowsでは、専用スクリプトでCodexの共通指示とWindows Terminalの設定をリンクします。
+cloneしたリポジトリの設定を使うには、ホームディレクトリへのリンクと必要なツールの導入を行う。Linux / WSLではmiseを使う。Windowsでは、専用スクリプトでCodexの共通指示とWindows Terminalの設定をリンクする。
 
 このリポジトリでは設定と導入方法を管理し、外部OSSのソースコードやGitサブモジュールは含めません。ツール本体は各プロジェクトの公式配布元から導入します。
 
@@ -19,42 +19,13 @@ git clone https://github.com/honahuku/dotfiles.git ~/git/honahuku/dotfiles
 
 ### 2. 設定をホームにリンクする
 
-既存の `~/.bashrc` にマシン固有の設定がある場合は、リンクの前に `.bashrc.local` へ保存します。dotfilesの `.bashrc` は、起動時にこのファイルを読み込みます。
+[miseによるリンク管理](mise-dotfiles.md)に従い、miseの導入、既存設定の退避、リンクの作成を行う。privateリポジトリと組み合わせる場合も、同じガイドの組み合わせ用設定を使う。
 
-```sh
-if [ -f ~/.bashrc ] && [ ! -e ~/.bashrc.local ]; then
-  cp -p ~/.bashrc ~/.bashrc.local
-fi
-~/git/honahuku/dotfiles/bin/slink.sh --backup
-```
-
-`--backup` を付けると、既存のリンク先を同じディレクトリに `.backup-日時` の名前で退避してからリンクします。既存のリンク先を残す場合は `--backup` を外してください。リンク先がすでにある項目はスキップされ、正しいリンクは再実行後もそのままです。
-
-[`bin/slink.sh`](../bin/slink.sh) は次のリンクを作ります。
-
-| ホーム側のリンク先 | リポジトリ内のリンク元 |
-| --- | --- |
-| `~/.bashrc` | `.bashrc` |
-| `~/.config/mise/config.toml` | `.config/mise/config.toml` |
-| `~/.config/lazygit/config.yml` | `.config/lazygit/config.yml` |
-| `~/aqua.yaml` | `aqua.yaml` |
-| `~/.config/nvim` | `nvim/` 全体 |
-| `~/.agents/skills` | `.agents/skills/` |
-| `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | `.agents/AGENTS.md` |
-
-リンク元のファイルがリポジトリにない項目はスキップします。
-
-### 3. miseとNode.jsを導入する
-
-miseはNode.jsのバージョンを管理し、プロジェクトごとに指定されたバージョンへ切り替えます。[公式インストール手順](https://mise.jdx.dev/installing-mise.html)に従ってmiseを導入してください。Linuxでは次のコマンドを使えます。
-
-```sh
-curl https://mise.run | sh
-```
+### 3. Node.jsを導入する
 
 このリポジトリの `.bashrc` は `~/.local/bin` を `PATH` に加え、miseが存在する場合にbashを有効化します。[miseのBash設定](https://mise.jdx.dev/ide-integration.html#bash)を読み込むことで、ホームの `~/.config/mise/config.toml` に定義したNode.jsをシェルで使えます。
 
-リンクスクリプトの実行後に新しいシェルを開くか、次を実行してNode.jsをインストールします。
+リンクの作成後に新しいシェルを開くか、次を実行してNode.jsをインストールします。
 
 ```sh
 source ~/.bashrc
@@ -175,7 +146,7 @@ wsl --set-default "Ubuntu"
 | Neovimの設定とプラグイン定義 | `nvim/` |
 | Node.jsのバージョン設定 | `.config/mise/config.toml` |
 | aquaで管理するCLIとバージョン | `aqua.yaml` |
-| Linux / WSLのリンク処理 | `bin/slink.sh` |
+| Linux / WSLのリンク設定 | `mise.toml` |
 | Codexの共通指示とスキル | `.agents/` |
 | WindowsのCodex共通指示リンク | `win/link-codex-agents.ps1` |
 | Windows Terminalの共通設定 | `win/terminal/settings.json` |
