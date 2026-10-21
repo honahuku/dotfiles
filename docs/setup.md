@@ -37,11 +37,11 @@ git clone https://github.com/honahuku/dotfiles.git ~/git/honahuku/dotfiles
 
 ### 2. 設定をホームにリンクする
 
-[miseによるリンク管理](mise-dotfiles.md)に従い、既存設定の確認とリンクの作成を行う。OS標準の`~/.bashrc`も競合するため、必要な内容を引き継ぎ、不要な競合対象を手動で削除してから適用する。private設定も使う場合は、private側のREADMEの適用手順を使う。
+[miseによるリンク管理](mise-dotfiles.md)に従い、`./bin/slink.sh --dry-run`で確認してから適用する。OS標準の`~/.bashrc`と`~/.profile`は残し、読み込みブロックを追加する。private設定も使う場合は、private側のREADMEの適用手順を使う。
 
 ### 3. Node.jsを導入する
 
-このリポジトリの `.bashrc` は `~/.local/bin` を `PATH` に加え、miseが存在する場合にbashを有効化します。[miseのBash設定](https://mise.jdx.dev/ide-integration.html#bash)を読み込むことで、ホームの `~/.config/mise/config.toml` に定義したNode.jsをシェルで使えます。
+`shell/profile.sh`は`~/.local/bin`を`PATH`に加え、`shell/bashrc.sh`は対話Bashでmiseを有効化する。[miseのBash設定](https://mise.jdx.dev/ide-integration.html#bash)を読み込むことで、ホームの`~/.config/mise/config.toml`に定義したNode.jsをシェルで使える。
 
 リンクの作成後に新しいシェルを開くか、次を実行してNode.jsをインストールします。
 
@@ -73,7 +73,7 @@ cd ~
 aqua install
 ```
 
-[`aqua.yaml`](../aqua.yaml) には、aquaで管理するCLIとバージョンが記録されています。aqua本体は一覧に含まれないため、先に[公式のインストール手順](https://aquaproj.github.io/docs/install/)で導入します。dotfilesの `.bashrc` はaquaのbinディレクトリを `PATH` に追加します。新しいシェルを開くか、次を実行してください。
+[`aqua.yaml`](../aqua.yaml)には、aquaで管理するCLIとバージョンが記録されている。aqua本体は一覧に含まれないため、先に[公式のインストール手順](https://aquaproj.github.io/docs/install/)で導入する。`shell/profile.sh`がaquaのbinディレクトリを`PATH`に追加する。新しいシェルを開くか、次を実行する。
 
 ```sh
 source ~/.bashrc
