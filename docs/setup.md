@@ -6,6 +6,24 @@ cloneしたリポジトリの設定を使うには、ホームディレクトリ
 
 ## Linux / WSL
 
+### Debian / Ubuntuの初期準備
+
+Debian 11以降・Ubuntu 22.04以降のbash環境で、`sudo`とインターネット接続が使えることを前提とする。[miseのapt手順](https://mise.jdx.dev/installing-mise.html#apt)で導入する。miseは2026.10.15以降が必要である。
+
+```sh
+cd ~
+sudo apt update
+sudo apt install -y git openssh-client ca-certificates curl unzip xz-utils \
+  build-essential pkg-config ripgrep fd-find fzf jq bash-completion extrepo \
+  sensible-utils nano
+sudo extrepo enable mise
+sudo apt update
+sudo apt install -y mise
+mise --version
+```
+
+private設定も使う場合は、次の公開リポジトリのclone後、private側のREADMEで初期調整とリンク適用を行う。その後、この文書のNode.js導入から再開する。公開側の設定を先に適用する必要はない。
+
 ### 1. リポジトリをcloneする
 
 Gitが使える状態で、次を実行します。
@@ -19,17 +37,20 @@ git clone https://github.com/honahuku/dotfiles.git ~/git/honahuku/dotfiles
 
 ### 2. 設定をホームにリンクする
 
-[miseによるリンク管理](mise-dotfiles.md)に従い、miseの導入、既存設定の退避、リンクの作成を行う。privateリポジトリと組み合わせる場合も、同じガイドの組み合わせ用設定を使う。
+[miseによるリンク管理](mise-dotfiles.md)に従い、`./bin/slink.sh --dry-run`で確認してから適用する。OS標準の`~/.bashrc`と`~/.profile`は残し、読み込みブロックを追加する。private設定も使う場合は、private側のREADMEの適用手順を使う。
 
 ### 3. Node.jsを導入する
 
-このリポジトリの `.bashrc` は `~/.local/bin` を `PATH` に加え、miseが存在する場合にbashを有効化します。[miseのBash設定](https://mise.jdx.dev/ide-integration.html#bash)を読み込むことで、ホームの `~/.config/mise/config.toml` に定義したNode.jsをシェルで使えます。
+`shell/profile.sh`は`~/.local/bin`を`PATH`に加え、`shell/bashrc.sh`は対話Bashでmiseを有効化する。[miseのBash設定](https://mise.jdx.dev/ide-integration.html#bash)を読み込むことで、ホームの`~/.config/mise/config.toml`に定義したNode.jsをシェルで使える。
 
 リンクの作成後に新しいシェルを開くか、次を実行してNode.jsをインストールします。
 
 ```sh
-source ~/.bashrc
+cd ~
+export PATH="$HOME/.local/bin:$PATH"
+mise trust ~/.config/mise/config.toml
 mise install
+eval "$(mise activate bash)"
 node --version
 npx --version
 ```
@@ -38,7 +59,21 @@ npx --version
 
 ### 4. aquaとCLIを導入する
 
-[`aqua.yaml`](../aqua.yaml) には、aquaで管理するCLIとバージョンが記録されています。aqua本体は一覧に含まれないため、先に[公式のインストール手順](https://aquaproj.github.io/docs/install/)で導入します。dotfilesの `.bashrc` はaquaのbinディレクトリを `PATH` に追加します。新しいシェルを開くか、次を実行してください。
+Linuxでは、[公式インストーラー](https://aquaproj.github.io/docs/products/aqua-installer/)をチェックサム検証後に実行する。検証に失敗した場合は、実行せず公式手順と照合する。
+
+```sh
+cd ~
+installer_dir=$(mktemp -d)
+cd "$installer_dir"
+curl -fsSLO https://raw.githubusercontent.com/aquaproj/aqua-installer/v4.0.5/aqua-installer
+echo '451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146  aqua-installer' | sha256sum -c - && \
+  chmod +x aqua-installer && ./aqua-installer
+export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
+cd ~
+aqua install
+```
+
+[`aqua.yaml`](../aqua.yaml)には、aquaで管理するCLIとバージョンが記録されている。aqua本体は一覧に含まれないため、先に[公式のインストール手順](https://aquaproj.github.io/docs/install/)で導入する。`shell/profile.sh`がaquaのbinディレクトリを`PATH`に追加する。新しいシェルを開くか、次を実行する。
 
 ```sh
 source ~/.bashrc
@@ -64,7 +99,29 @@ sudo pacman -S --needed git neovim
 
 他のOSやディストリビューションでは[Neovimの公式インストールガイド](https://github.com/neovim/neovim/blob/master/INSTALL.md)を参照してください。
 
+Debian / Ubuntuでは、配布パッケージが[LazyVimの要件](https://www.lazyvim.org/)を満たすか確認する。以下は公式のLinuxアーカイブをユーザー領域に展開する、新規環境向けの手順である。`uname -m`が`aarch64`の場合は`nvim_arch=arm64`へ変更する。
+
+```sh
+cd ~
+uname -m
+nvim_arch=x86_64
+nvim_download=$(mktemp -d)
+curl -fL "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${nvim_arch}.tar.gz" \
+  -o "$nvim_download/nvim.tar.gz"
+mkdir -p "$HOME/.local/opt" "$HOME/.local/bin"
+tar -xzf "$nvim_download/nvim.tar.gz" -C "$HOME/.local/opt"
+ln -s "$HOME/.local/opt/nvim-linux-${nvim_arch}/bin/nvim" "$HOME/.local/bin/nvim"
+ln -s /usr/bin/fdfind "$HOME/.local/bin/fd"
+export PATH="$HOME/.local/bin:$PATH"
+nvim --version
+npm install -g tree-sitter-cli
+```
+
+既に同名の展開先やリンクがある環境では再実行せず、既存の導入方法を確認する。Nerd Fontを使う場合は、表示する端末側にも設定する。
+
 ### 6. Neovimとプラグインを起動する
+
+初回導入後はNeovim内で`:Lazy sync`と`:checkhealth`を実行する。外部サービスへのログイン、Docker、クラウド認証、Windowsアプリはこの手順では導入されない。利用するサービスの手順で個別に設定する。
 
 ```sh
 nvim
