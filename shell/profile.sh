@@ -1,5 +1,5 @@
 # shellcheck shell=sh
-for _dotfiles_bin in "$HOME/.local/bin" "${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin"; do
+for _dotfiles_bin in "$HOME/.local/bin" "${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin" "$HOME/.local/share/mise/shims"; do
   case ":${PATH:-}:" in
     *":$_dotfiles_bin:"*) ;;
     *) PATH="$_dotfiles_bin${PATH:+:$PATH}" ;;
