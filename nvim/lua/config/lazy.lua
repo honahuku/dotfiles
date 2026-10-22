@@ -31,6 +31,9 @@ require("lazy").setup({
     -- 誤認して幅・位置を奪い、ファイルを開いた先がずれる不具合が出ていた(2026-08-10)
     -- import/override with your plugins
     { import = "plugins" },
+    -- CLIはaqua/miseで管理し、Masonによる導入・PATH変更がされないようにする。
+    { "mason-org/mason.nvim", enabled = false },
+    { "mason-org/mason-lspconfig.nvim", enabled = false },
   },
   defaults = {
     -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
@@ -62,3 +65,4 @@ require("lazy").setup({
     },
   },
 })
+
