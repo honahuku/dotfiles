@@ -1,0 +1,20 @@
+{{- if not (stat .chezmoi.destDir) -}}
+{{-   fail "Windowsホームを参照できません。マウント状態を確認してください。" -}}
+{{- end }}
+[{{ printf "%s/AGENTS.md" .codexHome | quote }}]
+type = "file"
+url = {{ printf "file://%s/.agents.md" .chezmoi.sourceDir | quote }}
+
+{{ range $channel := list
+  "Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState"
+  "Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
+  "Packages/Microsoft.WindowsTerminalCanary_8wekyb3d8bbwe/LocalState"
+  "Microsoft/Windows Terminal"
+}}
+{{ $directory := joinPath $.appData $channel }}
+{{ if stat (joinPath $.chezmoi.destDir $directory) }}
+[{{ printf "%s/settings.json" $directory | quote }}]
+type = "file"
+url = {{ printf "file://%s/.terminal.json" $.chezmoi.sourceDir | quote }}
+{{ end }}
+{{ end }}

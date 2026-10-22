@@ -1,0 +1,34 @@
+name: mise
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "mise*.toml"
+      - ".mise*.toml"
+      - "mise.lock"
+      - "mise-tasks/**"
+      - ".config/mise/**"
+      - ".github/workflows/mise.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@v5
+        with:
+          version: "2026.10.17"
+          install: false
+      - name: Validate task definitions
+        run: mise tasks validate --json
+      - name: List task sources
+        run: mise tasks ls --local --extended
+      - name: Check TOML formatting
+        run: mise fmt --check

@@ -1,0 +1,59 @@
+[setup]
+description = "設定を初期配置し、Windowsの保存先を初回だけ確認する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+depends = ["setup:check"]
+confirm = { message = "表示された配置予定を確認しましたか？ 設定を配置し、管理対象ツールを導入します。", default = "no" }
+run = [
+  "mise dot apply --yes",
+  "mise -C {{ env.HOME | quote }} install",
+  "aqua -c {{ vars.public_root | quote }}/aqua.yaml install",
+  '''if test -x {{ vars.powershell | quote }} && test ! -f {{ vars.windows_state | quote }}/chezmoi.toml; then mise run windows:setup; fi''',
+  { task = "windows:apply" },
+]
+
+["setup:check"]
+description = "配置予定と競合を確認する"
+run = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
+
+["docs:tree"]
+description = "README用のディレクトリ構成を表示する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run = "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- eza --tree --only-dirs --all --level=1 --git-ignore --ignore-glob=.git --sort=name --color=never --icons=never --hyperlink=never ."
+
+["windows:setup"]
+description = "Windows保存先を確認し、端末固有設定を保存する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+skip_if = "test -f {{ vars.windows_state | quote }}/chezmoi.toml"
+vars.windows_home = '''{% if env.DOTFILES_WINDOWS_HOME is defined %}{{ env.DOTFILES_WINDOWS_HOME }}{% elif vars.powershell is file %}{{ exec(command="wslpath -u \"$(" ~ (vars.powershell | quote) ~ " -NoProfile -NonInteractive -Command '[Console]::Write([Environment]::GetFolderPath(\"UserProfile\"))')\"") }}{% endif %}'''
+vars.windows_appdata = '''{% if env.DOTFILES_WINDOWS_APPDATA is defined %}{{ env.DOTFILES_WINDOWS_APPDATA }}{% elif vars.powershell is file %}{{ exec(command="wslpath -u \"$(" ~ (vars.powershell | quote) ~ " -NoProfile -NonInteractive -Command '[Console]::Write([Environment]::GetFolderPath(\"LocalApplicationData\"))')\"") }}{% endif %}'''
+vars.windows_codex_home = "{{ env.DOTFILES_WINDOWS_CODEX_HOME | default(value=vars.windows_home ~ '/.codex') }}"
+confirm = { message = "Windowsホーム: {{ vars.windows_home }}\nCodex共通指示: {{ vars.windows_codex_home }}/AGENTS.md\nTerminal設定: {{ vars.windows_appdata }} 配下\nこの保存先を同期対象として保存しますか？", default = "no" }
+run = [
+  '''env DOTFILES_WINDOWS_HOME={{ vars.windows_home | quote }} DOTFILES_WINDOWS_APPDATA={{ vars.windows_appdata | quote }} DOTFILES_WINDOWS_CODEX_HOME={{ vars.windows_codex_home | quote }} {{ vars.chezmoi }} execute-template --init --file {{ vars.windows_state | quote }}/source/.config.toml.tmpl --output {{ vars.windows_state | quote }}/chezmoi.toml''',
+  "mkdir -p {{ vars.windows_codex_home | quote }}",
+]
+
+["windows:apply"]
+description = "Windows側の未取り込み変更があれば上書きせず停止する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+skip_if = "test ! -f {{ vars.windows_state | quote }}/chezmoi.toml"
+# Windowsの既存ディレクトリの権限は同期対象にしない。
+run = "{{ vars.chezmoi }} --no-tty --less-interactive --error-on-conflict apply --include files"
+
+["windows:diff"]
+description = "Windows側の編集と適用予定の差分を表示する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run = [
+  "test -f {{ vars.windows_state | quote }}/chezmoi.toml",
+  "{{ vars.chezmoi }} --no-tty status --include files",
+  "{{ vars.chezmoi }} --no-tty diff --include files",
+]
+
+["windows:resolve"]
+description = "確認済みのWindows差分を対話的に適用する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+raw = true
+run = [
+  "test -f {{ vars.windows_state | quote }}/chezmoi.toml",
+  "{{ vars.chezmoi }} --less-interactive apply --include files",
+]

@@ -1,9 +1,3 @@
-# .dotfiles
+# Windows設定
 
-## Windows
-
-管理者権限でコマンドプロンプトを起動し、chocolatey.batを実行する
-
-## Linux & Mac
-
-整備中...
+設定の配置はWSLから行う。[セットアップ手順](../docs/setup.md#windowsのcodex)を参照する。

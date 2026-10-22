@@ -1,0 +1,22 @@
+{{- $home := clean (env "DOTFILES_WINDOWS_HOME") -}}
+{{- if or (not (hasPrefix "/" $home)) (not (stat $home)) -}}
+{{-   fail "Windowsホームの絶対パスとマウント状態を確認してください。" -}}
+{{- end -}}
+{{- $prefix := printf "%s/" $home -}}
+{{- range list (env "DOTFILES_WINDOWS_APPDATA") (env "DOTFILES_WINDOWS_CODEX_HOME") -}}
+{{-   if not (hasPrefix $prefix (clean .)) -}}
+{{-     fail "Windowsホーム外の保存先は個別の設定が必要です。" -}}
+{{-   end -}}
+{{- end -}}
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+destDir = {{ $home | quote }}
+umask = 0o077
+
+[data]
+appData = {{ trimPrefix $prefix (clean (env "DOTFILES_WINDOWS_APPDATA")) | quote }}
+codexHome = {{ trimPrefix $prefix (clean (env "DOTFILES_WINDOWS_CODEX_HOME")) | quote }}
+
+[git]
+autoAdd = false
+autoCommit = false
+autoPush = false

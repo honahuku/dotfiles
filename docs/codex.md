@@ -1,24 +1,10 @@
 # Codex Desktop / CLI
 
-## 共通指示をリンクする
+## 共通指示を配置する
 
-共通指示は[`.agents/AGENTS.md`](../.agents/AGENTS.md)で管理する。Linux / WSLでは[miseのリンク設定](mise-dotfiles.md)を使う。WindowsではPowerShellから`win/link-codex-agents.ps1`を実行する。
+共通指示は[`.agents/AGENTS.md`](../.agents/AGENTS.md)で管理する。Linux / WSLとWindowsへの配置は[miseの配置手順](mise-dotfiles.md)に従う。private併用時はprivate側の共通指示を使う。
 
-Windowsで実行する例です。
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File '\\wsl.localhost\archlinux\home\honahuku\git\honahuku\dotfiles\win\link-codex-agents.ps1'
-```
-
-この例では、WSLのディストリビューション名は `archlinux`、clone先は `/home/honahuku/git/honahuku/dotfiles` です。環境に合わせてパスを置き換えてください。リンクスクリプトは自身の場所からリポジトリを特定します。
-
-対象ユーザーと同じアカウントのPowerShellから実行してください。スクリプトは既存ファイルをバックアップへ移してからリンクします。シンボリックリンクの作成には管理者権限が必要な場合があります。PowerShell 7とWindowsの開発者モードを使えば、通常権限でも作成できます。
-
-Windowsで `CODEX_HOME` を設定している場合、リンク先はそのディレクトリの `AGENTS.md` です。設定していない場合は `%USERPROFILE%\.codex\AGENTS.md` にリンクします。UNCパス上のスクリプトを実行する場合、`-ExecutionPolicy Bypass` はそのPowerShellプロセスだけに適用されます。
-
-`AGENTS.override.md` は共通の `AGENTS.md` より優先されます。共通指示が反映されない場合は、対象ディレクトリにこのファイルがないか確認してください。リンク後、新しいCodexセッションを開きます。
-
-Windowsでリポジトリをcloneし、リンクスクリプトを実行する手順は[新しい環境で dotfiles を使う](setup.md)を参照してください。
+`AGENTS.override.md` は共通の `AGENTS.md` より優先されます。共通指示が反映されない場合は、対象ディレクトリにこのファイルがないか確認してください。配置後、新しいCodexセッションを開きます。
 
 ## WSLでスキルを使う
 
