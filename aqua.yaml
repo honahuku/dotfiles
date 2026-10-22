@@ -44,4 +44,4 @@ packages:
   - name: tree-sitter/tree-sitter@v0.27.1
   - name: tmux/tmux-builds@v3.7c
   - name: slsa-framework/slsa-verifier@v2.7.1
-
+  - name: hadolint/hadolint@v2.15.1
