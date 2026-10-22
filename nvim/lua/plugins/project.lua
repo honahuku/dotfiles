@@ -42,6 +42,11 @@ return {
 
   {
     "folke/snacks.nvim",
+    init = function()
+      vim.api.nvim_create_user_command("Projects", function()
+        require("util.project").pick_project()
+      end, { desc = "プロジェクト一覧を開く" })
+    end,
     keys = {
       {
         "<leader>fp",
