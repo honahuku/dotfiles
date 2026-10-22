@@ -12,17 +12,6 @@ alias la='ls -A'
 alias l='ls -CF'
 alias py='python3'
 
-if [[ -f "$HOME/.asdf/asdf.sh" ]]; then
-  # asdfは別途インストールするため、このrepoの解析には含めない。
-  # shellcheck source=/dev/null
-  . "$HOME/.asdf/asdf.sh"
-fi
-if [[ -f "$HOME/.asdf/completions/asdf.bash" ]]; then
-  # asdfの補完はインストール先に依存する。
-  # shellcheck source=/dev/null
-  . "$HOME/.asdf/completions/asdf.bash"
-fi
-
 for kubectx_completion in \
   /usr/share/bash-completion/completions/kubectx \
   /usr/share/bash-completion/completions/kubens
