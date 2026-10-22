@@ -45,3 +45,8 @@ packages:
   - name: tmux/tmux-builds@v3.7c
   - name: slsa-framework/slsa-verifier@v2.7.1
   - name: hadolint/hadolint@v2.15.1
+  - name: fastfetch-cli/fastfetch@2.70.0
+  - name: awslabs/git-secrets@1.3.0
+  # clq のために必要
+  - name: duckdb/duckdb@v1.5.6
+
