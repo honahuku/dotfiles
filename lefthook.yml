@@ -7,16 +7,10 @@ pre-commit:
   commands:
     public-policy:
       glob: "*"
-      run: >-
-        checker="$(find "${DOTFILES_PRIVATE_ROOT:-$HOME/git}" -path '*/dotfiles-private/bin/check-public-candidate.sh' -type f -print -quit)";
-        test -n "$checker" || { echo "private public-policy checker is required" >&2; exit 1; };
-        "$checker" "$PWD"
+      run: ./bin/check-public-candidate.sh --staged
     skill-safety:
       glob: "*"
-      run: >-
-        checker="$(find "${DOTFILES_PRIVATE_ROOT:-$HOME/git}" -path '*/dotfiles-private/bin/check-skill-safety.sh' -type f -print -quit)";
-        test -n "$checker" || { echo "private skill checker is required" >&2; exit 1; };
-        "$checker" "$PWD"
+      run: ./bin/check-skill-safety.sh
     trufflehog:
       glob: "*"
       run: trufflehog filesystem {staged_files} --results=verified,unknown --exclude-detectors=Lob --fail --no-update --no-color
