@@ -17,9 +17,25 @@ fi
 "~/aqua.yaml" = "aqua.yaml"
 "~/.config/nvim" = "nvim"
 "~/.codex/AGENTS.md" = ".agents/AGENTS.md"
+"~/.codex/config.toml" = ".codex/config.toml"
 
 [dotfile_groups.public-skills]
 root = "~/git/honahuku/dotfiles/.agents/skills"
 target = "~/.agents/skills"
 mode = "symlink-each"
 exclude = ["__pycache__", "*.pyc"]
+
+[dotfile_groups.public-agent-docs]
+root = "~/git/honahuku/dotfiles/docs/agents"
+target = "~/.agents/docs/common"
+mode = "symlink-each"
+
+[dotfile_groups.public-agent-hooks]
+root = "~/git/honahuku/dotfiles/.agents/hooks"
+target = "~/.agents/hooks"
+mode = "symlink-each"
+
+[dotfile_groups.public-agent-prh]
+root = "~/git/honahuku/dotfiles/.agents/prh"
+target = "~/.agents/prh"
+mode = "symlink-each"
