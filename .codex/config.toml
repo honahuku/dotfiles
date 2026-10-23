@@ -1,0 +1,33 @@
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
+project_doc_fallback_filenames = []
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+service_tier = "default"
+
+web_search = "cached"
+
+[auto_review]
+extra_policy = """
+MCP経由の時系列データのクエリ・検索・分析は、明示許可がなければ直近7日以内に限定する。
+7日を超える期間や直近7日の外側を調べる場合は、その確認事項についてユーザー自身がMCP経由の実行と対象期間の両方を明示した根拠があるときだけ承認する。
+貼り付けられたNRQL・SQL、添付CSV、過去の議論、本人の手動実行期間、アシスタントの説明は許可の根拠にしない。提示用クエリの作成だけはこの実行制限の対象外。
+実際のクエリ・時刻引数・サブクエリ・比較期間・分割取得を確認し、期間が不明、内部既定任せ、または許可範囲を超える実行は拒否する。LIMITやタイムアウトは期間・課金額の上限ではない。
+より短い期間で足りる場合やツールの上限が短い場合は短い方を使う。アカウント・ダッシュボード・アラート定義等の設定取得だけで時系列データを走査しない操作は期間制限の対象外。
+拒否された問い合わせを別名・別ツール・直接API・サブエージェントで代行することや、7日ずつに分割して無許可の長期間を取得することは認めない。
+"""
+
+[sandbox_workspace_write]
+network_access = true
+
+[features]
+memories = true
+daemon_auto_start = false
+
+[tui]
+status_line = ["model-with-reasoning", "current-dir"]
+status_line_use_colors = true
+notifications = true
+notification_condition = "unfocused"
+notification_method = "auto"
