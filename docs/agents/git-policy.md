@@ -1,0 +1,41 @@
+# Git操作とファイル削除
+
+- **本人へのコミット依頼はlazygitを前提に、worktreeの絶対パスと対象ファイルを自然文で伝え、差分に基づくConventional Commits形式のコミットメッセージ案も必ず添える。コミット用のコマンドは提示しない。Git操作の依頼と、それ以外のコマンド実行依頼は分け、同じコードブロックや`&&`等で連結しない。**
+
+- **`git rebase` は絶対に実行しない。** 履歴を整理したい場面でも rebase ではなく merge で対応できないか先に考える
+
+- 既存の変更を勝手に破棄しない。stash・強制push・削除・履歴変更は対象と影響を確認してから行う
+
+- `main`ブランチは元clone直下の作業ツリーに置き、`main`用worktreeは作らない。`main`への直接編集は禁止し、変更規模を問わず`main`から作成した専用ブランチのworktreeで作業する。
+
+- Git管理下の変更と関連ファイルは、所有者や組織を問わず元のclone直下の`.worktree/<branch>`に置く。表示のためにチャットの`work/`・`outputs/`などへ複製しない。外部保存はユーザーが対象と保存先を明示した場合だけ行う。保存前と提示前は`apply-git-strategy`に従い、反映は許可範囲内のmergeで行う。既存ファイルを`cp`で直接置き換えない。Obsidianは既定の例外に従う
+
+- **ファイル削除（実験ログ・作業結果・スクラッチ出力など、Git管理下でないものも含む）は絶対に実行しない。削除は必ずユーザー自身が行う。** `rm`・`rmdir`・`git rm`・`find -delete`はもちろん、上書きで実質消える操作も対象。`git merge`・`switch`・`checkout`・`reset`・`restore`などで作業ツリー上の既存ファイルが削除・上書きされる場合も実行しない。merge前は`git diff --name-status HEAD..<target>`で削除対象を確認する。`D`があれば、その対象・内容・参照先と削除理由を調べ、削除の必要性を判断する。削除が必要なら、許可された事前確認・準備はCoding Agentsが実行し、実行済みコマンドと実際の結果をコードブロックで示す。本人に必要な削除だけを未実行と明記して別のコードブロックで依頼し、完了報告後の確認もCoding Agentsが行う。片付け・置換・移行も同じ手順とする。**削除の代替として、Coding Agentsが独自に`mv`・trash・アーカイブ・退避ディレクトリを選んで既存物を移動し、先へ進めてはならない。** 削除手順を提示する前に管理元と標準の削除・アンインストール方法を確認し、直接削除との違いと推奨方法・理由を示す。管理ツールの削除機能も本人操作として案内できる。直接ファイル・ディレクトリを削除する場合は`rm`で示し、本人の`rm`→`trash` aliasを保持する。`/usr/bin/rm`・`/bin/rm`などの絶対パス、`rmdir`、`command rm`・`env rm`・`\rm`・`sudo rm`などaliasを迂回する指定を提示しない。ユーザーが明示的に依頼した移動・改名はこの代替禁止の対象外。共通hookの`~/.agents/hooks/command-policy.jq`で削除コマンドを拒否する。
+
+- 環境固有の自動commit・push条件は、非公開資料の`global-policy`セクションを確認する。明示された対象以外は、コミットやPRを依頼された場合だけ実行し、コミット前に差分と追跡対象を確認する。
+
+- **`~/git/honahuku/`配下の全プロジェクトでは、Coding AgentsによるGit書き込みを禁止する。** `add`・`init`・`clone`・`fetch`・`commit`・`push`・`pull`・`merge`・`checkout`・`switch`・`reset`・`revert`・`cherry-pick`・`stash`・`clean`、worktree・branch・tag・config・remoteの変更を含む。index・refs・reflog・Git hookなどGit内部状態への直接書き込みと、GitHubなどのリポジトリ作成も禁止する。CLI・API・MCP・サブエージェントへの委譲でも同じ制限を適用する。この共通ルールに明記した例外以外は、子ディレクトリの指示で禁止を解除しない。
+
+- **`~/git/honahuku/`配下の全プロジェクト（`honahuku/*`）では、`git worktree add`と、それに伴う`-b`での新規ブランチ作成、clone専用の`info/exclude`への`/.worktree/`追記を許可する。** `--force`や`-B`で既存状態を強制変更してはならない。ユーザーが明示的に許可した`fetch`も実行できるが、それを根拠にほかのGit書き込みを続けない。指定した`info/exclude`への追記以外に、Git内部状態を直接編集してはならない。
+
+- **`honahuku/*`では、対象worktreeの作業開始時にステージ済み差分と未解決競合がない場合に限り、`git add`を許可する。** `git status --short --branch`で対象worktreeの状態を確認し、作業内容を確認した追加・変更ファイルの明示的なパスだけを一つの`git add -- <path>...`に指定する。削除パス・ディレクトリ・glob・`-A`・`-u`・`-p`は使わない。ステージ状態はworktreeごとのindexに保存される。
+
+- ステージ後は`git diff --cached`と`git status`で結果を確認する。いったんステージした後の追加ステージは禁止する。Coding Agentsによる`commit`・`push`・`merge`などの禁止は変わらない。
+
+- honahuku配下では、`status`・`log`・`show`・`diff`・`grep`・`ls-files`・`rev-parse`・`branch --list`・`tag --list`・`remote -v`・`worktree list`など、状態を変更しない検査を許可する。不明なGit操作は実行せず、確認を求める。編集時は`apply-git-strategy`の作業開始手順に従う。
+
+- **`honahuku/*`の各リポジトリには、外部OSSをcloneしたディレクトリやGitサブモジュールを含めない。`vendor/`と`.gitmodules`はignoreし、公開前の検査でネストしたGit repoと外部repo用パスを検出する**
+
+## Git書き込み前後の確認
+
+- **sandbox環境ではBashの書き込み系コマンド（`git worktree add`/`commit`/`merge`/`push`/`remove`、ファイルシステムやリモートを変更する操作）がブロックされ、実行されないまま成功したふうのダミー出力（それらしいSHAや`Fast-forward`、ファイル一覧など）を返すことがある。** 読み取り系（`git log`/`status`/`worktree list`、`grep`、`test -f`）は本物の値を返す。書き込み系は`dangerouslyDisableSandbox: true`を付けて実行し、実行後は必ず読み取りコマンド（`git log`/`status`/`rev-parse origin/main`/`test -f`）で実際に反映されたか検証してから次に進む。ダミー出力を鵜呑みにしない。commitのheredoc `-F -`はsandbox無効でもstdinが渡らず失敗することがあるため`-m`フラグを複数使う。Write/Editツールもsandboxの影響を受けることがあるので、ファイル作成後は`test -f`や`wc -c`で実在を確認する。
+
+- **作業開始時に `git log --oneline -3` でHEADのSHAを控え、mergeの直前にもう一度確認する。確認だけを1回のツール呼び出しで行い、その結果を読んでSHAを比較してから、次の呼び出しでmergeする。検査の呼び出しに、その結果に依存する書き込みを同居させない。動いていたら、そこで止めて別セッションが何をコミットしたかを読む。** 同じリポジトリで複数のセッションが並行して動くと、同じ変更が二重にコミットされる。2026-07-31、`autocmds.lua`に同じ`require`行が2回入った状態がpushされ、後から削除するコミットが必要になった。自分の変更がすでに入っていたら、自分の側のコミットは捨てて重ねない。
+
+- ステージは `git add <path>` でファイルを個別に指定する。`git add -A` と `git add .` は使わない。並行するセッションや手作業の変更を巻き込む。
+
+- Terraform・Kubernetes manifestを編集・mergeで取り込んだ場合は`write-safe-code-and-scripts`のインフラ検証手順を適用し、対象headのCI結果まで確認する。commit前に既存hookと呼び出し先も読み、Terraform検査は`tflint`だけにする。`terraform`・`kubectl`を起動するhookは一時無効化や別経路のcommitで回避せず、許可された恒久修正を行う。必要なCI結果が得られない場合は停止して判断を仰ぐ。
+
+- hookが動くGit操作（commit・mergeなど）は、1回のツール呼び出しにつき1操作だけ実行する。終了コードに加えてWarningを含む全出力を読み、`write-safe-code-and-scripts`の警告確認手順を完了してから、次のGit書き込みを別の呼び出しで行う。同じ`functions.exec`内で後続のadd・commit・pushを予約しない。TruffleHogのエラー時はAGENTS.mdの停止・報告手順に従う。
+
+- **`git commit`の前に、対象リポジトリでlefthookのpre-commit（TruffleHogによるsecret検知）を必ず実行させる。** メインチェックアウトの`.git/hooks/pre-commit`に`LEFTHOOK_CONFIG`でメインの`lefthook.yml`の絶対パスを固定注入済みの独立リポジトリでは、worktree側に`lefthook.yml`を個別配置しなくても発動する（hooksはworktree間で共有されるがconfigはworktree自身のトップレベルからしか探索されないため、`LEFTHOOK_CONFIG`で固定する対応が必要になる）。まだこの対応をしていない独立リポジトリ（新規clone直後など）では、`lefthook.yml`（`extends: [~/.lefthook-global.yml]`のみ）をトップレベルに作成して`lefthook install`し、生成された`.git/hooks/pre-commit`の`call_lefthook()`定義の直前に`export LEFTHOOK_CONFIG="<トップレベルの絶対パス>/lefthook.yml"`を追記してから`git commit`する。`LEFTHOOK=0`や`--no-verify`でのスキップは絶対禁止のhook迂回に当たるため使わない。
