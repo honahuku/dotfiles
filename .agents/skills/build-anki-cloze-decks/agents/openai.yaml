@@ -1,0 +1,7 @@
+interface:
+  display_name: "Anki穴埋めデッキ作成"
+  short_description: "原本に基づく簡潔な穴埋めカードを作る"
+  default_prompt: "$build-anki-cloze-decksで、この試験資料から簡潔な知識カードを抽出する。"
+
+policy:
+  allow_implicit_invocation: true
