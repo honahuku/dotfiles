@@ -137,7 +137,6 @@ alias l='ls -CF'
 alias py='python3'
 alias gp='git push -u origin HEAD'
 alias gpf='git push --force-with-lease --force-if-includes'
-alias tasks='"$HOME/.claude/bin/tasks"'
 alias nrlogin='codex mcp login newrelic'
 
 if [[ -f "$HOME/.bash_aliases" ]]; then

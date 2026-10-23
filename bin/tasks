@@ -1,0 +1,2996 @@
+#!/usr/bin/env python3
+"""タスク・勤務記録・日次記録を管理するCLI。
+
+File: ~/.claude-companion/tasks.json
+Holds: tasks[], work_log{date: entry}, daily_logs[], meta{}.
+
+Subcommands:
+  add | list | update | delete | get   — tasks
+  meta get/set/unset                    — config keys
+  work start/end/log/show/summary       — clock-in/out records
+  work leave set                         — paid/compensatory leave records
+  daily save/show/list                  — evening retrospective entries
+"""
+
+import argparse
+import contextlib
+import fcntl
+import json
+import math
+import os
+import re
+import sys
+import uuid
+from datetime import date, datetime, timedelta
+from pathlib import Path
+
+STORE = Path(
+    os.environ.get(
+        "CLAUDE_COMPANION_STORE",
+        str(Path.home() / ".claude-companion" / "tasks.json"),
+    )
+)
+
+FROM = ["me", "others"]
+STATUSES = ["open", "in-progress", "pending", "done", "cancelled"]
+SOURCES = ["local", "github", "notion", "slack", "gmail"]
+
+# statuses treated as "active and schedulable" — what `list` shows by default.
+# open = not yet started, in-progress = actively being worked on. Both are
+# schedulable. pending = blocked, waiting on something; excluded from planning
+# until unblocked.
+ACTIVE_STATUSES = {"open", "in-progress"}
+
+# Soft cap on how many tasks may be in-progress at once. Grounded in working
+# memory research (Cowan's 4±1): the number of things one holds in active
+# attention. Over the cap we warn (never block) so focus fragmentation surfaces.
+IN_PROGRESS_LIMIT = 5
+
+
+# 勤務計算には保存データの meta に明示したルールだけを使う。
+def _work_rule(meta: dict, key: str):
+    value = meta.get(key)
+    if value is None:
+        raise ValueError(
+            f"勤務ルールを設定してください: {key} (tasks meta set {key} VALUE)"
+        )
+    time_keys = {
+        "core_time_floor",
+        "flex_time_end",
+        "std_start",
+        "std_end",
+        "leave_start",
+        "leave_end",
+    }
+    if key in time_keys:
+        if not isinstance(value, str) or not re.fullmatch(
+            r"(?:[01][0-9]|2[0-3]):[0-5][0-9]", value
+        ):
+            raise ValueError(f"{key} は HH:MM 形式で設定してください")
+    elif (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value < 0
+        or (key in {"daily_norma_hours", "max_daily_hours"} and value == 0)
+    ):
+        raise ValueError(f"{key} に有効な数値を設定してください")
+    return value
+
+
+# ---------- storage ----------
+
+
+def now_iso() -> str:
+    return datetime.now().isoformat(timespec="seconds")
+
+
+def today_str() -> str:
+    return date.today().isoformat()
+
+
+_store_lock_file = None
+_store_lock_stack = None
+
+
+def _lock_path() -> Path:
+    return STORE.with_name(STORE.name + ".lock")
+
+
+def _acquire_store_lock() -> None:
+    """load()〜save() の一連を排他区間にする。
+
+    複数の `tasks` プロセスが同時に読み込み→書き換え→保存すると、
+    後勝ちの write_text 同士が競合してファイルが壊れたり更新が
+    失われたりする（2026-08-07 に並列 `reorder --tail` 10 プロセスで
+    実際に発生）。ロックファイルへの排他ロック（flock）でプロセス間の
+    load→save をシリアライズし、これを防ぐ。
+
+    グローバル変数で二重取得を避ける: 同一プロセス内で load() が複数回
+    呼ばれても（例: daily save の複数書き込み）、既に保持しているロックを
+    自分自身でブロックすることはない。
+    """
+    global _store_lock_file, _store_lock_stack
+    if _store_lock_file is not None:
+        return
+    lock_path = _lock_path()
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    # saveまでロックを保持し、取得に失敗した場合だけここでファイルを閉じる。
+    with contextlib.ExitStack() as stack:
+        lock_file = stack.enter_context(open(lock_path, "w"))
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        _store_lock_file = lock_file
+        _store_lock_stack = stack.pop_all()
+
+
+def _release_store_lock() -> None:
+    global _store_lock_file, _store_lock_stack
+    if _store_lock_file is None:
+        return
+    fcntl.flock(_store_lock_file, fcntl.LOCK_UN)
+    _store_lock_stack.close()
+    _store_lock_file = None
+    _store_lock_stack = None
+
+
+def load() -> dict:
+    _acquire_store_lock()
+    if not STORE.exists():
+        STORE.parent.mkdir(parents=True, exist_ok=True)
+        STORE.write_text(
+            json.dumps(
+                {"tasks": [], "work_log": {}, "daily_logs": [], "meta": {}},
+                indent=2,
+            )
+        )
+    data = json.loads(STORE.read_text())
+    data.setdefault("tasks", [])
+    data.setdefault("work_log", {})
+    data.setdefault("daily_logs", [])
+    data.setdefault("meta", {})
+    return data
+
+
+def save(
+    data: dict,
+    *,
+    action: str | None = None,
+    title: str | None = None,
+    daily_entry: dict | None = None,
+) -> None:
+    try:
+        # 書き込み中に他プロセスが不完全な内容を読まないよう、一時ファイルに
+        # 書いてから rename する（rename は atomic）。
+        tmp = STORE.with_name(STORE.name + ".tmp")
+        tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+        os.replace(tmp, STORE)
+        _backup_to_git(message=_commit_message(action, title))
+        # Obsidian 書き出し（タスクページ + daily save 時はデイリーノート）→ vault backup。
+        # vault backup は最後に1回だけ呼び、この save で生じた vault 内の全変更を
+        # まとめて 1 commit にする（二重 commit を避ける）。
+        _sync_obsidian(data)
+        if daily_entry is not None:
+            _write_daily_note(data, daily_entry)
+        _backup_vault_to_git(_vault_dir(data))
+    finally:
+        _release_store_lock()
+
+
+_ACTION_LABELS = {
+    "add": "タスク追加",
+    "update": "タスク更新",
+    "done": "タスク完了",
+    "cancel": "タスクキャンセル",
+    "delete": "タスク削除",
+    "snooze": "タスクスヌーズ",
+}
+
+
+def _commit_message(action: str | None, title: str | None) -> str | None:
+    """Build a deterministic commit message from an action + task title.
+
+    No LLM involved. Returns None when the action is unknown or building fails,
+    so the caller falls back to the default message. Backup must never be blocked
+    by message formatting, so any failure here degrades to the fallback.
+    """
+    if not action:
+        return None
+    try:
+        label = _ACTION_LABELS.get(action)
+        if not label:
+            return None
+        t = (title or "").strip().replace("\n", " ")
+        if not t:
+            return f"chore: {label}"
+        if len(t) > 60:
+            t = t[:57] + "…"
+        return f'chore: {label} "{t}"'
+    except (AttributeError, TypeError, ValueError):
+        warn(f"commit message build failed for action={action!r}")
+        return None
+
+
+def _backup_to_git(message: str | None = None) -> None:
+    """STORE が git リポジトリなら tasks.json を commit + push する。
+
+    バックアップ失敗で日常操作を止めないため、例外は握りつぶして
+    warning を stderr に出すだけにする。push は投げっぱなしで体感を落とさない。
+    git リポジトリでない環境（別マシンで未セットアップ等）では黙ってスキップ。
+    message が None のときは既定の commit メッセージを使う（保全最優先）。
+    """
+    import subprocess
+
+    repo = STORE.parent
+    if not (repo / ".git").is_dir():
+        return
+    try:
+        # tasks.json に差分が無ければ何もしない（commit 空振りを避ける）
+        diff = subprocess.run(
+            ["git", "-C", str(repo), "status", "--porcelain", "--", STORE.name],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if diff.returncode != 0 or not diff.stdout.strip():
+            return
+        subprocess.run(
+            ["git", "-C", str(repo), "add", "--", STORE.name],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(repo),
+                "commit",
+                "-m",
+                message or "chore: tasks.json を更新する",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        # push は投げっぱなし。失敗してもローカルには commit が残るので次回まとめて push される
+        subprocess.Popen(
+            ["git", "-C", str(repo), "push", "--quiet"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except (FileNotFoundError, subprocess.SubprocessError, OSError) as e:
+        print(f"[tasks] backup skipped: {e}", file=sys.stderr)
+
+
+_VAULT_FALLBACK_MSG = "chore: obsidian vault を更新する"
+
+
+def _vault_commit_message(porcelain: str) -> str:
+    """`git status --porcelain` の出力から決定論的にコミットメッセージを組む。
+
+    LLM は使わない。代表ファイル1つを basename で名指しし、他は件数で補う。
+    daily/ 配下を優先して代表に選ぶ（毎日必ず触るため）。組み立てに失敗したら
+    フォールバック（_VAULT_FALLBACK_MSG）を返す。保存最優先なので、メッセージ
+    整形はバックアップを止めない。
+    """
+    try:
+        paths = []
+        for line in porcelain.splitlines():
+            if not line.strip():
+                continue
+            # porcelain 行は "XY <path>"。リネーム "R  old -> new" は new 側を採る。
+            path = line[3:].strip()
+            if " -> " in path:
+                path = path.split(" -> ", 1)[1].strip()
+            if path:
+                paths.append(path)
+        if not paths:
+            return _VAULT_FALLBACK_MSG
+        # 代表は daily/ 配下を優先、無ければ先頭。
+        rep = next((p for p in paths if p.startswith("daily/")), paths[0])
+        import os
+
+        name = os.path.basename(rep)
+        n = len(paths)
+        if n == 1:
+            return f"chore: {name} を更新する"
+        return f"chore: {name} ほか{n - 1}件を更新する"
+    except (AttributeError, TypeError, ValueError):
+        warn("vault commit message build failed")
+        return _VAULT_FALLBACK_MSG
+
+
+def _backup_vault_to_git(vault, *, remove_index_lock: bool = False) -> bool:
+    """vault が git リポジトリなら全ステージして commit + push する。
+
+    pushの完了を待ち、失敗時は理由を表示してFalseを返す。
+    tasks.json 版と違い差分ファイルを選ばず `git add -A`（全ステージ）。ただし
+    ステージ後に変化が無ければ空 commit は作らない（履歴を汚さないだけで、
+    ファイル選別はしていない）。commit メッセージは _vault_commit_message で
+    決定論的に代表ファイル名 + 件数を組む（失敗時はフォールバック）。
+    変更がなくても未送信コミットをpushする。未設定・未初期化ならFalseを返す。
+    /mnt/c(drvfs) は I/O が遅いので timeout を長め(15)にする。
+    """
+    import subprocess
+
+    if vault is None:
+        return False
+    if not (vault / ".git").is_dir():
+        return False
+    index_lock = vault / ".git" / "index.lock"
+    if index_lock.exists():
+        if not remove_index_lock:
+            warn(
+                f"バックアップを中断しました。{index_lock} が存在します。"
+                "別の Git 処理が使用中の可能性があるため、自動削除していません。"
+                "Git 処理が動いていないことを確認してから "
+                "`tasks vault-backup --remove-index-lock` を実行してください。"
+            )
+            return False
+        try:
+            index_lock.unlink()
+        except OSError as e:
+            warn(f"Git ロック {index_lock} を削除できませんでした: {e}")
+            return False
+        warn(f"Git ロック {index_lock} を削除しました。バックアップを再試行します。")
+    try:
+        subprocess.run(
+            ["git", "-C", str(vault), "add", "-A"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        st = subprocess.run(
+            ["git", "-C", str(vault), "status", "--porcelain"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if st.stdout.strip():
+            message = _vault_commit_message(st.stdout)
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(vault),
+                    "commit",
+                    "-m",
+                    message,
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+        subprocess.run(
+            ["git", "-C", str(vault), "push", "--quiet"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        return True
+    except subprocess.CalledProcessError as e:
+        details = f"{e.stdout or ''}{e.stderr or ''}"
+        if (vault / ".git" / "index.lock").exists():
+            details += (
+                f"\nGit ロック {vault / '.git' / 'index.lock'} が残っています。"
+                "Git 処理が動いていないことを確認してから "
+                "`tasks vault-backup --remove-index-lock` を実行してください。"
+            )
+        warn(f"vault backup failed: {e}\n{details}")
+        return False
+    except (FileNotFoundError, subprocess.SubprocessError, OSError) as e:
+        warn(f"vault backup failed: {e}")
+        return False
+
+
+def emit(obj) -> None:
+    print(json.dumps(obj, ensure_ascii=False, indent=2))
+
+
+def warn(msg: str) -> None:
+    """Emit a diagnostic to stderr without disturbing the JSON on stdout.
+
+    With no error-tracking service behind this CLI, stderr is the only trace a
+    swallowed anomaly leaves. Keep stdout machine-readable (jq-safe) and route
+    every "skipped / ignored something unexpected" note here instead of `pass`.
+    """
+    print(f"[tasks] warning: {msg}", file=sys.stderr)
+
+
+# ---------- Obsidian mirror ----------
+#
+# tasks.json を正として、Obsidian vault（Windows 側）に一方向で書き出す。
+# vault パスは meta.obsidian_vault_dir。未設定なら何もしない。書き込み失敗は
+# 握りつぶして warn するだけで、tasks.json の保存・git backup は止めない。
+
+
+def _vault_dir(data: dict):
+    """meta.obsidian_vault_dir を Path で返す。未設定なら None。"""
+    v = (data.get("meta") or {}).get("obsidian_vault_dir")
+    return Path(v) if v else None
+
+
+def _find_open_clock_in_line(text: str, task_id: str):
+    """今日のデイリーノート本文から、task_id の Day Planner clock-in が
+    開いたまま（end 未記録）のタスク行を探して返す。無ければ None。
+
+    todo スキルが書くタスク行は丸括弧内に `(id・from・見積)` を持ち、
+    直下に2スペースインデントの ```yaml コードブロックとして
+    Day Planner の Time Tracker ログ（planner.log）が付く。このブロックは
+    clock-in するとリスト項目の直後に挿入され、clock-out すると同じ
+    エントリに end が追記される。start はあるが end が無いエントリが
+    そのタスクの「進行中」を意味する。
+    """
+    line_pat = re.compile(
+        r"^- .*\(" + re.escape(task_id) + r"[・).][^\n]*$",
+        re.MULTILINE,
+    )
+    m = line_pat.search(text)
+    if not m:
+        return None
+    line_end = m.end()
+    # 直後の2スペースインデント ```yaml ブロックだけを見る。次のリスト項目
+    # やセクション見出しに達したらブロックは無い。
+    block_pat = re.compile(
+        r"\A(?:\r?\n {2}```yaml\r?\n(?P<body>.*?)\r?\n {2}```)",
+        re.DOTALL,
+    )
+    bm = block_pat.match(text[line_end:])
+    if not bm:
+        return None
+    body = bm.group("body")
+    # log の最後のエントリ（最後の `- start:` 以降）に end が無ければ進行中。
+    entries = re.split(r"^\s*- start:", body, flags=re.MULTILINE)
+    last_entry = entries[-1] if len(entries) > 1 else body
+    if "end:" in last_entry:
+        return None
+    return m.group(0)
+
+
+def _today_daily_note_text(data: dict):
+    """今日のデイリーノートの本文を返す。vault 未設定・ファイル無しなら None。"""
+    vault = _vault_dir(data)
+    if vault is None:
+        return None
+    note = vault / "daily" / f"{today_str()}.md"
+    if not note.exists():
+        return None
+    try:
+        return note.read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+
+def _upsert_section(text: str, heading: str, body: str) -> str:
+    """`## <heading>` セクションを body で置き換える。無ければ末尾に追記する。
+
+    見出しアンカーで「`## heading` 行から次の `## ` 行の直前（または EOF）まで」を
+    1ブロックとして扱う。str.replace の誤爆と YAML frontmatter の破壊を避けるため、
+    レベル2見出し（`## `）を境界にする。配下の `### ` サブ見出しは巻き込む。
+    body は heading を含まない中身だけを渡す。
+    """
+    import re
+
+    section = f"## {heading}\n{body}".rstrip() + "\n"
+    # 既存ファイルに \r\n が混ざっていても取りこぼさないよう \s*$ で吸収する。
+    pat = re.compile(
+        r"^## " + re.escape(heading) + r"\s*$.*?(?=^## |\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    if pat.search(text):
+        return pat.sub(lambda _m: section + "\n", text, count=1)
+    sep = (
+        ""
+        if not text or text.endswith("\n\n")
+        else ("\n" if text.endswith("\n") else "\n\n")
+    )
+    return text + sep + section
+
+
+def _upsert_labeled_line(text: str, heading: str, label: str, value: str) -> str:
+    """`## <heading>` セクション内の `- <label>: ` 行を value で置き換える。
+
+    ふりかえりセクションは `- 今日の本丸: ...`（todo が書く）・`- よかったこと: ...`
+    `- 課題: ...`・`- コンディション: ...`（daily save が書く）が同居する。書き手が
+    互いを潰さないよう、セクション全体ではなくラベル単位で upsert する。ラベル行が
+    あれば値だけ差し替え、無ければセクション末尾に足す。セクション自体が無ければ
+    `_upsert_section` で新設する。他セクション・他ラベル行には触らない。
+    """
+    import re
+
+    new_line = f"- {label}: {value}"
+    sec_pat = re.compile(
+        r"(^## " + re.escape(heading) + r"\s*$)(.*?)(?=^## |\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    m = sec_pat.search(text)
+    if not m:
+        return _upsert_section(text, heading, new_line)
+
+    head, body = m.group(1), m.group(2)
+    line_pat = re.compile(r"^- " + re.escape(label) + r":.*$", re.MULTILINE)
+    if line_pat.search(body):
+        new_body = line_pat.sub(lambda _m: new_line, body, count=1)
+    else:
+        # 既存 body の末尾改行を保ったまま1行足す。
+        new_body = body.rstrip("\n") + "\n" + new_line + "\n"
+        # セクション見出し直後（body が空）の場合も破綻しないよう整える。
+        if not body.strip():
+            new_body = "\n" + new_line + "\n"
+    return text[: m.start()] + head + new_body + text[m.end() :]
+
+
+def _write_daily_note(data: dict, entry: dict) -> None:
+    """daily save のエントリを `## ふりかえり` セクションのラベル行に書く。
+
+    `<vault>/daily/<date>.md` の `## ふりかえり` 内で、`- よかったこと: `・`- 課題: `
+    `- コンディション: ` の各ラベル行を upsert する。`- 今日の本丸: `（todo が書く）は
+    touch しない。good/issues が空ならその行は書かない。スコアが全て None なら
+    コンディション行は書かない。standup が非空なら `## 朝会メモ` セクションを
+    丸ごと置き換える（書き手は daily save だけなのでラベル行分割は不要）。
+    vault 未設定ならスキップ。失敗は握りつぶして warn（保全最優先）。
+    """
+    vault = _vault_dir(data)
+    if vault is None:
+        return
+    try:
+        daily_dir = vault / "daily"
+        daily_dir.mkdir(parents=True, exist_ok=True)
+        note = daily_dir / f"{entry['date']}.md"
+        text = note.read_text(encoding="utf-8") if note.exists() else ""
+
+        good = (entry.get("good") or "").strip()
+        issues = (entry.get("issues") or "").strip()
+        if good:
+            text = _upsert_labeled_line(text, "ふりかえり", "よかったこと", good)
+        if issues:
+            text = _upsert_labeled_line(text, "ふりかえり", "課題", issues)
+
+        labels = [
+            ("focus", "集中度"),
+            ("start_mood", "業務開始"),
+            ("sleepiness", "眠気"),
+            ("output_feel", "成果感"),
+        ]
+        # 分母付き（`集中度4/5`）で記録時点のレンジを残す。値がスラッシュを
+        # 含むので、区切りは ` _ ` にして二重スラッシュの紛らわしさを避ける。
+        scores = [
+            f"{jp}{entry[key]}/{_SCORE_MAX}"
+            for key, jp in labels
+            if entry.get(key) is not None
+        ]
+        if scores:
+            text = _upsert_labeled_line(
+                text, "ふりかえり", "コンディション", " _ ".join(scores)
+            )
+
+        standup = (entry.get("standup") or "").strip()
+        if standup:
+            text = _upsert_section(text, "朝会メモ", standup)
+
+        note.write_text(text, encoding="utf-8", newline="\n")
+    except (OSError, KeyError, TypeError) as e:
+        warn(f"daily note write skipped: {e}")
+
+
+def _yaml_str(s) -> str:
+    """YAML 文字列としてダブルクオートで安全に囲む。
+
+    title/source_url は #:[, を含みうるので生では YAML が壊れる。json.dumps は
+    ダブルクオート文字列を作り、これは YAML でも有効。ensure_ascii=False で
+    日本語をそのまま残す。
+    """
+    return json.dumps("" if s is None else str(s), ensure_ascii=False)
+
+
+def _page_filename(t: dict) -> str:
+    """タスクのファイル名（拡張子なし）を queue_pos prefix + title から作る。
+
+    queue_pos をゼロ埋め3桁 + アンダースコアで頭に付ける（010_foo）。Obsidian の
+    ファイル一覧がキュー順に並ぶようにするため。queue_pos が 1000 以上なら 3桁を
+    超えてそのまま出す。queue_pos が無いタスクは prefix を付けない。
+    queue_pos は move/normalize で値が変わるため、順番を入れ替えるとファイル名も
+    変わる。旧ファイルは同期時の掃除で消える（_sync_obsidian）。
+
+    Windows/Obsidian でファイル名に使えない・扱いにくい文字（/ \\ : * ? " < > |
+    # ^ [ ]）を _ に置換する。連続する _ はまとめ、前後の空白・._ は落とす。
+    title が空や置換で空になった場合は id にフォールバックする（無名ファイルを
+    避ける）。id は本文以外には付けない。同一 title が複数あると
+    後勝ちで 1ファイルに集約される。
+    """
+    import re
+
+    title = (t.get("title") or "").strip()
+    name = re.sub(r'[/\\:*?"<>|#^\[\]]', "_", title)
+    name = re.sub(r"_{2,}", "_", name).strip(" ._")
+    name = name or t["id"]
+    pos = t.get("queue_pos")
+    if pos is not None:
+        return f"{pos:03d}_{name}"
+    return name
+
+
+def _obsidian_page(t: dict) -> str:
+    """1タスク = 1ページの Markdown を組み立てる。
+
+    グラフの辺はフロントマターの tags（Obsidian は inline #tag と等価にタグ
+    ノードとして扱う）。本文は人が読む用。手書きは毎回上書きで消えるため、
+    末尾に注意書きを置き、手書きは別ノートから `[[tasks/<ファイル名>|<id>]]`
+    形式でリンクさせる。
+
+    aliases には title と id を入れる。Obsidian のウィキリンクはファイル名で
+    のみ解決され、aliases では解決されない（生の `[[<id>]]` は未解決リンクに
+    なり、クリックで vault 直下に `<id>.md` が新規作成されてしまう）。alias は
+    クイックスイッチャーと `[[` の入力補完で id / title からこのページを探す
+    ために入れている。デイリーノート等からのリンクは `[[<ファイル名>|<id>]]`
+    形式で書く（todo スキルのテーブルのルール参照）。
+    """
+    tid = t["id"]
+    title = t.get("title") or ""
+    lines = ["---"]
+    lines.append(f"id: {tid}")
+    lines.append(f"title: {_yaml_str(title)}")
+    lines.append("aliases:")
+    lines.append(f"  - {_yaml_str(title)}")
+    lines.append(f"  - {tid}")
+    lines.append(f"status: {t.get('status') or ''}")
+    lines.append(f"from: {t.get('from') or ''}")
+    lines.append(f"source: {t.get('source') or ''}")
+    if t.get("source_url"):
+        lines.append(f"source_url: {_yaml_str(t['source_url'])}")
+    if t.get("due"):
+        lines.append(f"due: {t['due']}")
+    if t.get("queue_pos") is not None:
+        lines.append(f"queue_pos: {t['queue_pos']}")
+    if t.get("snooze_until"):
+        lines.append(f"snooze_until: {t['snooze_until']}")
+    lines.append(f"created: {t.get('created_at') or ''}")
+    lines.append(f"updated: {t.get('updated_at') or ''}")
+    lines.append("managed_by: claude-companion")
+    tags = t.get("tags") or []
+    if tags:
+        lines.append("tags:")
+        for tag in tags:
+            lines.append(f"  - {tag}")
+    else:
+        lines.append("tags: []")
+    lines.append("---")
+    lines.append("")
+    lines.append(f"# {title}")
+    lines.append("")
+    meta_bits = [
+        f"**status** {t.get('status') or '-'}",
+        f"**from** {t.get('from') or '-'}",
+    ]
+    meta_bits.append(f"**due** {t['due']}" if t.get("due") else "**due** なし")
+    if t.get("queue_pos") is not None:
+        meta_bits.append(f"**queue** {t['queue_pos']}")
+    lines.append(" ・ ".join(meta_bits))
+    lines.append("")
+    if t.get("source_url"):
+        lines.append(f"[本丸を開く ({t.get('source') or 'link'})]({t['source_url']})")
+        lines.append("")
+    lines.append("## Notes")
+    lines.append((t.get("notes") or "").strip() or "(メモなし)")
+    lines.append("")
+    lines.append("## 関係")
+    lines.append(f"- blocked_by: {t.get('blocked_by') or 'なし'}")
+    blocks = t.get("blocks") or []
+    lines.append(f"- blocks: {', '.join(blocks) if blocks else 'なし'}")
+    lines.append("")
+    lines.append("---")
+    lines.append(
+        f"> このページは Claude Companion が自動生成し毎回上書きしているため"
+        f"手書きメモは消えます。メモは別ノートを作り、`[[` の入力補完で {tid} を"
+        f"検索して出るリンクで本ページにリンクしてください（生の `[[{tid}]]` は"
+        f"ファイル名でないため解決されません）。"
+    )
+    return "\n".join(lines) + "\n"
+
+
+def _sync_obsidian(data: dict) -> None:
+    """done/cancelled 以外のタスクを <vault>/tasks/<title>.md に全件同期する。
+
+    ファイル名は title を安全化したもの（_page_filename）。done/cancelled・
+    tasks.json から消えたタスクのページは削除する。削除対象は tasks/ 配下の
+    うち managed_by: claude-companion を持つページに限る（手書きノートを保護）。
+    vault 未設定なら即 return。失敗は握りつぶして warn（保全最優先）。
+    """
+    vault = _vault_dir(data)
+    if vault is None:
+        return
+    try:
+        tasks_dir = vault / "tasks"
+        live = [
+            t
+            for t in data.get("tasks", [])
+            if t.get("status") not in ("done", "cancelled")
+        ]
+        # live が空でもディレクトリの掃除はしたいので mkdir する。
+        tasks_dir.mkdir(parents=True, exist_ok=True)
+        written = set()
+        for t in live:
+            page = tasks_dir / f"{_page_filename(t)}.md"
+            written.add(page.name)
+            body = _obsidian_page(t)
+            if not page.exists() or page.read_text(encoding="utf-8") != body:
+                page.write_text(body, encoding="utf-8", newline="\n")
+        # 今回書いていない tasks/*.md のうち、自動生成ページ
+        # (managed_by: claude-companion) だけを削除する。手書きノートは残す。
+        for page in tasks_dir.glob("*.md"):
+            if page.name in written:
+                continue
+            try:
+                content = page.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            # 自動生成ページは frontmatter に managed_by: claude-companion を持つ。
+            # 手書きノートは持たないので消さない。frontmatter は先頭にあるので、
+            # 冒頭ブロック（最初の空行まで、最低でも先頭 1KB）で判定すれば十分。
+            if "managed_by: claude-companion" in content[:1024]:
+                page.unlink()
+    except (OSError, KeyError, TypeError) as e:
+        warn(f"obsidian sync skipped: {e}")
+
+
+# ---------- tasks ----------
+
+
+def _next_queue_pos(data: dict) -> int:
+    """Return queue_pos one step after the current maximum (step=10 for spacing).
+
+    Positions start at 10 so there is always room for a later --head move to land
+    on a positive value (e.g. 9) without renumbering the whole queue.
+    """
+    tasks = data["tasks"]
+    active = [t for t in tasks if t.get("status") in ACTIVE_STATUSES]
+    if not active:
+        return 10
+    return max((t.get("queue_pos") or 0) for t in active) + 10
+
+
+def cmd_add(args) -> None:
+    data = load()
+    queue_pos = getattr(args, "queue_pos", None)
+    if queue_pos is None:
+        queue_pos = _next_queue_pos(data)
+    blocks_id = getattr(args, "blocks", None) or None
+    snooze_until = getattr(args, "snooze_until", None) or None
+    blocked_by = getattr(args, "blocked_by", None) or None
+    # Either a blocker (waiting on someone/something) or a snooze (waiting on a
+    # date) makes a task pending. snooze takes precedence for status because the
+    # date is the thing that re-opens it.
+    status = "pending" if (blocked_by or snooze_until) else "open"
+    task = {
+        "id": uuid.uuid4().hex[:8],
+        "title": args.title,
+        "from": args.from_,
+        "queue_pos": queue_pos,
+        "due": args.due,
+        "tags": [],
+        "status": status,
+        "source": args.source,
+        "source_url": args.source_url,
+        "blocked_by": blocked_by,
+        "blocks": [blocks_id] if blocks_id else [],
+        "snooze_until": snooze_until,
+        "notes": args.notes or "",
+        "created_at": args.created_at if args.created_at else now_iso(),
+        "updated_at": now_iso(),
+        "completed_at": None,
+    }
+    data["tasks"].append(task)
+    if blocks_id:
+        dep = _find_task(data, blocks_id)
+        if dep:
+            dep["blocked_by"] = task["id"]
+            dep["status"] = "pending"
+            dep["updated_at"] = now_iso()
+        else:
+            warn(f"--blocks target not found: {blocks_id}")
+    save(data, action="add", title=task["title"])
+    emit(task)
+
+
+def _count_in_progress(data: dict) -> int:
+    return sum(1 for t in data["tasks"] if t.get("status") == "in-progress")
+
+
+def _in_progress_over(data: dict):
+    """Return {count, limit} if in-progress exceeds the soft cap, else None."""
+    count = _count_in_progress(data)
+    if count > IN_PROGRESS_LIMIT:
+        return {"count": count, "limit": IN_PROGRESS_LIMIT}
+    return None
+
+
+# Substrings that classify a task into a tier (see _task_tier). Kept as
+# constants so the same rule is used everywhere and tweaks live in one place.
+_TIER_RENOVATE = "依存更新 レビュー"  # dependency-update review (Renovate)
+_TIER_REVIEWER = "(Reviewer)"  # human PR review request
+_TIER1_MARKERS = ("(Reviewee)", "返信", "状態確認")  # own PR / reply / status check
+
+
+def _task_tier(t: dict) -> int:
+    """Classify a task into an ordering tier (smaller = sooner in the queue).
+
+    Used by `reorder --by-tier` to group the queue by kind of work, and exposed
+    on `list` output as `_tier` so skills can sort without re-deriving the rule.
+
+    - 0: in-progress — whatever is in active attention right now, ahead of all.
+    - 1: own work — self-initiated (from=me), non-github real tasks
+         (local/notion/slack), or an own-PR reply/status-check by title marker.
+    - 2: a human PR review request ((Reviewer)).
+    - 3: a Renovate dependency-update review.
+
+    Title matching is substring, not exact: the dash and spacing around
+    suffixes vary between github-sync and hand-registered tasks, so we tolerate
+    that drift. Renovate is checked first so a title carrying both markers does
+    not get miscounted as a plain review.
+    """
+    if t.get("status") == "in-progress":
+        return 0
+    title = t.get("title") or ""
+    if _TIER_RENOVATE in title:
+        return 3
+    if _TIER_REVIEWER in title:
+        return 2
+    if t.get("from") == "me":
+        return 1
+    if t.get("source") in ("local", "notion", "slack"):
+        return 1
+    if any(m in title for m in _TIER1_MARKERS):
+        return 1
+    return 1  # default: treat anything unclassified as own work, not buried
+
+
+def _task_sort_key(t: dict):
+    """The single ordering rule for the queue, used by both `list` (display) and
+    `reorder --by-tier` (which bakes this order into queue_pos). Sorting both
+    through one key keeps the list view and Obsidian's filename order identical.
+
+    Precedence, most significant first:
+    1. status_rank — in-progress is what's in active attention; always first.
+    2. has_due_rank — a task with any due date (overdue OR future) outranks an
+       undated one. Having a deadline is the strongest signal after in-progress.
+    3. d_sort — among dated tasks, order by date ascending, so overdue comes
+       first and nearer deadlines precede farther ones. Undated tasks share the
+       empty string here; has_due_rank has already separated them out.
+    4. tier — among undated tasks, group by kind of work (_task_tier).
+    5. q_rank — queue_pos as the final tie-break (manual --head/--before order).
+    """
+    status_rank = 0 if t.get("status") == "in-progress" else 1
+    d = t.get("due")
+    has_due_rank = 0 if d else 1
+    d_sort = d if d else ""
+    tier = _task_tier(t)
+    q = t.get("queue_pos")
+    q_rank = q if q is not None else 999999
+    return (status_rank, has_due_rank, d_sort, tier, q_rank)
+
+
+def cmd_list(args) -> None:
+    data = load()
+
+    resolved = []
+    if getattr(args, "resolve_blocked", False):
+        resolved = _resolve_blocked(data)
+
+    # Any list call wakes snoozed tasks whose date has arrived. Runs first so a
+    # woken task isn't then mistaken for a stale block below.
+    expired_snooze = _sweep_expired_snooze(data)
+
+    # Any list call sweeps pending tasks that have sat untouched for a week back
+    # to open so a stuck block re-surfaces. Runs after _resolve_blocked so a
+    # task unblocked above isn't also reported as stale.
+    # Detect offload candidates BEFORE the stale sweep: the sweep resets
+    # updated_at to now when it flips a pending task to open, which would erase
+    # the very staleness offload keys on. Detection doesn't mutate, so ordering
+    # is safe. A from=me pending task past both thresholds thus surfaces as an
+    # offload candidate on the same call the sweep re-opens it.
+    offload = _detect_offload_candidates(data)
+
+    stale = _sweep_stale_pending(data)
+    if resolved or expired_snooze or stale:
+        save(data)
+
+    tasks = list(data["tasks"])
+
+    if args.status:
+        tasks = [t for t in tasks if t.get("status") == args.status]
+    elif not args.all:
+        tasks = [t for t in tasks if t.get("status") in ACTIVE_STATUSES]
+
+    if getattr(args, "from_", None):
+        tasks = [t for t in tasks if t.get("from") == args.from_]
+    if args.source:
+        tasks = [t for t in tasks if t.get("source") == args.source]
+    if args.completed_on:
+        tasks = [
+            t
+            for t in tasks
+            if (t.get("completed_at") or "").startswith(args.completed_on)
+        ]
+
+    tasks.sort(key=_task_sort_key)
+    # Expose the ordering tier per task so skills can group/sort without
+    # re-deriving the rule. Display-only: shallow-copy so `_tier` never lands
+    # in the store (this list holds references to the stored dicts).
+    tasks = [{**t, "_tier": _task_tier(t)} for t in tasks]
+    result: dict = {"tasks": tasks}
+    if resolved:
+        result["_unblocked"] = resolved
+    if expired_snooze:
+        result["_snooze_expired"] = expired_snooze
+    if stale:
+        result["_stale_unblocked"] = stale
+    over = _in_progress_over(data)
+    if over:
+        result["_in_progress_over"] = over
+    if offload:
+        result["_offload_candidates"] = offload
+    if getattr(args, "format_hint", None):
+        result["_warning"] = (
+            f"--format is not a valid option; output is always JSON. Received: --format {args.format_hint}"
+        )
+    emit(result)
+
+
+def _find_task(data: dict, task_id: str):
+    for t in data["tasks"]:
+        if t["id"] == task_id:
+            return t
+    return None
+
+
+def cmd_update(args) -> None:
+    data = load()
+    t = _find_task(data, args.id)
+    if not t:
+        print(f"not found: {args.id}", file=sys.stderr)
+        sys.exit(1)
+    if args.status == "done":
+        note_text = _today_daily_note_text(data)
+        if note_text is not None:
+            open_line = _find_open_clock_in_line(note_text, args.id)
+            if open_line is not None:
+                print(
+                    f"{args.id} は今日のデイリーノートで clock-in "
+                    "したままのようです（end 未記録）。Obsidian で clock-out "
+                    "してから done にしてください。",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+    if args.title is not None:
+        t["title"] = args.title
+    if getattr(args, "from_", None):
+        t["from"] = args.from_
+    if getattr(args, "queue_pos", None) is not None:
+        t["queue_pos"] = args.queue_pos
+    if args.due is not None:
+        t["due"] = args.due if args.due else None
+    if args.status:
+        t["status"] = args.status
+        if args.status == "done":
+            t["completed_at"] = now_iso()
+        else:
+            # done から他のステータスへ戻すとき、古い completed_at を残さない。
+            # 残ると「今日完了したタスク」の completed-on フィルタが誤って
+            # 過去の完了時刻にヒットし続ける。
+            t["completed_at"] = None
+    if getattr(args, "blocked_by", None) is not None:
+        t["blocked_by"] = args.blocked_by if args.blocked_by else None
+        # Setting a blocker implies the task is waiting; flip to pending unless an
+        # explicit --status was also passed in the same call.
+        if args.blocked_by and not args.status:
+            t["status"] = "pending"
+    if getattr(args, "snooze_until", None) is not None:
+        # Setting a snooze date sleeps the task until that date; clearing it
+        # (empty string) wakes it. Both flip status unless an explicit --status
+        # was also passed in the same call.
+        if args.snooze_until:
+            t["snooze_until"] = args.snooze_until
+            if not args.status:
+                t["status"] = "pending"
+        else:
+            t["snooze_until"] = None
+            if not args.status:
+                t["status"] = "open"
+    if getattr(args, "blocks", None):
+        dep_id = args.blocks
+        dep = _find_task(data, dep_id)
+        if dep:
+            existing_blocks = t.get("blocks") or []
+            if dep_id not in existing_blocks:
+                existing_blocks.append(dep_id)
+            t["blocks"] = existing_blocks
+            dep["blocked_by"] = t["id"]
+            dep["status"] = "pending"
+            dep["updated_at"] = now_iso()
+        else:
+            warn(f"--blocks target not found: {dep_id}")
+    if getattr(args, "unblocks", None):
+        dep_id = args.unblocks
+        existing_blocks = t.get("blocks") or []
+        if dep_id in existing_blocks:
+            existing_blocks.remove(dep_id)
+        t["blocks"] = existing_blocks
+        dep = _find_task(data, dep_id)
+        if dep and dep.get("blocked_by") == t["id"]:
+            dep["blocked_by"] = None
+            dep["status"] = "open"
+            dep["updated_at"] = now_iso()
+    if getattr(args, "source", None):
+        t["source"] = args.source
+    if getattr(args, "source_url", None) is not None:
+        t["source_url"] = args.source_url if args.source_url else None
+    if args.replace_all_notes is not None:
+        t["notes"] = args.replace_all_notes
+    elif args.append_notes:
+        existing = t.get("notes") or ""
+        t["notes"] = (
+            f"{existing}\n\n{args.append_notes}" if existing else args.append_notes
+        )
+    if getattr(args, "created_at", None) is not None:
+        t["created_at"] = args.created_at
+    if getattr(args, "completed_at", None) is not None:
+        t["completed_at"] = args.completed_at
+    t["updated_at"] = now_iso()
+    auto_unblocked = []
+    if args.status in ("done", "cancelled"):
+        auto_unblocked = _auto_unblock_dependents(data, t["id"])
+    _act = (
+        "done"
+        if args.status == "done"
+        else "cancel"
+        if args.status == "cancelled"
+        else "update"
+    )
+    save(data, action=_act, title=t["title"])
+    result = dict(t)
+    if auto_unblocked:
+        result["_auto_unblocked"] = auto_unblocked
+    if args.status == "in-progress":
+        over = _in_progress_over(data)
+        if over:
+            result["_in_progress_over"] = over
+            warn(
+                f"進行中が {over['count']} 件です（目安 {over['limit']} 件）。"
+                "集中力が分散していないか、着手前(open)に戻すか退避を検討してください。"
+            )
+    emit(result)
+
+
+def cmd_snooze(args) -> None:
+    """Sleep a task until a given date: set status=pending + snooze_until.
+
+    A snoozed task is hidden from the default `list` (which shows open only) and
+    is flipped back to open automatically on the first `list` at or after
+    snooze_until. This is the date-triggered cousin of blocked_by: blocked_by
+    waits on someone/something, snooze waits on a calendar date.
+    """
+    data = load()
+    t = _find_task(data, args.id)
+    if not t:
+        print(f"not found: {args.id}", file=sys.stderr)
+        sys.exit(1)
+    t["snooze_until"] = args.until
+    t["status"] = "pending"
+    t["updated_at"] = now_iso()
+    save(data, action="snooze", title=t["title"])
+    emit(t)
+
+
+def cmd_delete(args) -> None:
+    data = load()
+    _deleted = _find_task(data, args.id)
+    _title = _deleted["title"] if _deleted else None
+    before = len(data["tasks"])
+    data["tasks"] = [t for t in data["tasks"] if t["id"] != args.id]
+    if len(data["tasks"]) == before:
+        print(f"not found: {args.id}", file=sys.stderr)
+        sys.exit(1)
+    save(data, action="delete", title=_title)
+    print("ok")
+
+
+def cmd_get(args) -> None:
+    data = load()
+    t = _find_task(data, args.id)
+    if not t:
+        print(f"not found: {args.id}", file=sys.stderr)
+        sys.exit(1)
+    emit(t)
+
+
+def cmd_vault_backup(args) -> None:
+    """vault を git add -A → commit → push する。
+
+    skill 側（/todo など）がデイリーノートを直接 Edit したあと、その変更を
+    明示的に commit・push するための入口。tasks.json は触らず vault だけを扱う。
+    差分がなくてもpushし、バックアップ失敗時は終了コード1を返す。
+    """
+    data = load()
+    vault = _vault_dir(data)
+    if vault is None:
+        print("vault backup skipped: obsidian_vault_dir 未設定")
+        return
+    if not _backup_vault_to_git(vault, remove_index_lock=args.remove_index_lock):
+        sys.exit(1)
+    print(f"vault backup: {vault}")
+
+
+_GH_URL_RE = re.compile(
+    r"github\.com/(?P<owner>[^/]+)/(?P<repo>[^/]+)/(?:pull|pulls|issues)/(?P<number>\d+)"
+)
+
+_TASK_ID_RE = re.compile(r"^[0-9a-f]{8}$")
+
+
+def _is_task_id(s) -> bool:
+    """Return True if s looks like an 8-char lowercase hex task ID (not a URL)."""
+    return bool(_TASK_ID_RE.match(s or ""))
+
+
+def _gh_notif_key(url: str):
+    """Normalize a GitHub PR/Issue URL to 'owner/repo#number'.
+
+    Handles both html_url (.../pull/123) and API url (.../pulls/123),
+    and ignores trailing fragments like #discussion_r... or #pullrequestreview-...
+    Returns None if the url is not a recognizable PR/Issue url.
+    """
+    if not url:
+        return None
+    m = _GH_URL_RE.search(url)
+    if not m:
+        return None
+    return f"{m['owner']}/{m['repo']}#{m['number']}"
+
+
+def _gh_state(url: str):
+    """Return the GitHub PR/Issue state for a URL, or None if unknown.
+
+    Calls `gh pr view`/`gh issue view` (read-only) and returns a dict like
+    {"state": "MERGED"|"OPEN"|"CLOSED", "merged": bool}. Returns None when the
+    URL isn't a GitHub PR/Issue, gh is unavailable, or the call fails — callers
+    must treat None as "couldn't determine, leave blocked".
+    """
+    import subprocess
+
+    m = _GH_URL_RE.search(url or "")
+    if not m:
+        return None
+    repo = f"{m['owner']}/{m['repo']}"
+    number = m["number"]
+    is_pr = "/pull" in url or "/pulls" in url
+    kind = "pr" if is_pr else "issue"
+    fields = "state,mergedAt" if is_pr else "state"
+    try:
+        proc = subprocess.run(
+            ["gh", kind, "view", number, "--repo", repo, "--json", fields],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None
+    if proc.returncode != 0:
+        return None
+    try:
+        payload = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        warn(
+            f"malformed gh response for {kind} {repo}#{number}; treating state as unknown"
+        )
+        return None
+    state = payload.get("state")
+    return {"state": state, "merged": bool(payload.get("mergedAt"))}
+
+
+_MENTION_RE = re.compile(r"@([A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)")
+
+
+def _gh_self_login():
+    """Return the authenticated gh user's login, or None if it can't be read."""
+    import subprocess
+
+    try:
+        proc = subprocess.run(
+            ["gh", "api", "--method", "GET", "user", "--jq", ".login"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None
+    if proc.returncode != 0:
+        return None
+    login = proc.stdout.strip()
+    return login or None
+
+
+def _gh_comment_resolved(url: str):
+    """For a blocker that is a PR/Issue comment URL, decide if the ball came back.
+
+    The blocker means "waiting for the other side to act on this comment".
+    Two comment-URL shapes are accepted:
+    - #issuecomment-<id>: an issue/PR conversation comment. Its body is fetched
+      from repos/.../issues/comments/<id>.
+    - #discussion_r<id>: an inline PR review comment. Its body is fetched from
+      repos/.../pulls/comments/<id>, and the reply may land in the PR
+      review-comment thread (repos/.../pulls/<n>/comments), which the
+      issue-comment timeline does not surface — so that thread is checked too.
+
+    Returns the login of the responder if the PR author or anyone @mentioned in
+    the comment posted a comment/review/review-comment or pushed a commit after
+    the comment's created_at; otherwise None (stay blocked). Returns None on any
+    lookup failure so the task stays pending rather than being wrongly unblocked.
+    """
+    import subprocess
+
+    m = _GH_URL_RE.search(url or "")
+    cm = re.search(r"#issuecomment-(\d+)", url or "")
+    dm = re.search(r"#discussion_r(\d+)", url or "")
+    if not m or not (cm or dm):
+        return None
+    repo = f"{m['owner']}/{m['repo']}"
+    number = m["number"]
+    is_discussion = dm is not None
+    comment_id = (dm or cm).group(1)
+    comment_path = (
+        f"repos/{repo}/pulls/comments/{comment_id}"
+        if is_discussion
+        else f"repos/{repo}/issues/comments/{comment_id}"
+    )
+
+    def _api(path, jq=None):
+        cmd = ["gh", "api", "--method", "GET", path]
+        if jq:
+            cmd += ["--jq", jq]
+        try:
+            proc = subprocess.run(
+                cmd, check=False, capture_output=True, text=True, timeout=30
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+        if proc.returncode != 0:
+            return None
+        return proc.stdout
+
+    # The blocker comment: when it was posted and who it pings.
+    raw = _api(comment_path)
+    if not raw:
+        return None
+    try:
+        comment = json.loads(raw)
+    except json.JSONDecodeError:
+        warn(
+            f"malformed gh response for blocker comment {repo}#{number}; "
+            f"leaving the task blocked"
+        )
+        return None
+    since = comment.get("created_at")
+    if not since:
+        return None
+
+    self_login = _gh_self_login()
+    # The "other side": the PR author plus everyone @mentioned in the comment,
+    # minus ourselves (acting on our own block must not auto-resolve it).
+    others = set(_MENTION_RE.findall(comment.get("body") or ""))
+    pr_raw = _api(f"repos/{repo}/pulls/{number}", ".user.login")
+    if pr_raw and pr_raw.strip():
+        others.add(pr_raw.strip())
+    if self_login:
+        others.discard(self_login)
+    if not others:
+        return None
+
+    # Any activity by the other side dated after the blocker comment.
+    # 1. Issue/PR comments (covers the conversation timeline).
+    raw = _api(f"repos/{repo}/issues/{number}/comments?since={since}&per_page=100")
+    if raw:
+        try:
+            for c in json.loads(raw):
+                if (
+                    c.get("created_at", "") > since
+                    and (c.get("user") or {}).get("login") in others
+                ):
+                    return c["user"]["login"]
+        except json.JSONDecodeError:
+            warn(
+                f"malformed gh comments list for {repo}#{number}; skipping that source"
+            )
+    # 2. Reviews submitted after the comment.
+    raw = _api(f"repos/{repo}/pulls/{number}/reviews?per_page=100")
+    if raw:
+        try:
+            for r in json.loads(raw):
+                if (
+                    r.get("submitted_at", "") > since
+                    and (r.get("user") or {}).get("login") in others
+                ):
+                    return r["user"]["login"]
+        except json.JSONDecodeError:
+            warn(f"malformed gh reviews list for {repo}#{number}; skipping that source")
+    # 3. New commits pushed after the comment.
+    raw = _api(f"repos/{repo}/pulls/{number}/commits?per_page=100")
+    if raw:
+        try:
+            for c in json.loads(raw):
+                committed = (
+                    ((c.get("commit") or {}).get("committer") or {}).get("date")
+                ) or ""
+                author_login = (c.get("author") or {}).get("login")
+                if committed > since and author_login in others:
+                    return author_login
+        except json.JSONDecodeError:
+            warn(f"malformed gh commits list for {repo}#{number}; skipping that source")
+    # 4. PR review-comment thread (only place a #discussion_r reply shows up;
+    #    the issue-comment timeline above does not include inline review replies).
+    if is_discussion:
+        raw = _api(f"repos/{repo}/pulls/{number}/comments?per_page=100")
+        if raw:
+            try:
+                for c in json.loads(raw):
+                    if (
+                        c.get("created_at", "") > since
+                        and (c.get("user") or {}).get("login") in others
+                    ):
+                        return c["user"]["login"]
+            except json.JSONDecodeError:
+                warn(
+                    f"malformed gh review comments list for {repo}#{number}; skipping that source"
+                )
+    return None
+
+
+def _resolve_blocked(data: dict) -> list:
+    """Flip pending tasks back to open when their blocker is resolved.
+
+    Three kinds of blocker are supported via the blocked_by field:
+
+    - A task ID (8-char lowercase hex): resolved when the referenced task
+      reaches done or cancelled status.
+    - A plain PR/Issue URL: resolved when the linked PR is merged, or the
+      linked PR/Issue is closed.
+    - A comment URL (contains '#issuecomment-<id>' or '#discussion_r<id>'): the
+      blocker is "we're waiting for the other side to act on this comment".
+      Resolved when the other side acts after the comment — i.e. the PR author
+      or anyone @mentioned in the comment posts a comment/review/review-comment
+      or pushes a commit dated after the comment's created_at. This is the "the
+      ball came back" signal.
+
+    Mutates tasks in place; returns a list of {id, title, blocked_by,
+    blocker_state} for the ones that were unblocked. Caller saves if non-empty.
+    """
+    unblocked = []
+    for t in data["tasks"]:
+        if t.get("status") != "pending":
+            continue
+        blocker = t.get("blocked_by")
+        if not blocker:
+            continue
+        if _is_task_id(blocker):
+            blocker_task = _find_task(data, blocker)
+            if blocker_task and blocker_task.get("status") in ("done", "cancelled"):
+                t["status"] = "open"
+                t["blocked_by"] = None
+                t["updated_at"] = now_iso()
+                unblocked.append(
+                    {
+                        "id": t["id"],
+                        "title": t["title"],
+                        "blocked_by": blocker,
+                        "blocker_state": blocker_task["status"].upper(),
+                    }
+                )
+            continue
+        if "#issuecomment-" in blocker or "#discussion_r" in blocker:
+            who = _gh_comment_resolved(blocker)
+            if who:
+                t["status"] = "open"
+                t["updated_at"] = now_iso()
+                unblocked.append(
+                    {
+                        "id": t["id"],
+                        "title": t["title"],
+                        "blocked_by": blocker,
+                        "blocker_state": f"REPLIED_BY:{who}",
+                    }
+                )
+            continue
+        st = _gh_state(blocker)
+        if not st:
+            continue
+        if st["merged"] or st["state"] in ("CLOSED", "MERGED"):
+            t["status"] = "open"
+            t["updated_at"] = now_iso()
+            unblocked.append(
+                {
+                    "id": t["id"],
+                    "title": t["title"],
+                    "blocked_by": blocker,
+                    "blocker_state": "MERGED" if st["merged"] else st["state"],
+                }
+            )
+    return unblocked
+
+
+def _auto_unblock_dependents(data: dict, task_id: str) -> list:
+    """Open pending tasks that were waiting on task_id to finish.
+
+    Two mechanisms:
+    1. blocked_by == task_id: the dependent declared itself blocked by this task.
+    2. task.blocks list: this task declared it was blocking those dependents.
+
+    Clears blocked_by on each unblocked task. Returns list of {id, title}.
+    Mutates tasks in place; caller saves.
+    """
+    unblocked = []
+    seen = set()
+
+    for t in data["tasks"]:
+        if t.get("status") != "pending":
+            continue
+        if t.get("blocked_by") == task_id:
+            t["status"] = "open"
+            t["blocked_by"] = None
+            t["updated_at"] = now_iso()
+            seen.add(t["id"])
+            unblocked.append({"id": t["id"], "title": t["title"]})
+
+    done_task = _find_task(data, task_id)
+    if done_task:
+        for dep_id in done_task.get("blocks") or []:
+            if dep_id in seen:
+                continue
+            dep = _find_task(data, dep_id)
+            if (
+                dep
+                and dep.get("status") == "pending"
+                and (not dep.get("blocked_by") or dep.get("blocked_by") == task_id)
+            ):
+                dep["status"] = "open"
+                dep["blocked_by"] = None
+                dep["updated_at"] = now_iso()
+                unblocked.append({"id": dep["id"], "title": dep["title"]})
+
+    return unblocked
+
+
+def _sweep_expired_snooze(data: dict) -> list:
+    """Wake snoozed tasks whose snooze_until date has arrived.
+
+    A snoozed task carries status=pending + snooze_until=YYYY-MM-DD. Once today
+    is on or after that date, the snooze has run its course: flip the task back
+    to open and clear snooze_until so it re-surfaces in the default list. Runs on
+    every `list` call (before the stale-pending sweep) so a date reached while
+    the user wasn't looking still wakes the task the next time they list.
+
+    Tasks with an unparseable snooze_until are left as-is (we don't guess a date).
+
+    Mutates tasks in place; returns a list of {id, title, snooze_until} for the
+    ones that were woken. Caller saves if non-empty.
+    """
+    woken = []
+    today = today_str()
+    for t in data["tasks"]:
+        if t.get("status") != "pending":
+            continue
+        snooze_until = t.get("snooze_until")
+        if not snooze_until:
+            continue
+        if today >= snooze_until:
+            t["status"] = "open"
+            t["snooze_until"] = None
+            t["updated_at"] = now_iso()
+            woken.append(
+                {
+                    "id": t["id"],
+                    "title": t["title"],
+                    "snooze_until": snooze_until,
+                }
+            )
+    return woken
+
+
+STALE_PENDING_DAYS = 7
+
+
+def _parse_dt(s: str):
+    """Parse a stored ISO-8601 timestamp into a naive datetime, or None.
+
+    Stored stamps are mixed: now_iso() writes local naive (no offset), while
+    GitHub-sourced tasks carry a trailing 'Z' (UTC). We don't need exact TZ math
+    for a 1-week staleness threshold, so normalize to naive by dropping the 'Z'
+    and any offset, and compare against naive datetime.now().
+    """
+    if not s:
+        return None
+    s = s.strip()
+    s = s.removesuffix("Z")
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
+        return None
+    return dt.replace(tzinfo=None)
+
+
+def _sweep_stale_pending(data: dict) -> list:
+    """Flip pending tasks back to open once they've sat untouched for a week.
+
+    A pending task whose updated_at is >= STALE_PENDING_DAYS old is treated as
+    stuck on our side rather than the blocker's, so it's flipped back to open to
+    re-surface in planning. Runs on every `list` call (not just
+    --resolve-blocked), because the point is to make the user notice a block
+    that nobody is moving. Tasks with an unparseable/empty updated_at are left
+    pending (we can't anchor the age, so we don't guess).
+
+    Mutates tasks in place; returns a list of {id, title, blocked_by,
+    stale_days} for the ones that were flipped. Caller saves if non-empty.
+    """
+    swept = []
+    now = datetime.now()
+    for t in data["tasks"]:
+        if t.get("status") != "pending":
+            continue
+        # Snoozed tasks are waiting on a date the user chose, not on a stuck
+        # blocker. _sweep_expired_snooze wakes them when their date arrives; the
+        # 7-day staleness rule must not wake them early.
+        if t.get("snooze_until"):
+            continue
+        ts = _parse_dt(t.get("updated_at") or "")
+        if ts is None:
+            continue
+        stale_days = (now - ts).days
+        if stale_days < STALE_PENDING_DAYS:
+            continue
+        t["status"] = "open"
+        t["updated_at"] = now_iso()
+        swept.append(
+            {
+                "id": t["id"],
+                "title": t["title"],
+                "blocked_by": t.get("blocked_by"),
+                "stale_days": stale_days,
+            }
+        )
+    return swept
+
+
+OFFLOAD_STALE_DAYS = 14
+
+
+def _detect_offload_candidates(data: dict) -> list:
+    """List from=me tasks stale enough to consider stashing as an idea memo.
+
+    A from=me task (self-initiated "want to do") whose updated_at is >=
+    OFFLOAD_STALE_DAYS old has stopped being actively pursued. Rather than let it
+    sit in the task store, the offload skill can move it to an idea stash
+    (Obsidian inbox / Notion). Longer than the 7-day stale-pending threshold on
+    purpose: offloading is for genuinely long-abandoned wants, not a brief stall.
+
+    Detection only — does NOT mutate tasks. The skill cancels the task after the
+    user picks which candidates to stash (the store isn't the right place to
+    decide the Notion-vs-inbox split; the user does). in-progress is excluded
+    (actively being worked on); done/cancelled and from=others are excluded.
+    Tasks with an unparseable/empty updated_at are skipped (no age to anchor on).
+
+    Returns a list of {id, title, updated_at, stale_days, source, source_url}.
+    """
+    candidates = []
+    now = datetime.now()
+    for t in data["tasks"]:
+        if t.get("from") != "me":
+            continue
+        if t.get("status") not in ("open", "pending"):
+            continue
+        ts = _parse_dt(t.get("updated_at") or "")
+        if ts is None:
+            continue
+        stale_days = (now - ts).days
+        if stale_days < OFFLOAD_STALE_DAYS:
+            continue
+        candidates.append(
+            {
+                "id": t["id"],
+                "title": t["title"],
+                "updated_at": t.get("updated_at"),
+                "stale_days": stale_days,
+                "source": t.get("source"),
+                "source_url": t.get("source_url"),
+            }
+        )
+    return candidates
+
+
+def _qpos(task: dict) -> int:
+    return task.get("queue_pos") or 0
+
+
+def _normalize_queue(active: list) -> bool:
+    """Reassign queue_pos to active tasks in steps of 10, starting at 10.
+
+    Mutates changed tasks in place and returns whether saving is needed.
+    Caller passes `active` in the desired order.
+    """
+    changed = False
+    for i, t in enumerate(active):
+        position = (i + 1) * 10
+        if t.get("queue_pos") != position:
+            t["queue_pos"] = position
+            t["updated_at"] = now_iso()
+            changed = True
+    return changed
+
+
+def cmd_reorder(args) -> None:
+    """Reorder a task within the queue by adjusting its queue_pos.
+
+    --head          move to front (one less than the current minimum)
+    --tail          move to end   (one more than the current maximum)
+    --before <id>   insert directly before another task
+    --after <id>    insert directly after another task
+    --normalize     reassign all active tasks queue_pos in steps of 10 (no target id needed)
+
+    queue_pos is just an ordering key, so positions are placed one apart and
+    only renumbered (normalized to multiples of 10 starting at 10) when there is
+    no integer gap left, or when --head would otherwise produce a value below 1.
+    """
+    data = load()
+
+    active = [t for t in data["tasks"] if t.get("status") in ACTIVE_STATUSES]
+    active.sort(key=_qpos)
+
+    if args.normalize:
+        changed = _normalize_queue(active)
+        if changed:
+            save(data)
+        emit({"normalized": len(active), "changed": changed})
+        return
+
+    if args.by_tier:
+        # Bake the list order into queue_pos: sort by the same _task_sort_key the
+        # list view uses (dated-before-undated, then tier), then renumber in
+        # steps of 10. Sharing the key keeps Obsidian's filename order identical
+        # to the list. queue_pos is the key's final tie-break, so a manual
+        # --head/--before within an otherwise-equal group survives.
+        active.sort(key=_task_sort_key)
+        changed = _normalize_queue(active)
+        if changed:
+            save(data)
+        emit({"reordered_by_tier": len(active), "changed": changed})
+        return
+
+    t = _find_task(data, args.id)
+    if not t:
+        print(f"not found: {args.id}", file=sys.stderr)
+        sys.exit(1)
+
+    others = [x for x in active if x["id"] != args.id]
+
+    def _compute(target):
+        """Return the new queue_pos for the requested move, or None if it needs a
+        renumber first (no integer gap available, or --head would drop below 1)."""
+        if args.head:
+            if not others:
+                return 10
+            pos = _qpos(others[0]) - 1
+            return pos if pos >= 1 else None
+        if args.tail:
+            return (_qpos(others[-1]) + 1) if others else 10
+        if args.before:
+            ref_pos = _qpos(target)
+            before_ref = [x for x in others if _qpos(x) < ref_pos]
+            prev_pos = _qpos(before_ref[-1]) if before_ref else ref_pos - 2
+            pos = (prev_pos + ref_pos) // 2
+            return pos if pos != ref_pos and pos != prev_pos else None
+        if args.after:
+            ref_pos = _qpos(target)
+            after_ref = [x for x in others if _qpos(x) > ref_pos]
+            next_pos = _qpos(after_ref[0]) if after_ref else ref_pos + 2
+            pos = (ref_pos + next_pos) // 2
+            return pos if pos != ref_pos and pos != next_pos else None
+        return False  # sentinel: no move flag given
+
+    ref = None
+    if args.before or args.after:
+        ref = _find_task(data, args.before or args.after)
+        if not ref:
+            print(f"not found: {args.before or args.after}", file=sys.stderr)
+            sys.exit(1)
+
+    new_pos = _compute(ref)
+    if new_pos is False:
+        print(
+            "specify one of --head, --tail, --before <id>, --after <id>, or --normalize",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if new_pos is None:
+        # No room — renumber the queue (target excluded so it can slot in cleanly), then retry.
+        _normalize_queue(others)
+        new_pos = _compute(ref)
+
+    t["queue_pos"] = new_pos
+    t["updated_at"] = now_iso()
+    save(data)
+    emit(t)
+
+
+def cmd_notif_keys(args) -> None:
+    """Emit normalized owner/repo#number keys for github tasks in the given statuses.
+
+    Used by the github-sync agent to decide which GitHub notification threads to
+    mark done: a notification whose key is in this set corresponds to a task the
+    user has already finished or dropped, so the thread can be dismissed.
+    """
+    data = load()
+    statuses = [s.strip() for s in args.status.split(",") if s.strip()]
+    keys = set()
+    for t in data["tasks"]:
+        if t.get("source") != "github":
+            continue
+        if t.get("status") not in statuses:
+            continue
+        key = _gh_notif_key(t.get("source_url") or "")
+        if key:
+            keys.add(key)
+    emit({"statuses": statuses, "keys": sorted(keys)})
+
+
+# ---------- meta ----------
+
+
+def cmd_meta(args) -> None:
+    data = load()
+    if args.action == "get":
+        if args.key:
+            print(json.dumps(data["meta"].get(args.key), ensure_ascii=False))
+        else:
+            emit(data["meta"])
+    elif args.action == "set":
+        # try parsing as JSON for numbers/arrays/objects, fall back to string
+        try:
+            value = json.loads(args.value)
+        except (json.JSONDecodeError, TypeError, ValueError):
+            value = args.value
+        data["meta"][args.key] = value
+        save(data)
+        print("ok")
+    elif args.action == "unset":
+        data["meta"].pop(args.key, None)
+        save(data)
+        print("ok")
+
+
+# ---------- work log ----------
+
+
+def parse_time(s: str) -> str:
+    s = s.strip()
+    if ":" in s:
+        h, m = s.split(":")
+    else:
+        h, m = s[:-2], s[-2:]
+    return f"{int(h):02d}:{int(m):02d}"
+
+
+def _time_to_minutes(s: str) -> int:
+    h, m = map(int, s.split(":"))
+    return h * 60 + m
+
+
+def _minutes_to_time(m: float) -> str:
+    m = max(0, round(m))
+    return f"{m // 60:02d}:{m % 60:02d}"
+
+
+def _pace_correction(pace_diff, even_norma, meta):
+    """月初ペースの貯金/不足で今日ノルマを補正する。
+
+    - 貯金（pace_diff > 0）: 均等割りのまま（急いで消化しない）。
+    - 不足（pace_diff < 0）: 不足を今日に全額上乗せする。
+    - 上限: max_daily_hoursを超えたら丸めて capped_12h を立てる。
+
+    返り: {"norma": 補正後ノルマ h, "capped_12h": bool}
+    """
+    max_daily = _work_rule(meta, "max_daily_hours")
+    norma = even_norma
+    if pace_diff < 0:
+        norma = even_norma + (-pace_diff)  # 不足を全額上乗せ
+    capped = False
+    if norma > max_daily:
+        norma = max_daily
+        capped = True
+    return {"norma": round(norma, 2), "capped_12h": capped}
+
+
+def _flex_carryover(
+    planned_days, today_start_min, today_started, future_workdays, meta
+):
+    """未来のフレックス退勤予定の不足を今日〜予定日の営業日に前借りする。
+
+    退勤時刻を揃える配分。今日は始業済みなら残業のみ日（早出できない）、未始業なら
+    対称ズレ日に含める。始業は std_startが上限で、追加分は早出＋残業に半々。
+
+    引数:
+      planned_days     [(date_str, 退勤希望min)] のリスト（未来のフレックス予定）
+      today_start_min  今日の始業（分）
+      today_started    今日が始業済みか（True なら今日は残業のみ日）
+      future_workdays  今日〜最遠予定日の間の普通日 date_str の集合（予定日は含めない。
+                       今日は含めない。対称ズレ日の集合）
+      meta
+
+    返り: {"D": 前借り総量 h, "a_today_min": 今日の上乗せ分, "a_sym_min": 対称ズレ日1日の上乗せ分,
+           "T_min": 共通退勤目安分}
+    """
+    daily_norma = _work_rule(meta, "daily_norma_hours")
+    break_min = _work_rule(meta, "break_default_minutes")
+    std_start = _time_to_minutes(_work_rule(meta, "std_start"))
+    std_end = _time_to_minutes(_work_rule(meta, "std_end"))
+
+    # 各予定日の不足（標準労働時間 − 実働）。実働 = 退勤希望 − std_start − 休憩。
+    D_min = 0.0
+    for _d, want_out_min in planned_days:
+        worked = want_out_min - std_start - break_min
+        D_min += daily_norma * 60 - worked
+    D_h = round(D_min / 60, 4)
+
+    result = {"D": D_h, "a_today_min": 0, "a_sym_min": 0, "T_min": None}
+    if D_min <= 0:
+        return result
+
+    m = len(future_workdays)  # 対称ズレ日数
+    base_today = today_start_min + daily_norma * 60 + break_min  # 今日のノルマ退勤
+
+    if today_started:
+        # 今日は残業のみ日（1日）。T = (D + 2m*std_end + base_today) / (2m + 1)
+        T = (D_min + 2 * m * std_end + base_today) / (2 * m + 1)
+        a_today = T - base_today
+    else:
+        # 今日も対称ズレ日。全 (m+1) 日が対称。T = (D + 2(m+1)*std_end) / (2(m+1))
+        mm = m + 1
+        T = (D_min + 2 * mm * std_end) / (2 * mm)
+        a_today = 2 * (T - std_end)  # 今日も対称ズレ
+
+    a_sym = 2 * (T - std_end)
+    result["T_min"] = T
+    result["a_today_min"] = a_today
+    result["a_sym_min"] = a_sym
+    return result
+
+
+def _today_plan(
+    meta: dict,
+    today_entry: dict,
+    today_target_hours,
+    off_start,
+    pace_diff,
+    planned_days,
+    future_workdays,
+):
+    """今日の退勤打刻時刻・実働終端を計算する。補正まで含めてツールが出す。
+
+    決め打ちの退勤時刻（18:10 / 18:30 等）は持たない。始業とノルマから計算し、
+    月初ペース補正（pace_diff）とフレックス前借り（planned_days）を常に通す。
+
+    退勤目安の合成順:
+      1. 素の今日ノルマ = today_target_hours（均等割り）
+      2. 月初ペース補正（_pace_correction）: 貯金/不足で今日ノルマを補正
+      3. コアタイム下限: 退勤目安が core_time_floor より前なら切り上げ
+      4. フレックス前借り（_flex_carryover）: 未来のフレックス予定の不足を今日に上乗せ
+      5. 不在上限（off_start）: 不在開始が上限（早い方）
+      6. フレキシブルタイム終了（flex_time_end）: 会社規定の絶対上限。これを超えない
+
+    補正入力は必須。補正を通さない素のノルマ退勤の経路は持たない（呼び出し側が
+    引数を渡し忘れると生値が出る副作用を避けるため）。フレックス予定が無いときは
+    planned_days=[] を渡せば前借りゼロになる。
+
+    返す dict のキー:
+      today_start          始業時刻 HH:MM
+      clock_out_estimate   補正後の退勤打刻の目安 HH:MM
+      work_end             実働終端 HH:MM = clock_out_estimate − wind_down
+      break_minutes / wind_down_minutes
+      remaining_work_minutes  work_end − 現在時刻（分）
+      pace_diff            月初ペース差（貯金正・不足負）
+      capped_12h / core_time_floored  補正で丸め・切り上げが起きたか
+      flex_carryover_hours / flex_deficit_hours  前借りが乗った場合のみ
+      flex_time_capped     フレキシブルタイム終了で退勤目安を切り下げたか
+
+    today_target_hours が None（残営業日 0 等で算出不能）かつ off_start も無いときは
+    clock_out_estimate / work_end / remaining_work_minutes を None にする。
+    """
+    break_minutes = _work_rule(meta, "break_default_minutes")
+    wind_down = _work_rule(meta, "wind_down_default_minutes")
+    core_floor = _time_to_minutes(_work_rule(meta, "core_time_floor"))
+
+    now_min = datetime.now().hour * 60 + datetime.now().minute
+
+    # 始業: 打刻済みならそれを使う。未打刻なら現在時刻を始業とみなす。
+    entry_start = (today_entry or {}).get("start")
+    today_started = bool(entry_start)
+    start_min = _time_to_minutes(entry_start) if entry_start else now_min
+    today_start = _minutes_to_time(start_min)
+
+    plan = {
+        "today_start": today_start,
+        "break_minutes": break_minutes,
+        "wind_down_minutes": wind_down,
+    }
+
+    norma_clock_out = None
+    if today_target_hours is not None:
+        # 2. 月初ペース補正（常に通す）
+        corr = _pace_correction(pace_diff, today_target_hours, meta)
+        norma = corr["norma"]
+        plan["pace_diff"] = round(pace_diff, 2)
+        plan["capped_12h"] = corr["capped_12h"]
+        norma_clock_out = start_min + round(norma * 60) + break_minutes
+        # 月間目標を超えた場合も終業可能時間より前には退勤しない。
+        if norma_clock_out < core_floor:
+            norma_clock_out = core_floor
+            plan["core_time_floored"] = True
+        # 4. フレックス前借り（今日に上乗せ）
+        flex = _flex_carryover(
+            planned_days, start_min, today_started, future_workdays, meta
+        )
+        if flex["a_today_min"] > 0:
+            norma_clock_out += flex["a_today_min"]
+            plan["flex_carryover_hours"] = round(flex["a_today_min"] / 60, 2)
+            plan["flex_deficit_hours"] = flex["D"]
+
+    # 5. 不在予定があればそれを退勤打刻の上限にする（不在開始までに上がる）。
+    off_min = _time_to_minutes(off_start) if off_start else None
+
+    if norma_clock_out is not None and off_min is not None:
+        clock_out_min = min(norma_clock_out, off_min)
+    elif norma_clock_out is not None:
+        clock_out_min = norma_clock_out
+    else:
+        clock_out_min = off_min  # ノルマ算出不能。off があればそれ、無ければ None
+
+    if clock_out_min is None:
+        plan["clock_out_estimate"] = None
+        plan["work_end"] = None
+        plan["remaining_work_minutes"] = None
+        return plan
+
+    # 6. フレキシブルタイム終了（会社規定の絶対上限）。これを超える勤務は
+    # 認められないため、他の補正結果に関わらず最後にここで切り下げる。
+    flex_end = _time_to_minutes(_work_rule(meta, "flex_time_end"))
+    if clock_out_min > flex_end:
+        clock_out_min = flex_end
+        plan["flex_time_capped"] = True
+
+    work_end_min = clock_out_min - wind_down
+    plan["clock_out_estimate"] = _minutes_to_time(clock_out_min)
+    plan["work_end"] = _minutes_to_time(work_end_min)
+    plan["remaining_work_minutes"] = work_end_min - now_min
+    # 実働可能時間（分）= 退勤打刻 − 始業 − 休憩。todo.md の本丸割合の分母などが
+    # スキルで手計算していたのをツール側に一元化する。
+    plan["work_available_minutes"] = clock_out_min - start_min - break_minutes
+    return plan
+
+
+def _calc_hours_from_segments(segments: list, default_break: int) -> tuple:
+    """segments: list of {start, end}. Returns (hours, total_break_minutes_inferred)."""
+    if not segments:
+        return None, default_break
+    # If a single segment, treat as start-end with the default break deducted.
+    if len(segments) == 1:
+        seg = segments[0]
+        if seg.get("start") and seg.get("end"):
+            minutes = (
+                _time_to_minutes(seg["end"])
+                - _time_to_minutes(seg["start"])
+                - default_break
+            )
+            return round(max(0, minutes) / 60, 2), default_break
+        return None, default_break
+    # Multiple segments: sum each, no extra break deduction (gaps are breaks).
+    total = 0
+    total_gap = 0
+    last_end = None
+    for seg in segments:
+        if not (seg.get("start") and seg.get("end")):
+            return None, default_break
+        s = _time_to_minutes(seg["start"])
+        e = _time_to_minutes(seg["end"])
+        total += max(0, e - s)
+        if last_end is not None:
+            total_gap += max(0, s - last_end)
+        last_end = e
+    return round(total / 60, 2), total_gap
+
+
+def _leave_hours(entry: dict) -> float:
+    leave = entry.get("leave") or {}
+    return float(leave.get("hours") or 0)
+
+
+def _set_work_hours(entry: dict, work_hours) -> None:
+    """Update actual and credited hours while preserving leave annotation."""
+    entry["work_hours"] = work_hours
+    if work_hours is None:
+        entry["hours"] = None
+        return
+    entry["hours"] = round(work_hours + _leave_hours(entry), 2)
+
+
+def _entry_work_hours(entry: dict, default_break: int):
+    if entry.get("segments"):
+        break_minutes = entry.get("break_minutes_override", default_break)
+        work_hours, _ = _calc_hours_from_segments(entry["segments"], break_minutes)
+        return work_hours
+    if "work_hours" in entry:
+        return entry["work_hours"]
+    if entry.get("leave"):
+        # A leave-only entry has no actual work yet, but its leave credit must
+        # still be included in the day's credited hours. A start-only entry
+        # remains incomplete until its end is recorded.
+        if entry.get("start") and not entry.get("end"):
+            return None
+        return 0.0
+    return entry.get("hours")
+
+
+def _validate_leave_hours(hours: float, daily_norma: float) -> float:
+    if hours <= 0 or hours > daily_norma:
+        print(
+            f"leave hours must be greater than 0 and at most {daily_norma}: {hours}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if not hours.is_integer():
+        print(
+            f"leave hours must be in whole-hour units: {hours}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return round(hours, 2)
+
+
+def _half_day_leave_hours(daily_norma: float) -> float:
+    hours = round(daily_norma / 2, 2)
+    if hours <= 0:
+        print(f"daily norm hours must be positive: {daily_norma}", file=sys.stderr)
+        sys.exit(1)
+    return hours
+
+
+def cmd_work_set(args) -> None:
+    """Record or overwrite a day's work entry from one or more start/end pairs.
+
+    Pairs are passed as repeated --segment "HH:MM-HH:MM". Single value sets only start.
+    """
+    data = load()
+    d = args.date or today_str()
+    default_break = _work_rule(data["meta"], "break_default_minutes")
+    entry = data["work_log"].get(d, {})
+
+    if args.segments:
+        segments = []
+        for seg_str in args.segments:
+            if "-" in seg_str:
+                a, b = seg_str.split("-", 1)
+                segments.append({"start": parse_time(a), "end": parse_time(b)})
+            else:
+                segments.append({"start": parse_time(seg_str), "end": None})
+        entry["segments"] = segments
+        hours, gap = _calc_hours_from_segments(segments, default_break)
+        _set_work_hours(entry, hours)
+        entry["break_minutes_inferred"] = gap if len(segments) > 1 else default_break
+        # also expose start/end for convenience (first/last)
+        entry["start"] = segments[0]["start"] if segments else None
+        entry["end"] = (
+            segments[-1]["end"] if segments and segments[-1].get("end") else None
+        )
+
+    if args.break_minutes is not None:
+        entry["break_minutes_override"] = args.break_minutes
+        # recompute if single segment
+        if entry.get("segments") and len(entry["segments"]) == 1:
+            hours, _ = _calc_hours_from_segments(entry["segments"], args.break_minutes)
+            _set_work_hours(entry, hours)
+
+    if args.note:
+        entry["note"] = args.note
+
+    # planned: フレックス退勤予定として登録する。planned フラグと flex_plan を立てる。
+    # --planned なしの set は実打刻（実績）とみなし、残っていた予定フラグを外す。
+    if getattr(args, "planned", False):
+        entry["planned"] = True
+        entry["source"] = args.source or "flex_plan"
+    else:
+        entry.pop("planned", None)
+        if args.source:
+            entry["source"] = args.source  # e.g., "slack_clock" or "manual"
+
+    entry["updated_at"] = now_iso()
+    data["work_log"][d] = entry
+    save(data)
+    emit({d: entry})
+
+
+def _parse_work_punch(value: str) -> tuple[str, datetime]:
+    match = re.fullmatch(r"(start|end):(\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2})", value)
+    if not match:
+        raise ValueError(
+            f"invalid punch {value!r}; expected start:YYYY/MM/DD HH:MM:SS "
+            "or end:YYYY/MM/DD HH:MM:SS"
+        )
+    kind, timestamp = match.groups()
+    return kind, datetime.strptime(timestamp, "%Y/%m/%d %H:%M:%S")
+
+
+def _work_punch_entries(punches: list[str]) -> dict[str, list[dict]]:
+    """Pair explicit dated punches and keep each segment on its start date."""
+    entries: dict[str, list[dict]] = {}
+    pending_start = None
+    previous_timestamp = None
+    for value in punches:
+        kind, timestamp = _parse_work_punch(value)
+        if previous_timestamp and timestamp < previous_timestamp:
+            raise ValueError("punches must be in chronological order")
+        previous_timestamp = timestamp
+
+        if kind == "start":
+            if pending_start is not None:
+                raise ValueError(
+                    "a start punch was received before the previous start was ended"
+                )
+            pending_start = timestamp
+            continue
+
+        if pending_start is None:
+            raise ValueError("an end punch requires a preceding start punch")
+        if timestamp < pending_start:
+            raise ValueError("an end punch cannot precede its start punch")
+        day_delta = (timestamp.date() - pending_start.date()).days
+        if day_delta not in (0, 1):
+            raise ValueError(
+                "an end punch must be on the start date or the following date"
+            )
+        start_minute = pending_start.hour * 60 + pending_start.minute
+        end_minute = timestamp.hour * 60 + timestamp.minute + day_delta * 1440
+        end_time = _minutes_to_time(end_minute)
+        day = pending_start.date().isoformat()
+        entries.setdefault(day, []).append(
+            {"start": _minutes_to_time(start_minute), "end": end_time}
+        )
+        pending_start = None
+
+    if pending_start is not None:
+        day = pending_start.date().isoformat()
+        entries.setdefault(day, []).append(
+            {
+                "start": _minutes_to_time(
+                    pending_start.hour * 60 + pending_start.minute
+                ),
+                "end": None,
+            }
+        )
+    return entries
+
+
+def cmd_work_punches(args) -> None:
+    """Save dated punches and assign overnight work to its start date."""
+    try:
+        segments_by_date = _work_punch_entries(args.punches)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        sys.exit(1)
+
+    data = load()
+    default_break = _work_rule(data["meta"], "break_default_minutes")
+    result = {}
+    for day, segments in segments_by_date.items():
+        entry = data["work_log"].get(day, {})
+        entry["segments"] = segments
+        hours, gap = _calc_hours_from_segments(segments, default_break)
+        _set_work_hours(entry, hours)
+        entry["break_minutes_inferred"] = gap if len(segments) > 1 else default_break
+        entry["start"] = segments[0]["start"]
+        entry["end"] = segments[-1]["end"]
+        entry.pop("planned", None)
+        entry["source"] = args.source
+        entry["updated_at"] = now_iso()
+        data["work_log"][day] = entry
+        result[day] = entry
+    save(data)
+    emit(result)
+
+
+def cmd_work_leave_set(args) -> None:
+    """Record a full-day, half-day, or hourly leave entry."""
+    data = load()
+    d = args.date or today_str()
+    entry = data["work_log"].get(d, {})
+    daily_norma = _work_rule(data["meta"], "daily_norma_hours")
+
+    if args.period in ("am", "pm"):
+        if args.hours is not None:
+            print(
+                "--hours cannot be combined with --period am or pm",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        leave_hours = _half_day_leave_hours(float(daily_norma))
+        entry["segments"] = [
+            {
+                "start": _work_rule(data["meta"], "leave_start"),
+                "end": _work_rule(data["meta"], "leave_end"),
+            }
+        ]
+        entry["start"] = entry["segments"][0]["start"]
+        entry["end"] = entry["segments"][0]["end"]
+        entry["break_minutes_inferred"] = _work_rule(
+            data["meta"], "break_default_minutes"
+        )
+        entry["leave"] = {
+            "type": args.type,
+            "hours": leave_hours,
+            "period": args.period,
+        }
+        _set_work_hours(entry, 0.0)
+    elif args.hours is None:
+        leave_hours = float(daily_norma)
+        entry["segments"] = [
+            {
+                "start": _work_rule(data["meta"], "leave_start"),
+                "end": _work_rule(data["meta"], "leave_end"),
+            }
+        ]
+        entry["start"] = entry["segments"][0]["start"]
+        entry["end"] = entry["segments"][0]["end"]
+        entry["break_minutes_inferred"] = _work_rule(
+            data["meta"], "break_default_minutes"
+        )
+        entry["leave"] = {"type": args.type, "hours": leave_hours}
+        _set_work_hours(entry, 0.0)
+    else:
+        leave_hours = _validate_leave_hours(args.hours, float(daily_norma))
+        entry["leave"] = {"type": args.type, "hours": leave_hours}
+        work_hours = _entry_work_hours(
+            entry,
+            _work_rule(data["meta"], "break_default_minutes"),
+        )
+        _set_work_hours(entry, work_hours)
+    entry["updated_at"] = now_iso()
+    data["work_log"][d] = entry
+    save(data)
+    emit({d: entry})
+
+
+def cmd_work_delete(args) -> None:
+    data = load()
+    if args.date in data["work_log"]:
+        del data["work_log"][args.date]
+        save(data)
+        print("ok")
+    else:
+        print(f"not found: {args.date}", file=sys.stderr)
+        sys.exit(1)
+
+
+def cmd_work_show(args) -> None:
+    data = load()
+    if args.date:
+        emit(data["work_log"].get(args.date))
+        return
+    month = args.month or today_str()[:7]
+    entries = {d: e for d, e in sorted(data["work_log"].items()) if d.startswith(month)}
+    emit(entries)
+
+
+def _workdays_between(start_date: date, end_date: date, holidays: set) -> int:
+    """Count weekdays (Mon-Fri) between start_date and end_date inclusive, excluding holidays."""
+    if end_date < start_date:
+        return 0
+    count = 0
+    cur = start_date
+    while cur <= end_date:
+        if cur.weekday() < 5 and cur.isoformat() not in holidays:
+            count += 1
+        cur += timedelta(days=1)
+    return count
+
+
+def _unfilled_work_entries(data: dict, month: str, through: str) -> list:
+    workdays = data["meta"].get(f"workdays_{month}", [])
+    unfilled = []
+    for d in workdays:
+        if d > through:
+            break
+        entry = data["work_log"].get(d)
+        if not entry:
+            unfilled.append({"date": d, "status": "missing"})
+        elif entry.get("leave") and not entry.get("start"):
+            continue
+        elif not entry.get("end"):
+            unfilled.append(
+                {"date": d, "status": "start_only", "start": entry.get("start")}
+            )
+    return unfilled
+
+
+def cmd_work_unfilled_entries(args) -> None:
+    """List workdays with missing or start-only entries."""
+    data = load()
+    month = args.month or today_str()[:7]
+    through = args.through or today_str()
+    emit(
+        {
+            "month": month,
+            "through": through,
+            "unfilled_entries": _unfilled_work_entries(data, month, through),
+        }
+    )
+
+
+def cmd_work_summary(args) -> None:
+    data = load()
+    month = args.month or today_str()[:7]
+    meta = data["meta"]
+    _work_rule(meta, "daily_norma_hours")
+    year, mon = map(int, month.split("-"))
+    if mon == 12:
+        next_month_first = date(year + 1, 1, 1)
+    else:
+        next_month_first = date(year, mon + 1, 1)
+    month_first = date(year, mon, 1)
+    month_last = next_month_first - timedelta(days=1)
+
+    holidays = set(meta.get(f"holidays_{month}", []))
+    workdays_total = _workdays_between(month_first, month_last, holidays)
+
+    # target hours
+    # 残り営業日が3以下になったら target_hours_no_buffer に切り替える（早上がりモード）。
+    # target_hours_no_buffer が未設定の場合は常に target_hours を使う。
+    _target_full = meta.get(f"target_hours_{month}") or 0.0
+    _target_no_buf = meta.get(f"target_hours_no_buffer_{month}")
+    # remaining_workdays はこの時点では未計算のため、仮計算する
+    _today_for_target = date.today()
+    _holidays_for_target = set(meta.get(f"holidays_{month}", []))
+    _year_t, _mon_t = map(int, month.split("-"))
+    _mon_last_t = (
+        date(_year_t, _mon_t + 1, 1) if _mon_t < 12 else date(_year_t + 1, 1, 1)
+    ) - timedelta(days=1)
+    _rem_days = (
+        _workdays_between(_today_for_target, _mon_last_t, _holidays_for_target)
+        if (_year_t, _mon_t) == (_today_for_target.year, _today_for_target.month)
+        else 0
+    )
+    if _target_no_buf is not None and _rem_days <= 3:
+        target = float(_target_no_buf)
+    else:
+        target = _target_full
+
+    # cumulative — sum logged hours up to and including yesterday
+    today = date.today()
+    cumulative = 0.0
+    logged_days = 0
+    today_iso = today.isoformat()
+    for d, e in data["work_log"].items():
+        if not d.startswith(month):
+            continue
+        if e.get("hours") is None:
+            continue
+        # planned（フレックス退勤予定）は実績ではないので cumulative に混ぜない。
+        if e.get("planned"):
+            continue
+        # always count past days; for today, count only if both start and end set
+        if d < today_iso or (d == today_iso and e.get("end")):
+            cumulative += e["hours"]
+            logged_days += 1
+    cumulative = round(cumulative, 2)
+
+    # remaining workdays: from today through end of month, inclusive (only if month is current/future)
+    if (year, mon) > (today.year, today.month):
+        remaining_workdays = workdays_total
+        anchor = month_first
+    elif (year, mon) < (today.year, today.month):
+        remaining_workdays = 0
+        anchor = None
+    else:
+        remaining_workdays = _workdays_between(today, month_last, holidays)
+        anchor = today
+
+    remaining_hours = round(target - cumulative, 2)
+    today_target = None
+    pace = None
+    daily_avg = (
+        round(target / workdays_total, 2)
+        if workdays_total > 0
+        else _work_rule(meta, "daily_norma_hours")
+    )
+    if remaining_workdays > 0:
+        today_target = round(remaining_hours / remaining_workdays, 2)
+        if today_target <= daily_avg + 0.01:
+            pace = "on_track"
+        else:
+            pace = "behind"
+    elif remaining_hours > 0:
+        pace = "month_over_with_shortfall"
+    else:
+        pace = "month_over_satisfied"
+
+    today_entry = data["work_log"].get(today_iso, {})
+
+    summary = {
+        "month": month,
+        "target_hours": target,
+        "cumulative_hours": cumulative,
+        "remaining_hours": remaining_hours,
+        "workdays_in_month": workdays_total,
+        "remaining_workdays": remaining_workdays,
+        "today_target_hours": today_target,
+        "pace": pace,
+        "logged_days": logged_days,
+        "today_entry": today_entry or None,
+    }
+
+    # 今日が当月の残営業日のときだけ、今日の勤務終了時刻と退勤目安を計算する。
+    # anchor==today は cmd 冒頭で「当月かつ today 以降に残営業日がある」場合のみ。
+    if anchor == today:
+        # 月初ペース差 pace_diff を出す。今日の実働推定は均等割りノルマ（today_target）を
+        # 使う（補正後の退勤目安に依存させると循環するため、循環しない値で切る）。
+        daily_norma = _work_rule(meta, "daily_norma_hours")
+        month_buffer = _work_rule(meta, "month_buffer_hours")
+        elapsed_days = _workdays_between(month_first, today, holidays)
+        ideal_cumul = elapsed_days * daily_norma + month_buffer
+        today_done = bool(today_entry.get("end"))
+        actual_cumul = cumulative if today_done else cumulative + (today_target or 0)
+        pace_diff = round(actual_cumul - ideal_cumul, 2)
+
+        # 未来のフレックス予定（planned かつ今日より後）を集める。
+        planned_days = []
+        planned_dates = set()
+        for d, e in data["work_log"].items():
+            if e.get("planned") and d > today_iso and e.get("end"):
+                planned_days.append((d, _time_to_minutes(e["end"])))
+                planned_dates.add(d)
+
+        # 配分先の対称ズレ日 = 今日〜最遠予定日の普通日（予定日・今日・祝日・週末を除く）。
+        future_workdays = set()
+        if planned_days:
+            farthest = max(d for d, _m in planned_days)
+            far_date = date.fromisoformat(farthest)
+            cur = today + timedelta(days=1)  # 今日は残業のみ日として別扱い、明日以降
+            while cur <= far_date:
+                iso = cur.isoformat()
+                if (
+                    cur.weekday() < 5
+                    and iso not in holidays
+                    and iso not in planned_dates
+                ):
+                    future_workdays.add(iso)
+                cur += timedelta(days=1)
+
+        summary["today_plan"] = _today_plan(
+            meta,
+            today_entry,
+            today_target,
+            args.off_start,
+            pace_diff=pace_diff,
+            planned_days=planned_days,
+            future_workdays=future_workdays,
+        )
+        # 月初ペースの内訳（スキルの出力整形が使う）。
+        summary["today_plan"]["actual_cumul"] = round(actual_cumul, 2)
+        summary["today_plan"]["ideal_cumul"] = round(ideal_cumul, 2)
+
+    if getattr(args, "include_unfilled", False):
+        summary["unfilled_entries"] = _unfilled_work_entries(data, month, today_iso)
+    emit(summary)
+
+
+# ---------- daily logs ----------
+
+# コンディションのスコア項目。daily_logs エントリに保持し、デイリーノートの
+# ## ふりかえり の `- コンディション:` 行に出す。値は 1-_SCORE_MAX の int か
+# None（未記録）。
+_CONDITION_FIELDS = ("focus", "sleepiness", "start_mood", "output_feel")
+
+# スコアの上限。将来レンジを変える可能性があるので1箇所で持ち、バリデーションと
+# デイリーノートの分母表記（`集中度4/5` の分母）の両方から参照する。過去の記録は
+# 分母付きで書くため、上限を変えても既存ノートの解釈は壊れない。
+_SCORE_MAX = 5
+
+
+def _validate_score(name: str, v) -> None:
+    if v is not None and not (1 <= v <= _SCORE_MAX):
+        print(f"{name} must be 1-{_SCORE_MAX}: {v}", file=sys.stderr)
+        sys.exit(1)
+
+
+def cmd_daily_save(args) -> None:
+    data = load()
+    date = args.date or today_str()
+    # 同じ日付に既存エントリがあればマージする（/todo の途中保存と夕方の
+    # furikaeri が互いの記録を消し合わないため）。未指定（None）のフィールドは
+    # 既存値を保持し、明示指定したフィールドだけ更新する。空文字はクリアとして扱う。
+    existing = next((d for d in data["daily_logs"] if d["date"] == date), None)
+    base = existing or {
+        "date": date,
+        "good": "",
+        "issues": "",
+        "notes": "",
+        "standup": "",
+        "focus": None,
+        "sleepiness": None,
+        "start_mood": None,
+        "output_feel": None,
+        "completed_task_ids": [],
+        "created_at": now_iso(),
+    }
+    entry = dict(base)
+    entry["date"] = date
+    # 旧データには新フィールドが無いので補う。
+    for f in _CONDITION_FIELDS:
+        entry.setdefault(f, None)
+    entry.setdefault("standup", "")
+    if args.good is not None:
+        entry["good"] = args.good
+    if args.issues is not None:
+        entry["issues"] = args.issues
+    if args.notes is not None:
+        entry["notes"] = args.notes
+    if args.standup is not None:
+        entry["standup"] = args.standup
+    for f in _CONDITION_FIELDS:
+        v = getattr(args, f, None)
+        _validate_score(f, v)
+        if v is not None:
+            entry[f] = v
+    if args.completed_task_ids:
+        new_ids = [s.strip() for s in args.completed_task_ids.split(",")]
+        merged = list(entry.get("completed_task_ids", []))
+        for cid in new_ids:
+            if cid not in merged:
+                merged.append(cid)
+        entry["completed_task_ids"] = merged
+    data["daily_logs"] = [d for d in data["daily_logs"] if d["date"] != date]
+    data["daily_logs"].append(entry)
+    save(data, action="daily_save", daily_entry=entry)
+    emit(entry)
+
+
+def cmd_daily_show(args) -> None:
+    data = load()
+    d = args.date or today_str()
+    matches = [x for x in data["daily_logs"] if x["date"] == d]
+    emit(matches[0] if matches else None)
+
+
+def cmd_daily_list(args) -> None:
+    data = load()
+    logs = sorted(data["daily_logs"], key=lambda x: x["date"], reverse=True)
+    if args.month:
+        logs = [x for x in logs if x["date"].startswith(args.month)]
+    if args.limit:
+        logs = logs[: args.limit]
+    emit(logs)
+
+
+# ---------- migrate ----------
+
+_KIND_TO_FROM = {"must": "others", "will": "me"}
+
+
+def cmd_migrate(args) -> None:
+    data = load()
+    count = 0
+    for t in data.get("tasks", []):
+        if "kind" in t:
+            t["from"] = _KIND_TO_FROM.get(t.pop("kind"), "me")
+            count += 1
+        elif "from" not in t:
+            t["from"] = "me"
+    if args.dry_run:
+        emit({"migrated": count, "tasks": data["tasks"]})
+        return
+    bak = STORE.with_suffix(".json.bak")
+    bak.write_text(STORE.read_text())
+    save(data)
+    emit({"migrated": count, "backup": str(bak)})
+
+
+# ---------- arg parser ----------
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(description=__doc__)
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    # tasks
+    a = sub.add_parser("add", help="add a task")
+    a.add_argument("title")
+    a.add_argument(
+        "--from",
+        dest="from_",
+        default="me",
+        choices=FROM,
+        help="task origin: 'others' (external request) or 'me' (self-initiated)",
+    )
+    a.add_argument(
+        "--queue-pos",
+        dest="queue_pos",
+        type=int,
+        help="explicit queue position (default: append to tail)",
+    )
+    a.add_argument("--due", help="YYYY-MM-DD — external deadline only; omit if none")
+    a.add_argument("--source", default="local", choices=SOURCES)
+    a.add_argument("--source-url", dest="source_url")
+    a.add_argument(
+        "--blocked-by",
+        dest="blocked_by",
+        help="Blocker: task ID (8-char hex) or URL. Task ID: resolved when "
+        "the referenced task reaches done/cancelled. PR/Issue URL: "
+        "resolved on merge/close. Comment URL (#issuecomment-N or "
+        "#discussion_r<N>): resolved when the PR author or a "
+        "mentioned user replies after it",
+    )
+    a.add_argument(
+        "--blocks",
+        metavar="TASK_ID",
+        help="Task ID this new task blocks; sets that task to pending "
+        "with blocked_by pointing here. Auto-opens it on done/cancelled",
+    )
+    a.add_argument(
+        "--snooze-until",
+        dest="snooze_until",
+        metavar="YYYY-MM-DD",
+        help="Sleep the task until a calendar DATE, then auto-wake it. "
+        "Sets status=pending + snooze_until=DATE; the task is "
+        "hidden from the default list until then, and the first "
+        "list on/after DATE flips it back to open. Use this for "
+        "'don't show me this until <date>' — it is the "
+        "date-triggered counterpart of --blocked-by (which waits "
+        "on a task/PR, not a date). Do NOT confuse with --due, "
+        "which is an external deadline and does not hide the task",
+    )
+    a.add_argument("--notes")
+    a.add_argument(
+        "--created-at",
+        dest="created_at",
+        help="ISO-8601 datetime (e.g. 2026-05-20T10:00:00)",
+    )
+    a.set_defaults(func=cmd_add)
+
+    l = sub.add_parser(
+        "list", help="list tasks — output is always JSON; there is no --format option"
+    )
+    l.add_argument("--status", choices=STATUSES)
+    l.add_argument("--all", action="store_true")
+    l.add_argument("--from", dest="from_", choices=FROM)
+    l.add_argument("--source", choices=SOURCES)
+    l.add_argument(
+        "--completed-on", dest="completed_on", help="YYYY-MM-DD (prefix match)"
+    )
+    l.add_argument(
+        "--resolve-blocked",
+        dest="resolve_blocked",
+        action="store_true",
+        help="check GitHub blockers (gh) and flip resolved pending tasks back to open",
+    )
+    l.add_argument("--format", dest="format_hint", help=argparse.SUPPRESS)
+    l.set_defaults(func=cmd_list)
+
+    u = sub.add_parser("update", help="modify a task")
+    u.add_argument("id")
+    u.add_argument("--title")
+    u.add_argument("--from", dest="from_", choices=FROM)
+    u.add_argument("--queue-pos", dest="queue_pos", type=int)
+    u.add_argument("--due", help="YYYY-MM-DD or empty string to clear")
+    u.add_argument("--status", choices=STATUSES)
+    u.add_argument(
+        "--blocked-by",
+        dest="blocked_by",
+        help="Blocker: task ID (8-char hex) or URL (empty string clears it). "
+        "Task ID: resolved when the referenced task reaches done/cancelled. "
+        "PR/Issue URL: resolved on merge/close. Comment URL (#issuecomment-N "
+        "or #discussion_r<N>): resolved when the PR author or a mentioned user "
+        "replies after it",
+    )
+    u.add_argument(
+        "--blocks",
+        metavar="TASK_ID",
+        help="Task ID to add to this task's blocks list; sets that task to pending "
+        "with blocked_by pointing here. Auto-opens it on done/cancelled",
+    )
+    u.add_argument(
+        "--unblocks",
+        metavar="TASK_ID",
+        help="Task ID to remove from this task's blocks list; opens that task "
+        "if its blocked_by pointed to this task",
+    )
+    u.add_argument(
+        "--snooze-until",
+        dest="snooze_until",
+        metavar="YYYY-MM-DD",
+        help="Set or clear the snooze date. A DATE sleeps the task "
+        "(status=pending, hidden from the default list) until "
+        "that date, when the first list on/after it wakes the "
+        "task back to open. An empty string clears the snooze and "
+        "opens the task now. Date-triggered counterpart of "
+        "--blocked-by; not the same as --due (a deadline that "
+        "does not hide the task)",
+    )
+    u.add_argument(
+        "--source",
+        choices=SOURCES,
+        help="update the source (local/github/notion/slack/gmail)",
+    )
+    u.add_argument(
+        "--source-url",
+        dest="source_url",
+        help="set the source URL (empty string clears it)",
+    )
+    notes = u.add_mutually_exclusive_group()
+    notes.add_argument(
+        "--append-notes",
+        metavar="TEXT",
+        help="既存の説明を残して追記する。空文字列なら説明を変更しない",
+    )
+    notes.add_argument(
+        "--replace-all-notes",
+        metavar="TEXT",
+        help="危険: 既存の説明をすべて置き換える。空文字列なら全消去する",
+    )
+    u.add_argument(
+        "--created-at",
+        dest="created_at",
+        help="override created_at (ISO 8601, e.g. 2026-06-20T09:00:00)",
+    )
+    u.add_argument(
+        "--completed-at",
+        dest="completed_at",
+        help="override completed_at (ISO 8601, e.g. 2026-06-22T16:04:00)",
+    )
+    u.set_defaults(func=cmd_update)
+
+    ro = sub.add_parser(
+        "reorder", help="move a task to a different position in the queue"
+    )
+    ro.add_argument("id", nargs="?", help="task id (not needed for --normalize)")
+    ro.add_argument("--head", action="store_true", help="move to front of queue")
+    ro.add_argument("--tail", action="store_true", help="move to end of queue")
+    ro.add_argument(
+        "--before", metavar="ID", help="insert directly before this task id"
+    )
+    ro.add_argument("--after", metavar="ID", help="insert directly after this task id")
+    ro.add_argument(
+        "--normalize",
+        action="store_true",
+        help="reassign all active tasks queue_pos in steps of 10",
+    )
+    ro.add_argument(
+        "--by-tier",
+        dest="by_tier",
+        action="store_true",
+        help="regroup the queue by tier (own work → review → dep-update), "
+        "keeping each tier's manual order",
+    )
+    ro.set_defaults(func=cmd_reorder)
+
+    d = sub.add_parser("delete", help="delete a task")
+    d.add_argument("id")
+    d.set_defaults(func=cmd_delete)
+
+    g = sub.add_parser("get", help="show one task")
+    g.add_argument("id")
+    g.set_defaults(func=cmd_get)
+
+    vb = sub.add_parser(
+        "vault-backup",
+        help="git add -A → commit → push the obsidian vault (for skills that edit daily notes directly)",
+    )
+    vb.add_argument(
+        "--remove-index-lock",
+        action="store_true",
+        help="既存の .git/index.lock を削除してバックアップを再試行する（Git 処理が動いていない場合のみ）",
+    )
+    vb.set_defaults(func=cmd_vault_backup)
+
+    sn = sub.add_parser(
+        "snooze",
+        help="sleep a task until a date, then auto-wake it (date-triggered pending)",
+    )
+    sn.add_argument("id")
+    sn.add_argument(
+        "--until",
+        required=True,
+        metavar="YYYY-MM-DD",
+        help="Date to wake the task. Sets status=pending + "
+        "snooze_until; the task is hidden from the default list "
+        "until this date, then the first list on/after it flips "
+        "the task back to open. Shorthand for "
+        "`update <id> --snooze-until <date>`",
+    )
+    sn.set_defaults(func=cmd_snooze)
+
+    nk = sub.add_parser(
+        "notif-keys",
+        help="emit owner/repo#number keys for github tasks (for notification cleanup)",
+    )
+    nk.add_argument(
+        "--status",
+        default="done,cancelled",
+        help="comma-separated statuses to include (default: done,cancelled)",
+    )
+    nk.set_defaults(func=cmd_notif_keys)
+
+    # meta
+    m = sub.add_parser("meta", help="read/write meta keys")
+    m.add_argument("action", choices=["get", "set", "unset"])
+    m.add_argument("key", nargs="?")
+    m.add_argument("value", nargs="?")
+    m.set_defaults(func=cmd_meta)
+
+    # work log
+    w = sub.add_parser("work", help="work hours log")
+    wsub = w.add_subparsers(dest="work_cmd", required=True)
+
+    ws = wsub.add_parser("set", help="record a day's work segments")
+    ws.add_argument("--date", help="YYYY-MM-DD (default: today)")
+    ws.add_argument(
+        "--segment",
+        action="append",
+        dest="segments",
+        help='Repeat for multi-segment days. Format: "HH:MM-HH:MM" or "HH:MM" (start only)',
+    )
+    ws.add_argument(
+        "--break",
+        dest="break_minutes",
+        type=int,
+        help="explicit break minutes (overrides default)",
+    )
+    ws.add_argument("--note")
+    ws.add_argument("--source", help='e.g., "slack_clock" or "manual"')
+    ws.add_argument(
+        "--planned",
+        action="store_true",
+        help="フレックス退勤予定として登録する。planned: true と "
+        "source: flex_plan を立てる。実打刻で set し直すと予定は外れる。"
+        "予定は cumulative（実績）に混ざらない",
+    )
+    ws.set_defaults(func=cmd_work_set)
+
+    wp = wsub.add_parser(
+        "punches",
+        help="record ordered explicit date-time punches, including overnight work",
+    )
+    wp.add_argument(
+        "--punch",
+        action="append",
+        dest="punches",
+        required=True,
+        help='Ordered "start:YYYY/MM/DD HH:MM:SS" or "end:YYYY/MM/DD HH:MM:SS" values',
+    )
+    wp.add_argument("--source", default="manual")
+    wp.set_defaults(func=cmd_work_punches)
+
+    wl = wsub.add_parser("leave", help="record paid or compensatory leave")
+    wls = wl.add_subparsers(dest="leave_cmd", required=True)
+
+    wls_set = wls.add_parser("set", help="record a full-day, half-day, or hourly leave")
+    wls_set.add_argument("--date", help="YYYY-MM-DD (default: today)")
+    wls_set.add_argument("--type", choices=["paid", "comp"], required=True)
+    wls_set.add_argument(
+        "--period",
+        choices=["full", "am", "pm"],
+        default="full",
+        help="leave period; omit for a full day",
+    )
+    wls_set.add_argument(
+        "--hours",
+        type=float,
+        help="leave hours in whole-hour units; omit for a full day",
+    )
+    wls_set.set_defaults(func=cmd_work_leave_set)
+
+    wd = wsub.add_parser("delete", help="delete a day's entry")
+    wd.add_argument("date")
+    wd.set_defaults(func=cmd_work_delete)
+
+    wsh = wsub.add_parser("show", help="show work log entries or unfilled days")
+    wsh_sub = wsh.add_subparsers(dest="show_cmd", required=True)
+
+    wsh_log = wsh_sub.add_parser("log", help="show work log entries")
+    wsh_log.add_argument("--date")
+    wsh_log.add_argument("--month", help="YYYY-MM")
+    wsh_log.set_defaults(func=cmd_work_show)
+
+    wsh_uf = wsh_sub.add_parser(
+        "unfilled-entries", help="list workdays with missing or start-only entries"
+    )
+    wsh_uf.add_argument("--month", help="YYYY-MM (default: current)")
+    wsh_uf.add_argument("--through", help="YYYY-MM-DD upper bound (default: today)")
+    wsh_uf.set_defaults(func=cmd_work_unfilled_entries)
+
+    wsum = wsub.add_parser("summary", help="month summary with pace")
+    wsum.add_argument("--month", help="YYYY-MM (default: current)")
+    wsum.add_argument(
+        "--include-unfilled",
+        action="store_true",
+        help="include missing and start-only workdays in the same snapshot",
+    )
+    wsum.add_argument(
+        "--off-start",
+        dest="off_start",
+        metavar="HH:MM",
+        help="今日 退勤前に席を外す不在予定の開始時刻。渡すと today_plan の "
+        "退勤打刻の上限になる（不在開始までに上がる）。省略時はノルマ由来の "
+        "退勤打刻（始業 + today_target_hours + 休憩）をそのまま使う",
+    )
+    wsum.set_defaults(func=cmd_work_summary)
+
+    # daily logs
+    dl = sub.add_parser("daily", help="daily retrospective logs")
+    dlsub = dl.add_subparsers(dest="daily_cmd", required=True)
+
+    dls = dlsub.add_parser("save")
+    dls.add_argument("--date")
+    dls.add_argument("--good")
+    dls.add_argument("--issues")
+    dls.add_argument("--notes")
+    dls.add_argument("--focus", type=int, help="集中度 1-5")
+    dls.add_argument("--sleepiness", type=int, help="眠気 1-5 (5=なし)")
+    dls.add_argument(
+        "--start-mood", dest="start_mood", type=int, help="業務開始の気持ち 1-5"
+    )
+    dls.add_argument("--output-feel", dest="output_feel", type=int, help="成果感 1-5")
+    dls.add_argument(
+        "--completed-task-ids",
+        dest="completed_task_ids",
+        help="comma-separated task ids",
+    )
+    dls.add_argument(
+        "--standup",
+        help="翌朝の朝会向け進捗メモ（複数行可）。デイリーノートの ## 朝会メモ に書く",
+    )
+    dls.set_defaults(func=cmd_daily_save)
+
+    dlsh = dlsub.add_parser("show")
+    dlsh.add_argument("--date")
+    dlsh.set_defaults(func=cmd_daily_show)
+
+    dll = dlsub.add_parser("list")
+    dll.add_argument("--month", help="YYYY-MM prefix filter")
+    dll.add_argument("--limit", type=int)
+    dll.set_defaults(func=cmd_daily_list)
+
+    mg = sub.add_parser("migrate", help="migrate kind(must/will) → from(others/me)")
+    mg.add_argument(
+        "--dry-run",
+        dest="dry_run",
+        action="store_true",
+        help="print what would change without writing",
+    )
+    mg.set_defaults(func=cmd_migrate)
+
+    return p
+
+
+def main() -> None:
+    args = build_parser().parse_args()
+    try:
+        args.func(args)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

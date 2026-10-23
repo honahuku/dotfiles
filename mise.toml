@@ -13,6 +13,7 @@ includes = ["{{ vars.public_root }}/mise-tasks.toml"]
 post-dotfiles = "mise run windows:apply"
 
 [dotfiles]
+"~/.local/bin/tasks" = "bin/tasks"
 "~/.local/share/dotfiles/windows/source/.agents.md" = { source = ".agents/AGENTS.md", mode = "copy" }
 "~/.local/share/dotfiles/windows/source/.terminal.json" = { source = "win/terminal/settings.json", mode = "copy" }
 "~/.local/share/dotfiles/windows/source/.config.toml.tmpl" = { source = "win/chezmoi/.config.toml.tmpl", mode = "copy" }
