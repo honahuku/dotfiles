@@ -63,8 +63,7 @@ tasks work summary
 
 補正ロジックの詳細（式・配分の考え方）は、`type tasks`で確認した実体の`_pace_correction`・`_flex_carryover`・`_today_plan`にある。仕様を知りたいときはそちらを読む。計算はこの1箇所に集約されていて、スキル側（check-kintai.md・check-kintai-pace.md・todo.md）には持たない。二重に持つと片方だけ直したとき静かにズレる。
 
-補正の定数は meta キーで上書きできる（デフォルト値: 所定8h・月バッファ1h・コアタイム16:00・12h上限・標準09:30/18:30）。
-- `daily_norma_hours`（8）・`month_buffer_hours`（1）・`core_time_floor`（"16:00"）・`max_daily_hours`（12）・`std_start`（"09:30"）・`std_end`（"18:30"）
+勤務ルールは保存データの`meta`へ明示的に設定する。未設定項目のエラーが出たら、`~/.agents/docs/work/tasks.md`を参照し、既存値を保持して不足分だけ設定する。
 
 ### D-3: 出力フォーマット
 
