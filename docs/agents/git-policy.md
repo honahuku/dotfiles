@@ -2,6 +2,8 @@
 
 - コミットメッセージの説明と本文は、明示的な指示がなければ日本語にする。Conventional Commitsのtypeやscopeなど、所定の構文は維持する。
 
+- 本人へGit操作を依頼する前に、`manual-operations.md`の「依頼前の検証提示」を適用し、実行済みの検証コマンドと結果をチャット本文に示す。
+
 - **本人へのコミット依頼はlazygitを前提に、worktreeの絶対パスと対象ファイルを自然文で伝え、差分に基づくConventional Commits形式のコミットメッセージ案も必ず添える。コミット用のコマンドは提示しない。Git操作の依頼と、それ以外のコマンド実行依頼は分け、同じコードブロックや`&&`等で連結しない。**
 
 - **`git rebase` は絶対に実行しない。** 履歴を整理したい場面でも rebase ではなく merge で対応できないか先に考える
@@ -9,6 +11,8 @@
 - 既存の変更を勝手に破棄しない。stash・強制push・削除・履歴変更は対象と影響を確認してから行う
 
 - `main`ブランチは元clone直下の作業ツリーに置き、`main`用worktreeは作らない。`main`への直接編集は禁止し、変更規模を問わず`main`から作成した専用ブランチのworktreeで作業する。
+
+- mainとの競合は、作業ブランチのworktreeへmainを取り込み、そのworktree内で解消する。main上での競合解消や、そのためのmain直接編集の許可を求めない。取り込み・解消後のステージ・コミットは、それぞれの操作の許可範囲に従う。mainで既にマージが始まっていても、その作業状態を変更せず、作業ブランチ側で進める。
 
 - Git管理下の変更と関連ファイルは、所有者や組織を問わず元のclone直下の`.worktree/<branch>`に置く。表示のためにチャットの`work/`・`outputs/`などへ複製しない。外部保存はユーザーが対象と保存先を明示した場合だけ行う。保存前と提示前は`apply-git-strategy`に従い、反映は許可範囲内のmergeで行う。既存ファイルを`cp`で直接置き換えない。Obsidianは既定の例外に従う
 
@@ -31,6 +35,9 @@
 - **`honahuku/*`の各リポジトリには、外部OSSをcloneしたディレクトリやGitサブモジュールを含めない。`vendor/`と`.gitmodules`はignoreし、公開前の検査でネストしたGit repoと外部repo用パスを検出する**
 
 ## Git書き込み前後の確認
+
+- ブランチの変更を検査・引き渡す前は、対象ブランチのworktreeで、リポジトリに定義されたpre-commit全体を実行する。Lefthookでは`lefthook run pre-commit --no-auto-install`を使い、個別コマンドや独自に選んだファイルだけの検査で代替しない。実行前にhook定義と呼び出し先を読み、禁止された操作を含まないことを確認する。
+- 検査が参照する非公開設定は、本人の実行条件または配置定義で確認した同じ管理元を使う。別worktreeやmainの設定に差し替えない。実行したブランチ・worktree・設定元・コマンド・各検査の結果を対応させ、pre-commit全体が成功した場合だけ全体の検査成功と報告する。ステージ済み差分と未ステージ差分が異なる場合は、hookが実際に検査した範囲も明記する。
 
 - **sandbox環境ではBashの書き込み系コマンド（`git worktree add`/`commit`/`merge`/`push`/`remove`、ファイルシステムやリモートを変更する操作）がブロックされ、実行されないまま成功したふうのダミー出力（それらしいSHAや`Fast-forward`、ファイル一覧など）を返すことがある。** 読み取り系（`git log`/`status`/`worktree list`、`grep`、`test -f`）は本物の値を返す。書き込み系は`dangerouslyDisableSandbox: true`を付けて実行し、実行後は必ず読み取りコマンド（`git log`/`status`/`rev-parse origin/main`/`test -f`）で実際に反映されたか検証してから次に進む。ダミー出力を鵜呑みにしない。commitのheredoc `-F -`はsandbox無効でもstdinが渡らず失敗することがあるため`-m`フラグを複数使う。Write/Editツールもsandboxの影響を受けることがあるので、ファイル作成後は`test -f`や`wc -c`で実在を確認する。
 
