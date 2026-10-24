@@ -28,6 +28,10 @@
 
 - **`honahuku/*`の各リポジトリには、外部OSSをcloneしたディレクトリやGitサブモジュールを含めない。`vendor/`と`.gitmodules`はignoreし、公開前の検査でネストしたGit repoと外部repo用パスを検出する**
 
+## ステージ操作の許可判断
+
+ステージ操作の前に、対象リポジトリに適用される指示と、この資料の許可条件を照合する。条件を満たす`git add`は実行し、Git書き込み全般の禁止だけを理由に拒否しない。特定リポジトリやオプションの禁止を、すべてのステージ操作へ広げない。`git add -p`などの可否も対象に適用される規則で判断し、禁止を説明するときは対象と根拠を示す。
+
 ## Git書き込み前後の確認
 
 - **sandbox環境ではBashの書き込み系コマンド（`git worktree add`/`commit`/`merge`/`push`/`remove`、ファイルシステムやリモートを変更する操作）がブロックされ、実行されないまま成功したふうのダミー出力（それらしいSHAや`Fast-forward`、ファイル一覧など）を返すことがある。** 読み取り系（`git log`/`status`/`worktree list`、`grep`、`test -f`）は本物の値を返す。書き込み系は`dangerouslyDisableSandbox: true`を付けて実行し、実行後は必ず読み取りコマンド（`git log`/`status`/`rev-parse origin/main`/`test -f`）で実際に反映されたか検証してから次に進む。ダミー出力を鵜呑みにしない。commitのheredoc `-F -`はsandbox無効でもstdinが渡らず失敗することがあるため`-m`フラグを複数使う。Write/Editツールもsandboxの影響を受けることがあるので、ファイル作成後は`test -f`や`wc -c`で実在を確認する。
