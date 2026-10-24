@@ -1,6 +1,7 @@
-"""Obsidian integration + git-backup tests for the `tasks` CLI: store git
-backup (_backup_to_git), commit messages, daily-note writing, task-page sync,
-and vault git backup. The `tasks` fixture comes from conftest.py.
+"""`tasks` CLIのObsidian連携とGitバックアップを検証する。
+保存先のGitバックアップ（_backup_to_git）、コミットメッセージ、
+日次ノートの書き込み、タスクページの同期、保管庫のGitバックアップを対象とする。
+`tasks`フィクスチャはconftest.pyで定義する。
 """
 
 import json
@@ -10,11 +11,11 @@ from datetime import date
 import pytest
 from _test_helpers import _load_tasks_module
 
-# ---------- _backup_to_git ----------
+# ---------- Gitへの保存（_backup_to_git） ----------
 
 
 def test_backup_to_git_commits_and_pushes(tmp_path, monkeypatch):
-    """Drive the real _backup_to_git against a throwaway git repo."""
+    """一時的なGitリポジトリで実際の_backup_to_gitを実行する。"""
     import subprocess as real_subprocess
 
     repo = tmp_path / "store"
@@ -23,11 +24,11 @@ def test_backup_to_git_commits_and_pushes(tmp_path, monkeypatch):
     store = repo / "tasks.json"
     store.write_text('{"tasks": [], "work_log": {}, "daily_logs": [], "meta": {}}')
 
-    monkeypatch.setenv("CLAUDE_COMPANION_STORE", str(store))
+    monkeypatch.setenv("TASKS_STORE", str(store))
     mod = _load_tasks_module()
     mod.STORE = store
 
-    # Avoid a real network push: intercept just the push Popen.
+    # 実際のネットワークへのpushを防ぐため、pushのPopenだけを置き換える。
     calls = {"push": False}
     orig_popen = real_subprocess.Popen
 
@@ -35,7 +36,7 @@ def test_backup_to_git_commits_and_pushes(tmp_path, monkeypatch):
         if "push" in cmd:
             calls["push"] = True
 
-            class _P:  # minimal stand-in
+            class _P:  # 最小限の代替オブジェクト
                 pass
 
             return _P()
@@ -44,24 +45,24 @@ def test_backup_to_git_commits_and_pushes(tmp_path, monkeypatch):
     monkeypatch.setattr("subprocess.Popen", fake_popen)
 
     mod._backup_to_git()
-    # A commit should now exist touching tasks.json.
+    # tasks.jsonを変更するコミットが作成されていることを確認する。
     log = real_subprocess.run(
         ["git", "-C", str(repo), "log", "--oneline"],
         check=True,
         capture_output=True,
         text=True,
     )
-    assert log.stdout.strip()  # at least one commit
+    assert log.stdout.strip()  # コミットが少なくとも一つ存在する。
     assert calls["push"] is True
 
 
 def test_backup_to_git_skips_non_repo(tmp_path, monkeypatch):
     store = tmp_path / "tasks.json"
     store.write_text("{}")
-    monkeypatch.setenv("CLAUDE_COMPANION_STORE", str(store))
+    monkeypatch.setenv("TASKS_STORE", str(store))
     mod = _load_tasks_module()
     mod.STORE = store
-    # Not a git repo → returns quietly, no exception.
+    # Gitリポジトリでなければ、例外を出さずに戻る。
     mod._backup_to_git()
 
 
@@ -73,7 +74,7 @@ def test_backup_to_git_no_diff_noop(tmp_path, monkeypatch):
     real_subprocess.run(["git", "init", "-q", str(repo)], check=True)
     store = repo / "tasks.json"
     store.write_text("{}")
-    # Commit the file first so there's no pending diff.
+    # 未コミット差分が残らないよう、先にファイルをコミットする。
     real_subprocess.run(["git", "-C", str(repo), "add", "tasks.json"], check=True)
     real_subprocess.run(
         [
@@ -92,12 +93,12 @@ def test_backup_to_git_no_diff_noop(tmp_path, monkeypatch):
         check=True,
     )
 
-    monkeypatch.setenv("CLAUDE_COMPANION_STORE", str(store))
+    monkeypatch.setenv("TASKS_STORE", str(store))
     mod = _load_tasks_module()
     mod.STORE = store
-    # No diff means the early return fires before any Popen push; if a push were
-    # attempted it would try to hit a real remote, so reaching the end cleanly
-    # (and the commit count staying at 1) is the assertion.
+    # 差分がなければPopenによるpushの前に戻る。pushを実行すると
+    # 実際のリモートへ接続するため、処理が正常に終わり、
+    # コミット数が1のままであることを検証する。
     mod._backup_to_git()
     log = real_subprocess.run(
         ["git", "-C", str(repo), "log", "--oneline"],
@@ -105,10 +106,12 @@ def test_backup_to_git_no_diff_noop(tmp_path, monkeypatch):
         capture_output=True,
         text=True,
     )
-    assert len(log.stdout.strip().splitlines()) == 1  # still just the init commit
+    assert (
+        len(log.stdout.strip().splitlines()) == 1
+    )  # 初期化時のコミット一つだけが残る。
 
 
-# ---------- commit message (feature A) ----------
+# ---------- コミットメッセージ（機能A） ----------
 
 
 def test_commit_message_add(tasks):
@@ -142,7 +145,7 @@ def test_commit_message_long_title_truncated(tasks):
     m = tasks.module._commit_message("add", long)
     assert m.startswith('chore: タスク追加 "')
     assert m.endswith('…"')
-    # 57 chars + ellipsis inside the quotes.
+    # 引用符の内側は57文字と省略記号になる。
     assert "あ" * 57 + "…" in m
 
 
@@ -194,11 +197,11 @@ def test_reorder_uses_fallback_message(tasks, capsys, monkeypatch):
     seen = _capture_commit_message(tasks, monkeypatch)
     tasks.run("reorder", tid, "--head")
     capsys.readouterr()
-    # reorder passes no action → message is None → caller uses default.
+    # reorderは操作名を渡さないため、messageがNoneとなり呼び出し元が既定値を使う。
     assert seen[-1] is None
 
 
-# ---------- daily save condition scores (feature C) ----------
+# ---------- 日次保存時の状態スコア（機能C） ----------
 
 
 def test_daily_save_stores_condition_scores(tasks, capsys):
@@ -244,7 +247,7 @@ def test_daily_save_without_scores_leaves_none(tasks, capsys):
     assert out["sleepiness"] is None
 
 
-# ---------- labeled-line upsert helper ----------
+# ---------- ラベル付き行の追加・更新補助 ----------
 
 
 def test_upsert_labeled_line_adds_to_new_section(tasks):
@@ -268,9 +271,9 @@ def test_upsert_labeled_line_replaces_existing_label(tasks):
 def test_upsert_labeled_line_preserves_other_labels(tasks):
     """自分のラベル行だけ触り、他のラベル行は残す。"""
     f = tasks.module._upsert_labeled_line
-    text = "## ふりかえり\n- 今日の本丸: ORBIT-578\n- 課題: 溜まった\n"
+    text = "## ふりかえり\n- 今日の本丸: TASK-102\n- 課題: 溜まった\n"
     out = f(text, "ふりかえり", "よかったこと", "進んだ")
-    assert "- 今日の本丸: ORBIT-578" in out
+    assert "- 今日の本丸: TASK-102" in out
     assert "- 課題: 溜まった" in out
     assert "- よかったこと: 進んだ" in out
 
@@ -286,7 +289,7 @@ def test_upsert_labeled_line_does_not_touch_other_sections(tasks):
     assert "- よかったこと: x" in out
 
 
-# ---------- daily note write (feature C) ----------
+# ---------- デイリーノートの書き込み（機能C） ----------
 
 
 def _set_vault(tasks, tmp_path, capsys=None):
@@ -370,13 +373,13 @@ def test_daily_note_preserves_honmaru_label(tasks, capsys, tmp_path):
     daily_dir.mkdir(parents=True, exist_ok=True)
     note = daily_dir / "2026-07-03.md"
     note.write_text(
-        "## ふりかえり\n- 今日の本丸: ORBIT-578 実装\n",
+        "## ふりかえり\n- 今日の本丸: TASK-102 実装\n",
         encoding="utf-8",
     )
     tasks.run("daily", "save", "--date", "2026-07-03", "--good", "よかった")
     capsys.readouterr()
     text = note.read_text(encoding="utf-8")
-    assert "- 今日の本丸: ORBIT-578 実装" in text
+    assert "- 今日の本丸: TASK-102 実装" in text
     assert "- よかったこと: よかった" in text
     # ふりかえりセクションは1つのまま。
     assert text.count("## ふりかえり") == 1
@@ -391,12 +394,12 @@ def test_daily_note_writes_standup_section(tasks, capsys, tmp_path):
         "--date",
         "2026-07-09",
         "--standup",
-        "- ORBIT-555: plan merge 済み、実装着手\n- Renovate #2262: レビュー待ち",
+        "- TASK-101: plan merge 済み、実装着手\n- Renovate #2262: レビュー待ち",
     )
     capsys.readouterr()
     note = (vault / "daily" / "2026-07-09.md").read_text(encoding="utf-8")
     assert "## 朝会メモ" in note
-    assert "- ORBIT-555: plan merge 済み、実装着手" in note
+    assert "- TASK-101: plan merge 済み、実装着手" in note
     assert "- Renovate #2262: レビュー待ち" in note
 
 
@@ -432,13 +435,13 @@ def test_daily_note_standup_preserves_furikaeri(tasks, capsys, tmp_path):
     daily_dir.mkdir(parents=True, exist_ok=True)
     note = daily_dir / "2026-07-09.md"
     note.write_text(
-        "## ふりかえり\n- 今日の本丸: ORBIT-555 実装\n- よかったこと: 進んだ\n",
+        "## ふりかえり\n- 今日の本丸: TASK-101 実装\n- よかったこと: 進んだ\n",
         encoding="utf-8",
     )
     tasks.run("daily", "save", "--date", "2026-07-09", "--standup", "- 共有事項")
     capsys.readouterr()
     text = note.read_text(encoding="utf-8")
-    assert "- 今日の本丸: ORBIT-555 実装" in text
+    assert "- 今日の本丸: TASK-101 実装" in text
     assert "- よかったこと: 進んだ" in text
     assert "## 朝会メモ" in text
     assert text.count("## ふりかえり") == 1
@@ -467,7 +470,7 @@ def test_daily_note_skipped_when_vault_unset(tasks, capsys, tmp_path):
     assert not (tmp_path / "vault").exists()
 
 
-# ---------- obsidian task page sync (feature B) ----------
+# ---------- Obsidianのタスクページ同期（機能B） ----------
 
 
 def test_sync_writes_page_for_open_task(tasks, capsys, tmp_path):
@@ -480,7 +483,7 @@ def test_sync_writes_page_for_open_task(tasks, capsys, tmp_path):
     text = page.read_text(encoding="utf-8")
     assert f"id: {tid}" in text
     assert "# コスト試算を作る" in text
-    assert "managed_by: claude-companion" in text
+    assert "managed_by: tasks" in text
     assert "status: open" in text
 
 
@@ -650,11 +653,11 @@ def test_page_tags_in_frontmatter(tasks):
             "blocks": [],
             "created_at": "2026-07-03T09:00:00",
             "updated_at": "2026-07-03T09:00:00",
-            "tags": ["ORBIT-525", "onboarding"],
+            "tags": ["TASK-103", "onboarding"],
         }
     )
     assert "tags:" in page
-    assert "- ORBIT-525" in page
+    assert "- TASK-103" in page
     assert "- onboarding" in page
 
 
@@ -737,7 +740,7 @@ def test_sync_does_not_touch_handwritten_notes(tasks, capsys, tmp_path):
     assert welcome.read_text(encoding="utf-8") == "手書き"
 
 
-# ---------- vault git backup (feature D) ----------
+# ---------- vaultのGitバックアップ（機能D） ----------
 
 
 def _git(vault, *argv):
@@ -884,7 +887,7 @@ def test_vault_backup_stages_all_files(tasks, tmp_path):
     assert "Inbox.md" in tracked
 
 
-# ---------- Day Planner clock-in guard (feature E) ----------
+# ---------- Day Plannerの出勤時刻検査（機能E） ----------
 
 
 def _frozen_date(year, month, day):
