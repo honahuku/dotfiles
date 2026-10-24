@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """タスク・勤務記録・日次記録を管理するCLI。
 
-File: ~/.claude-companion/tasks.json
-Holds: tasks[], work_log{date: entry}, daily_logs[], meta{}.
+保存先: ~/.local/share/tasks/tasks.json
+保存内容: tasks[]・work_log{日付: 記録}・daily_logs[]・meta{}
 
-Subcommands:
-  add | list | update | delete | get   — tasks
-  meta get/set/unset                    — config keys
-  work start/end/log/show/summary       — clock-in/out records
-  work leave set                         — paid/compensatory leave records
-  daily save/show/list                  — evening retrospective entries
+サブコマンド:
+  add | list | update | delete | get    — タスク
+  meta get/set/unset                    — 設定キー
+  work start/end/log/show/summary       — 出退勤の記録
+  work leave set                       — 有給休暇・代休の記録
+  daily save/show/list                  — 夕方のふりかえり記録
 """
 
 import argparse
@@ -26,8 +26,8 @@ from pathlib import Path
 
 STORE = Path(
     os.environ.get(
-        "CLAUDE_COMPANION_STORE",
-        str(Path.home() / ".claude-companion" / "tasks.json"),
+        "TASKS_STORE",
+        str(Path.home() / ".local" / "share" / "tasks" / "tasks.json"),
     )
 )
 
@@ -35,15 +35,15 @@ FROM = ["me", "others"]
 STATUSES = ["open", "in-progress", "pending", "done", "cancelled"]
 SOURCES = ["local", "github", "notion", "slack", "gmail"]
 
-# statuses treated as "active and schedulable" — what `list` shows by default.
-# open = not yet started, in-progress = actively being worked on. Both are
-# schedulable. pending = blocked, waiting on something; excluded from planning
-# until unblocked.
+# 進行可能で予定に組み込める状態。listは既定でこれらを表示する。
+# openは未着手、in-progressは作業中で、どちらも予定に組み込める。
+# pendingは何らかの待ちがある状態のため、
+# 待ちが解消するまで計画の対象から外す。
 ACTIVE_STATUSES = {"open", "in-progress"}
 
-# Soft cap on how many tasks may be in-progress at once. Grounded in working
-# memory research (Cowan's 4±1): the number of things one holds in active
-# attention. Over the cap we warn (never block) so focus fragmentation surfaces.
+# 同時にin-progressにするタスク数の目安。作業記憶の研究で示された
+# Cowanの4±1（意識して保持できる項目数）を根拠にする。
+# 上限超過時は作業を禁止せず警告し、集中が分散していることを知らせる。
 IN_PROGRESS_LIMIT = 5
 
 
@@ -78,7 +78,7 @@ def _work_rule(meta: dict, key: str):
     return value
 
 
-# ---------- storage ----------
+# ---------- 保存 ----------
 
 
 def now_iso() -> str:
@@ -187,11 +187,10 @@ _ACTION_LABELS = {
 
 
 def _commit_message(action: str | None, title: str | None) -> str | None:
-    """Build a deterministic commit message from an action + task title.
+    """操作名とタスク名から、同じ入力に対して同じコミットメッセージを作る。
 
-    No LLM involved. Returns None when the action is unknown or building fails,
-    so the caller falls back to the default message. Backup must never be blocked
-    by message formatting, so any failure here degrades to the fallback.
+    言語モデルは使わない。操作が不明な場合や組み立てに失敗した場合はNoneを返し、
+    呼び出し元が既定のメッセージを使う。文面の生成失敗でバックアップを止めない。
     """
     if not action:
         return None
@@ -395,16 +394,16 @@ def emit(obj) -> None:
 
 
 def warn(msg: str) -> None:
-    """Emit a diagnostic to stderr without disturbing the JSON on stdout.
+    """標準出力のJSONを壊さず、標準エラー出力へ診断を出す。
 
-    With no error-tracking service behind this CLI, stderr is the only trace a
-    swallowed anomaly leaves. Keep stdout machine-readable (jq-safe) and route
-    every "skipped / ignored something unexpected" note here instead of `pass`.
+    このCLIにはエラー追跡サービスがないため、異常を処理した痕跡は
+    標準エラー出力だけに残る。標準出力はjqで読める形式に保ち、
+    想定外のデータを無視・省略した場合はpassだけで済ませず、ここへ記録する。
     """
     print(f"[tasks] warning: {msg}", file=sys.stderr)
 
 
-# ---------- Obsidian mirror ----------
+# ---------- Obsidianへの反映 ----------
 #
 # tasks.json を正として、Obsidian vault（Windows 側）に一方向で書き出す。
 # vault パスは meta.obsidian_vault_dir。未設定なら何もしない。書き込み失敗は
@@ -653,7 +652,7 @@ def _obsidian_page(t: dict) -> str:
         lines.append(f"snooze_until: {t['snooze_until']}")
     lines.append(f"created: {t.get('created_at') or ''}")
     lines.append(f"updated: {t.get('updated_at') or ''}")
-    lines.append("managed_by: claude-companion")
+    lines.append("managed_by: tasks")
     tags = t.get("tags") or []
     if tags:
         lines.append("tags:")
@@ -687,7 +686,7 @@ def _obsidian_page(t: dict) -> str:
     lines.append("")
     lines.append("---")
     lines.append(
-        f"> このページは Claude Companion が自動生成し毎回上書きしているため"
+        f"> このページは tasksコマンド が自動生成し毎回上書きしているため"
         f"手書きメモは消えます。メモは別ノートを作り、`[[` の入力補完で {tid} を"
         f"検索して出るリンクで本ページにリンクしてください（生の `[[{tid}]]` は"
         f"ファイル名でないため解決されません）。"
@@ -700,7 +699,7 @@ def _sync_obsidian(data: dict) -> None:
 
     ファイル名は title を安全化したもの（_page_filename）。done/cancelled・
     tasks.json から消えたタスクのページは削除する。削除対象は tasks/ 配下の
-    うち managed_by: claude-companion を持つページに限る（手書きノートを保護）。
+    うち managed_by: tasks を持つページに限る（手書きノートを保護）。
     vault 未設定なら即 return。失敗は握りつぶして warn（保全最優先）。
     """
     vault = _vault_dir(data)
@@ -723,7 +722,7 @@ def _sync_obsidian(data: dict) -> None:
             if not page.exists() or page.read_text(encoding="utf-8") != body:
                 page.write_text(body, encoding="utf-8", newline="\n")
         # 今回書いていない tasks/*.md のうち、自動生成ページ
-        # (managed_by: claude-companion) だけを削除する。手書きノートは残す。
+        # (managed_by: tasks) だけを削除する。手書きノートは残す。
         for page in tasks_dir.glob("*.md"):
             if page.name in written:
                 continue
@@ -731,23 +730,23 @@ def _sync_obsidian(data: dict) -> None:
                 content = page.read_text(encoding="utf-8")
             except OSError:
                 continue
-            # 自動生成ページは frontmatter に managed_by: claude-companion を持つ。
+            # 自動生成ページは frontmatter に managed_by: tasks を持つ。
             # 手書きノートは持たないので消さない。frontmatter は先頭にあるので、
             # 冒頭ブロック（最初の空行まで、最低でも先頭 1KB）で判定すれば十分。
-            if "managed_by: claude-companion" in content[:1024]:
+            if "managed_by: tasks" in content[:1024]:
                 page.unlink()
     except (OSError, KeyError, TypeError) as e:
         warn(f"obsidian sync skipped: {e}")
 
 
-# ---------- tasks ----------
+# ---------- タスク ----------
 
 
 def _next_queue_pos(data: dict) -> int:
-    """Return queue_pos one step after the current maximum (step=10 for spacing).
+    """現在の最大値から10進めたqueue_posを返す。
 
-    Positions start at 10 so there is always room for a later --head move to land
-    on a positive value (e.g. 9) without renumbering the whole queue.
+    番号は10から始める。後で--headを使ったときも、全体を振り直さず
+    9などの正の値を先頭に割り当てられるようにする。
     """
     tasks = data["tasks"]
     active = [t for t in tasks if t.get("status") in ACTIVE_STATUSES]
@@ -764,9 +763,9 @@ def cmd_add(args) -> None:
     blocks_id = getattr(args, "blocks", None) or None
     snooze_until = getattr(args, "snooze_until", None) or None
     blocked_by = getattr(args, "blocked_by", None) or None
-    # Either a blocker (waiting on someone/something) or a snooze (waiting on a
-    # date) makes a task pending. snooze takes precedence for status because the
-    # date is the thing that re-opens it.
+    # 応答や条件の待ち、またはsnoozeによる日付の待ちがあればpendingにする。
+    # 再開日を決めるsnoozeを
+    # 状態の判定で優先する。
     status = "pending" if (blocked_by or snooze_until) else "open"
     task = {
         "id": uuid.uuid4().hex[:8],
@@ -804,36 +803,35 @@ def _count_in_progress(data: dict) -> int:
 
 
 def _in_progress_over(data: dict):
-    """Return {count, limit} if in-progress exceeds the soft cap, else None."""
+    """in-progressが目安の上限を超えた場合は{count, limit}、それ以外はNoneを返す。"""
     count = _count_in_progress(data)
     if count > IN_PROGRESS_LIMIT:
         return {"count": count, "limit": IN_PROGRESS_LIMIT}
     return None
 
 
-# Substrings that classify a task into a tier (see _task_tier). Kept as
-# constants so the same rule is used everywhere and tweaks live in one place.
-_TIER_RENOVATE = "依存更新 レビュー"  # dependency-update review (Renovate)
-_TIER_REVIEWER = "(Reviewer)"  # human PR review request
-_TIER1_MARKERS = ("(Reviewee)", "返信", "状態確認")  # own PR / reply / status check
+# タスクのtier分類に使う部分文字列（_task_tierを参照）。
+# 各所で同じ規則を使い、変更箇所を一か所にするため定数にまとめる。
+_TIER_RENOVATE = "依存更新 レビュー"  # 依存関係更新のレビュー（Renovate）
+_TIER_REVIEWER = "(Reviewer)"  # 人からのPRレビュー依頼
+_TIER1_MARKERS = ("(Reviewee)", "返信", "状態確認")  # 自分のPR・返信・状態確認
 
 
 def _task_tier(t: dict) -> int:
-    """Classify a task into an ordering tier (smaller = sooner in the queue).
+    """タスクを並び順のtierへ分類する。小さい値ほど先になる。
 
-    Used by `reorder --by-tier` to group the queue by kind of work, and exposed
-    on `list` output as `_tier` so skills can sort without re-deriving the rule.
+    reorder --by-tierで作業の種類ごとにまとめ、listでも_tierとして返す。
+    スキル側で同じ規則を再実装せずに並べ替えられるようにする。
 
-    - 0: in-progress — whatever is in active attention right now, ahead of all.
-    - 1: own work — self-initiated (from=me), non-github real tasks
-         (local/notion/slack), or an own-PR reply/status-check by title marker.
-    - 2: a human PR review request ((Reviewer)).
-    - 3: a Renovate dependency-update review.
+    - 0: in-progress。現在作業中のものを最優先にする。
+    - 1: 自分の作業。from=me、GitHub以外の実作業（local・notion・slack）、
+         またはタイトルで判定する自分のPRへの返信・状態確認。
+    - 2: 人から依頼されたPRレビュー（Reviewer）。
+    - 3: Renovateによる依存関係更新のレビュー。
 
-    Title matching is substring, not exact: the dash and spacing around
-    suffixes vary between github-sync and hand-registered tasks, so we tolerate
-    that drift. Renovate is checked first so a title carrying both markers does
-    not get miscounted as a plain review.
+    GitHub同期と手動登録では接尾辞前後のダッシュや空白が異なるため、
+    タイトルは完全一致ではなく部分一致で判定する。両方の目印があっても
+    通常レビューと誤判定しないよう、Renovateを先に確認する。
     """
     if t.get("status") == "in-progress":
         return 0
@@ -848,23 +846,23 @@ def _task_tier(t: dict) -> int:
         return 1
     if any(m in title for m in _TIER1_MARKERS):
         return 1
-    return 1  # default: treat anything unclassified as own work, not buried
+    return 1  # 既定では未分類を自分の作業として扱い、後回しにしない。
 
 
 def _task_sort_key(t: dict):
-    """The single ordering rule for the queue, used by both `list` (display) and
-    `reorder --by-tier` (which bakes this order into queue_pos). Sorting both
-    through one key keeps the list view and Obsidian's filename order identical.
+    """listの表示とreorder --by-tierが共有する、キューの並び順を返す。
 
-    Precedence, most significant first:
-    1. status_rank — in-progress is what's in active attention; always first.
-    2. has_due_rank — a task with any due date (overdue OR future) outranks an
-       undated one. Having a deadline is the strongest signal after in-progress.
-    3. d_sort — among dated tasks, order by date ascending, so overdue comes
-       first and nearer deadlines precede farther ones. Undated tasks share the
-       empty string here; has_due_rank has already separated them out.
-    4. tier — among undated tasks, group by kind of work (_task_tier).
-    5. q_rank — queue_pos as the final tie-break (manual --head/--before order).
+    後者ではこの順序をqueue_posへ反映する。同じキーを使い、
+    一覧の表示順とObsidianのファイル名順をそろえる。
+
+    優先順位は次のとおり。
+    1. status_rank: 現在作業中のin-progressを先頭にする。
+    2. has_due_rank: 期限が過去でも未来でも、期限ありを期限なしより先にする。
+       期限の有無はin-progressの次に強い条件とする。
+    3. d_sort: 期限ありは日付の昇順にし、期限切れや近い期限を先にする。
+       期限なしは空文字だが、has_due_rankによって既に区別されている。
+    4. tier: 期限なしのタスクを作業の種類でまとめる（_task_tier）。
+    5. q_rank: 最後にqueue_posで判定し、--head・--beforeの手動順序を保つ。
     """
     status_rank = 0 if t.get("status") == "in-progress" else 1
     d = t.get("due")
@@ -883,18 +881,18 @@ def cmd_list(args) -> None:
     if getattr(args, "resolve_blocked", False):
         resolved = _resolve_blocked(data)
 
-    # Any list call wakes snoozed tasks whose date has arrived. Runs first so a
-    # woken task isn't then mistaken for a stale block below.
+    # listの呼び出し時は、再開日を迎えたsnooze中のタスクを先に再開する。
+    # 再開済みのタスクを、後続処理で長期停滞と誤判定しないため。
     expired_snooze = _sweep_expired_snooze(data)
 
-    # Any list call sweeps pending tasks that have sat untouched for a week back
-    # to open so a stuck block re-surfaces. Runs after _resolve_blocked so a
-    # task unblocked above isn't also reported as stale.
-    # Detect offload candidates BEFORE the stale sweep: the sweep resets
-    # updated_at to now when it flips a pending task to open, which would erase
-    # the very staleness offload keys on. Detection doesn't mutate, so ordering
-    # is safe. A from=me pending task past both thresholds thus surfaces as an
-    # offload candidate on the same call the sweep re-opens it.
+    # listの呼び出し時は、1週間変更のないpendingタスクをopenへ戻して、
+    # 停滞したタスクを再表示する。_resolve_blockedの後に実行し、
+    # 待ちが解消済みのタスクを長期停滞として重複報告しない。
+    # 委譲候補は、長期停滞タスクを再開する処理より先に検出する。
+    # 再開処理でpendingからopenにするとupdated_atが現在時刻に更新され、
+    # 委譲判定に必要な停滞期間が失われるため。候補検出は状態を変えないので、
+    # この順序で問題ない。両方の期限を超えたfrom=meのpendingタスクは、
+    # 再開と同じlist呼び出しで委譲候補として表示される。
     offload = _detect_offload_candidates(data)
 
     stale = _sweep_stale_pending(data)
@@ -920,9 +918,9 @@ def cmd_list(args) -> None:
         ]
 
     tasks.sort(key=_task_sort_key)
-    # Expose the ordering tier per task so skills can group/sort without
-    # re-deriving the rule. Display-only: shallow-copy so `_tier` never lands
-    # in the store (this list holds references to the stored dicts).
+    # スキルが分類規則を再実装せずに並べ替えられるよう、各タスクのtierを返す。
+    # 表示専用のため浅いコピーを作り、_tierが保存データへ混入しないようにする。
+    # 元の一覧には保存済み辞書への参照が含まれている。
     tasks = [{**t, "_tier": _task_tier(t)} for t in tasks]
     result: dict = {"tasks": tasks}
     if resolved:
@@ -987,14 +985,14 @@ def cmd_update(args) -> None:
             t["completed_at"] = None
     if getattr(args, "blocked_by", None) is not None:
         t["blocked_by"] = args.blocked_by if args.blocked_by else None
-        # Setting a blocker implies the task is waiting; flip to pending unless an
-        # explicit --status was also passed in the same call.
+        # 待ちの設定時はpendingにする。ただし、同じ呼び出しで
+        # --statusが明示されていれば、その指定を優先する。
         if args.blocked_by and not args.status:
             t["status"] = "pending"
     if getattr(args, "snooze_until", None) is not None:
-        # Setting a snooze date sleeps the task until that date; clearing it
-        # (empty string) wakes it. Both flip status unless an explicit --status
-        # was also passed in the same call.
+        # snoozeの日付を設定すると、その日まで待機させる。
+        # 空文字で解除すると再開する。いずれも状態を変更するが、--statusが
+        # 同時に明示されていれば、その指定を優先する。
         if args.snooze_until:
             t["snooze_until"] = args.snooze_until
             if not args.status:
@@ -1069,12 +1067,11 @@ def cmd_update(args) -> None:
 
 
 def cmd_snooze(args) -> None:
-    """Sleep a task until a given date: set status=pending + snooze_until.
+    """status=pendingとsnooze_untilを設定し、指定日までタスクを待機させる。
 
-    A snoozed task is hidden from the default `list` (which shows open only) and
-    is flipped back to open automatically on the first `list` at or after
-    snooze_until. This is the date-triggered cousin of blocked_by: blocked_by
-    waits on someone/something, snooze waits on a calendar date.
+    snooze中は既定のlist（openだけを表示）から隠す。snooze_until以降に
+    初めてlistを呼ぶと、自動的にopenへ戻す。blocked_byが相手や条件を待つのに対し、
+    snoozeは日付を条件に再開する。
     """
     data = load()
     t = _find_task(data, args.id)
@@ -1135,16 +1132,16 @@ _TASK_ID_RE = re.compile(r"^[0-9a-f]{8}$")
 
 
 def _is_task_id(s) -> bool:
-    """Return True if s looks like an 8-char lowercase hex task ID (not a URL)."""
+    """sがURLではなく、小文字16進数8文字のタスクIDならTrueを返す。"""
     return bool(_TASK_ID_RE.match(s or ""))
 
 
 def _gh_notif_key(url: str):
-    """Normalize a GitHub PR/Issue URL to 'owner/repo#number'.
+    """GitHubのPR・Issue URLをowner/repo#numberへ正規化する。
 
-    Handles both html_url (.../pull/123) and API url (.../pulls/123),
-    and ignores trailing fragments like #discussion_r... or #pullrequestreview-...
-    Returns None if the url is not a recognizable PR/Issue url.
+    html_urlの.../pull/123とAPI URLの.../pulls/123に対応する。
+    末尾の#discussion_r...や#pullrequestreview-...などは無視する。
+    PR・Issue URLとして識別できなければNoneを返す。
     """
     if not url:
         return None
@@ -1155,12 +1152,12 @@ def _gh_notif_key(url: str):
 
 
 def _gh_state(url: str):
-    """Return the GitHub PR/Issue state for a URL, or None if unknown.
+    """URLに対応するGitHubのPR・Issueの状態を返し、不明ならNoneを返す。
 
-    Calls `gh pr view`/`gh issue view` (read-only) and returns a dict like
-    {"state": "MERGED"|"OPEN"|"CLOSED", "merged": bool}. Returns None when the
-    URL isn't a GitHub PR/Issue, gh is unavailable, or the call fails — callers
-    must treat None as "couldn't determine, leave blocked".
+    読み取り専用のgh pr view・gh issue viewを呼び出し、
+    {"state": "MERGED"|"OPEN"|"CLOSED", "merged": bool}の形式で返す。
+    GitHubのPR・Issueではない場合、ghがない場合、呼び出しに失敗した場合はNoneを返す。
+    呼び出し元は、Noneを「判断できないため待ちを維持する」として扱う。
     """
     import subprocess
 
@@ -1199,7 +1196,7 @@ _MENTION_RE = re.compile(r"@([A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)")
 
 
 def _gh_self_login():
-    """Return the authenticated gh user's login, or None if it can't be read."""
+    """ghで認証済みのログイン名を返し、取得できなければNoneを返す。"""
     import subprocess
 
     try:
@@ -1219,21 +1216,21 @@ def _gh_self_login():
 
 
 def _gh_comment_resolved(url: str):
-    """For a blocker that is a PR/Issue comment URL, decide if the ball came back.
+    """待ち先がPR・Issueコメントの場合に、相手から応答があったか判定する。
 
-    The blocker means "waiting for the other side to act on this comment".
-    Two comment-URL shapes are accepted:
-    - #issuecomment-<id>: an issue/PR conversation comment. Its body is fetched
-      from repos/.../issues/comments/<id>.
-    - #discussion_r<id>: an inline PR review comment. Its body is fetched from
-      repos/.../pulls/comments/<id>, and the reply may land in the PR
-      review-comment thread (repos/.../pulls/<n>/comments), which the
-      issue-comment timeline does not surface — so that thread is checked too.
+    この待ちは、相手が対象コメントへ対応することを待っている状態を表す。
+    次の二形式のURLに対応する。
+    - #issuecomment-<id>: Issue・PRの会話コメント。
+      本文はrepos/.../issues/comments/<id>から取得する。
+    - #discussion_r<id>: PRの行コメント。
+      本文はrepos/.../pulls/comments/<id>から取得する。
+      返信がPRのレビュースレッド（repos/.../pulls/<n>/comments）だけに現れ、
+      Issueコメントの時系列には含まれない場合があるため、両方を確認する。
 
-    Returns the login of the responder if the PR author or anyone @mentioned in
-    the comment posted a comment/review/review-comment or pushed a commit after
-    the comment's created_at; otherwise None (stay blocked). Returns None on any
-    lookup failure so the task stays pending rather than being wrongly unblocked.
+    PR作成者またはコメントでメンションされた相手が、コメントのcreated_atより後に
+    コメント・レビュー・レビューコメントを投稿するか、コミットをpushした場合は、
+    応答した人のログイン名を返す。それ以外はNoneを返して待ちを維持する。
+    取得失敗時も、誤って解除しないようNoneを返す。
     """
     import subprocess
 
@@ -1266,7 +1263,7 @@ def _gh_comment_resolved(url: str):
             return None
         return proc.stdout
 
-    # The blocker comment: when it was posted and who it pings.
+    # 待ちの起点となるコメントの投稿時刻と通知先を取得する。
     raw = _api(comment_path)
     if not raw:
         return None
@@ -1283,8 +1280,8 @@ def _gh_comment_resolved(url: str):
         return None
 
     self_login = _gh_self_login()
-    # The "other side": the PR author plus everyone @mentioned in the comment,
-    # minus ourselves (acting on our own block must not auto-resolve it).
+    # 応答を待つ相手はPR作成者とコメント内でメンションされた全員とし、
+    # 自分を除く。自分の操作で自分の待ちを自動解除しないため。
     others = set(_MENTION_RE.findall(comment.get("body") or ""))
     pr_raw = _api(f"repos/{repo}/pulls/{number}", ".user.login")
     if pr_raw and pr_raw.strip():
@@ -1294,8 +1291,8 @@ def _gh_comment_resolved(url: str):
     if not others:
         return None
 
-    # Any activity by the other side dated after the blocker comment.
-    # 1. Issue/PR comments (covers the conversation timeline).
+    # 待ちの起点となるコメントより後に、相手の活動があるか確認する。
+    # 1. Issue・PRコメント（会話の時系列）を確認する。
     raw = _api(f"repos/{repo}/issues/{number}/comments?since={since}&per_page=100")
     if raw:
         try:
@@ -1309,7 +1306,7 @@ def _gh_comment_resolved(url: str):
             warn(
                 f"malformed gh comments list for {repo}#{number}; skipping that source"
             )
-    # 2. Reviews submitted after the comment.
+    # 2. コメント後に投稿されたレビューを確認する。
     raw = _api(f"repos/{repo}/pulls/{number}/reviews?per_page=100")
     if raw:
         try:
@@ -1321,7 +1318,7 @@ def _gh_comment_resolved(url: str):
                     return r["user"]["login"]
         except json.JSONDecodeError:
             warn(f"malformed gh reviews list for {repo}#{number}; skipping that source")
-    # 3. New commits pushed after the comment.
+    # 3. コメント後にpushされた新しいコミットを確認する。
     raw = _api(f"repos/{repo}/pulls/{number}/commits?per_page=100")
     if raw:
         try:
@@ -1334,8 +1331,8 @@ def _gh_comment_resolved(url: str):
                     return author_login
         except json.JSONDecodeError:
             warn(f"malformed gh commits list for {repo}#{number}; skipping that source")
-    # 4. PR review-comment thread (only place a #discussion_r reply shows up;
-    #    the issue-comment timeline above does not include inline review replies).
+    # 4. PRのレビューコメントスレッドを確認する。#discussion_rへの返信は
+    #    Issueコメントの時系列には含まれず、このスレッドだけに現れる。
     if is_discussion:
         raw = _api(f"repos/{repo}/pulls/{number}/comments?per_page=100")
         if raw:
@@ -1354,23 +1351,18 @@ def _gh_comment_resolved(url: str):
 
 
 def _resolve_blocked(data: dict) -> list:
-    """Flip pending tasks back to open when their blocker is resolved.
+    """待ち先が解消したpendingタスクをopenへ戻す。
 
-    Three kinds of blocker are supported via the blocked_by field:
+    blocked_byで次の三種類の待ち先に対応する。
+    - 小文字16進数8文字のタスクID: 対象がdoneまたはcancelledになったら解除する。
+    - PR・Issue URL: PRのマージ、またはPR・Issueのクローズで解除する。
+    - #issuecomment-<id>・#discussion_r<id>を含むコメントURL:
+      相手によるコメントへの対応を待つ。PR作成者またはメンションされた相手が
+      コメントのcreated_atより後にコメント・レビュー・レビューコメントを投稿するか、
+      コミットをpushした場合に、相手から応答があったとして解除する。
 
-    - A task ID (8-char lowercase hex): resolved when the referenced task
-      reaches done or cancelled status.
-    - A plain PR/Issue URL: resolved when the linked PR is merged, or the
-      linked PR/Issue is closed.
-    - A comment URL (contains '#issuecomment-<id>' or '#discussion_r<id>'): the
-      blocker is "we're waiting for the other side to act on this comment".
-      Resolved when the other side acts after the comment — i.e. the PR author
-      or anyone @mentioned in the comment posts a comment/review/review-comment
-      or pushes a commit dated after the comment's created_at. This is the "the
-      ball came back" signal.
-
-    Mutates tasks in place; returns a list of {id, title, blocked_by,
-    blocker_state} for the ones that were unblocked. Caller saves if non-empty.
+    タスクを直接更新し、解除したタスクの{id, title, blocked_by, blocker_state}を返す。
+    一覧が空でなければ呼び出し元が保存する。
     """
     unblocked = []
     for t in data["tasks"]:
@@ -1426,14 +1418,14 @@ def _resolve_blocked(data: dict) -> list:
 
 
 def _auto_unblock_dependents(data: dict, task_id: str) -> list:
-    """Open pending tasks that were waiting on task_id to finish.
+    """task_idの完了を待っているpendingタスクをopenへ戻す。
 
-    Two mechanisms:
-    1. blocked_by == task_id: the dependent declared itself blocked by this task.
-    2. task.blocks list: this task declared it was blocking those dependents.
+    次の二経路で依存関係を確認する。
+    1. blocked_by == task_id: 待つ側がこのタスクを待ち先として宣言している。
+    2. task.blocksの一覧: このタスクが後続タスクを待たせると宣言している。
 
-    Clears blocked_by on each unblocked task. Returns list of {id, title}.
-    Mutates tasks in place; caller saves.
+    解除したタスクのblocked_byを消去し、{id, title}の一覧を返す。
+    タスクを直接更新し、呼び出し元が保存する。
     """
     unblocked = []
     seen = set()
@@ -1468,18 +1460,16 @@ def _auto_unblock_dependents(data: dict, task_id: str) -> list:
 
 
 def _sweep_expired_snooze(data: dict) -> list:
-    """Wake snoozed tasks whose snooze_until date has arrived.
+    """snooze_untilを迎えたタスクを再開する。
 
-    A snoozed task carries status=pending + snooze_until=YYYY-MM-DD. Once today
-    is on or after that date, the snooze has run its course: flip the task back
-    to open and clear snooze_until so it re-surfaces in the default list. Runs on
-    every `list` call (before the stale-pending sweep) so a date reached while
-    the user wasn't looking still wakes the task the next time they list.
+    snooze中はstatus=pendingとsnooze_until=YYYY-MM-DDを持つ。
+    今日がその日以降ならopenへ戻し、snooze_untilを消去して既定の一覧へ再表示する。
+    すべてのlist呼び出しで長期停滞の再開処理より先に実行するため、
+    本人が見ていない間に期限を迎えても、次の一覧表示で再開される。
 
-    Tasks with an unparseable snooze_until are left as-is (we don't guess a date).
-
-    Mutates tasks in place; returns a list of {id, title, snooze_until} for the
-    ones that were woken. Caller saves if non-empty.
+    snooze_untilを解析できなければ、日付を推測せずそのままにする。
+    タスクを直接更新し、再開したタスクの{id, title, snooze_until}を返す。
+    一覧が空でなければ呼び出し元が保存する。
     """
     woken = []
     today = today_str()
@@ -1507,12 +1497,12 @@ STALE_PENDING_DAYS = 7
 
 
 def _parse_dt(s: str):
-    """Parse a stored ISO-8601 timestamp into a naive datetime, or None.
+    """保存されたISO-8601時刻を、タイムゾーン情報なしのdatetimeへ変換する。
 
-    Stored stamps are mixed: now_iso() writes local naive (no offset), while
-    GitHub-sourced tasks carry a trailing 'Z' (UTC). We don't need exact TZ math
-    for a 1-week staleness threshold, so normalize to naive by dropping the 'Z'
-    and any offset, and compare against naive datetime.now().
+    now_iso()が保存するオフセットなしのローカル時刻と、
+    GitHub由来の末尾Z付きUTC時刻が混在している。
+    1週間の停滞判定には厳密な時差計算が不要なため、Zとオフセットを除いて
+    タイムゾーン情報なしにそろえ、datetime.now()と比較する。解析できなければNoneを返す。
     """
     if not s:
         return None
@@ -1526,26 +1516,25 @@ def _parse_dt(s: str):
 
 
 def _sweep_stale_pending(data: dict) -> list:
-    """Flip pending tasks back to open once they've sat untouched for a week.
+    """1週間変更のないpendingタスクをopenへ戻す。
 
-    A pending task whose updated_at is >= STALE_PENDING_DAYS old is treated as
-    stuck on our side rather than the blocker's, so it's flipped back to open to
-    re-surface in planning. Runs on every `list` call (not just
-    --resolve-blocked), because the point is to make the user notice a block
-    that nobody is moving. Tasks with an unparseable/empty updated_at are left
-    pending (we can't anchor the age, so we don't guess).
+    updated_atからSTALE_PENDING_DAYS以上経過した場合は、
+    待ち先ではなく本人側で停滞しているとみなし、計画に再表示する。
+    動いていない待ちに気付くための処理なので、--resolve-blockedの指定にかかわらず
+    すべてのlist呼び出しで実行する。updated_atが空または解析不能なら、
+    経過時間を推測せずpendingに保つ。
 
-    Mutates tasks in place; returns a list of {id, title, blocked_by,
-    stale_days} for the ones that were flipped. Caller saves if non-empty.
+    タスクを直接更新し、再開したタスクの{id, title, blocked_by, stale_days}を返す。
+    一覧が空でなければ呼び出し元が保存する。
     """
     swept = []
     now = datetime.now()
     for t in data["tasks"]:
         if t.get("status") != "pending":
             continue
-        # Snoozed tasks are waiting on a date the user chose, not on a stuck
-        # blocker. _sweep_expired_snooze wakes them when their date arrives; the
-        # 7-day staleness rule must not wake them early.
+        # snooze中のタスクは、待ちの停滞ではなく本人が選んだ日付を待っている。
+        # 日付を迎えると_sweep_expired_snoozeが再開するため、
+        # 7日間の停滞判定で期限前に再開してはならない。
         if t.get("snooze_until"):
             continue
         ts = _parse_dt(t.get("updated_at") or "")
@@ -1571,21 +1560,19 @@ OFFLOAD_STALE_DAYS = 14
 
 
 def _detect_offload_candidates(data: dict) -> list:
-    """List from=me tasks stale enough to consider stashing as an idea memo.
+    """長期間変更のないfrom=meタスクを、アイデアメモへ移す候補として返す。
 
-    A from=me task (self-initiated "want to do") whose updated_at is >=
-    OFFLOAD_STALE_DAYS old has stopped being actively pursued. Rather than let it
-    sit in the task store, the offload skill can move it to an idea stash
-    (Obsidian inbox / Notion). Longer than the 7-day stale-pending threshold on
-    purpose: offloading is for genuinely long-abandoned wants, not a brief stall.
+    updated_atからOFFLOAD_STALE_DAYS以上経過した、自分が始めたいfrom=meタスクを
+    候補にする。保存先に放置せず、offloadスキルからObsidianのinboxやNotionへ移せる。
+    短い停滞ではなく長く着手していない希望を対象にするため、
+    pendingの再開条件である7日より長い期間を設定する。
 
-    Detection only — does NOT mutate tasks. The skill cancels the task after the
-    user picks which candidates to stash (the store isn't the right place to
-    decide the Notion-vs-inbox split; the user does). in-progress is excluded
-    (actively being worked on); done/cancelled and from=others are excluded.
-    Tasks with an unparseable/empty updated_at are skipped (no age to anchor on).
+    ここでは検出だけを行い、タスクを変更しない。本人が移す候補と保存先を選んだ後、
+    スキルがタスクを取り消す。Notionとinboxの選択は保存処理側で決めない。
+    作業中のin-progress、done・cancelled、from=othersは対象外とする。
+    updated_atが空または解析不能の場合も、経過時間を推測せず対象外とする。
 
-    Returns a list of {id, title, updated_at, stale_days, source, source_url}.
+    {id, title, updated_at, stale_days, source, source_url}の一覧を返す。
     """
     candidates = []
     now = datetime.now()
@@ -1618,10 +1605,10 @@ def _qpos(task: dict) -> int:
 
 
 def _normalize_queue(active: list) -> bool:
-    """Reassign queue_pos to active tasks in steps of 10, starting at 10.
+    """進行可能なタスクのqueue_posを、10から10刻みで振り直す。
 
-    Mutates changed tasks in place and returns whether saving is needed.
-    Caller passes `active` in the desired order.
+    変更対象を直接更新し、保存の要否を返す。
+    呼び出し元は、希望する順序でactiveを渡す。
     """
     changed = False
     for i, t in enumerate(active):
@@ -1634,17 +1621,17 @@ def _normalize_queue(active: list) -> bool:
 
 
 def cmd_reorder(args) -> None:
-    """Reorder a task within the queue by adjusting its queue_pos.
+    """queue_posを調整して、キュー内のタスクの順序を変える。
 
-    --head          move to front (one less than the current minimum)
-    --tail          move to end   (one more than the current maximum)
-    --before <id>   insert directly before another task
-    --after <id>    insert directly after another task
-    --normalize     reassign all active tasks queue_pos in steps of 10 (no target id needed)
+    --head          先頭へ移す（現在の最小値から1引く）。
+    --tail          末尾へ移す（現在の最大値に1足す）。
+    --before <id>   別のタスクの直前へ挿入する。
+    --after <id>    別のタスクの直後へ挿入する。
+    --normalize     進行可能な全タスクのqueue_posを10刻みで振り直す。対象IDは不要。
 
-    queue_pos is just an ordering key, so positions are placed one apart and
-    only renumbered (normalized to multiples of 10 starting at 10) when there is
-    no integer gap left, or when --head would otherwise produce a value below 1.
+    queue_posは並び順だけを表すため、通常は1刻みで挿入する。
+    整数の隙間がなくなった場合や、--headで1未満になる場合にだけ、
+    10から始まる10の倍数へ正規化する。
     """
     data = load()
 
@@ -1659,11 +1646,11 @@ def cmd_reorder(args) -> None:
         return
 
     if args.by_tier:
-        # Bake the list order into queue_pos: sort by the same _task_sort_key the
-        # list view uses (dated-before-undated, then tier), then renumber in
-        # steps of 10. Sharing the key keeps Obsidian's filename order identical
-        # to the list. queue_pos is the key's final tie-break, so a manual
-        # --head/--before within an otherwise-equal group survives.
+        # 一覧と同じ_task_sort_keyで並べ替え、その順序をqueue_posへ反映する。
+        # 日付ありを日付なしより先にし、次にtierで並べ、
+        # 10刻みで番号を振り直す。同じキーを使い、Obsidianのファイル名順を
+        # 一覧順とそろえる。queue_posは同順位の最後の判定条件なので、
+        # それ以外が同じグループ内での--head・--beforeによる手動順序も維持される。
         active.sort(key=_task_sort_key)
         changed = _normalize_queue(active)
         if changed:
@@ -1679,8 +1666,9 @@ def cmd_reorder(args) -> None:
     others = [x for x in active if x["id"] != args.id]
 
     def _compute(target):
-        """Return the new queue_pos for the requested move, or None if it needs a
-        renumber first (no integer gap available, or --head would drop below 1)."""
+        """指定された移動先のqueue_posを返す。整数の隙間がない場合や、
+        --headで1未満になる場合は、先に番号の振り直しが必要なためNoneを返す。
+        """
         if args.head:
             if not others:
                 return 10
@@ -1700,7 +1688,7 @@ def cmd_reorder(args) -> None:
             next_pos = _qpos(after_ref[0]) if after_ref else ref_pos + 2
             pos = (ref_pos + next_pos) // 2
             return pos if pos != ref_pos and pos != next_pos else None
-        return False  # sentinel: no move flag given
+        return False  # 移動フラグが指定されていないことを表す。
 
     ref = None
     if args.before or args.after:
@@ -1717,7 +1705,7 @@ def cmd_reorder(args) -> None:
         )
         sys.exit(1)
     if new_pos is None:
-        # No room — renumber the queue (target excluded so it can slot in cleanly), then retry.
+        # 挿入する余地がないため、対象を除いて番号を振り直してから再試行する。
         _normalize_queue(others)
         new_pos = _compute(ref)
 
@@ -1728,11 +1716,11 @@ def cmd_reorder(args) -> None:
 
 
 def cmd_notif_keys(args) -> None:
-    """Emit normalized owner/repo#number keys for github tasks in the given statuses.
+    """指定された状態のGitHubタスクを、owner/repo#numberへ正規化して返す。
 
-    Used by the github-sync agent to decide which GitHub notification threads to
-    mark done: a notification whose key is in this set corresponds to a task the
-    user has already finished or dropped, so the thread can be dismissed.
+    GitHub同期で、完了扱いにする通知スレッドの判定に使う。
+    この集合にキーがある通知は、本人が既に完了または中止したタスクに対応するため、
+    通知を処理済みにできる。
     """
     data = load()
     statuses = [s.strip() for s in args.status.split(",") if s.strip()]
@@ -1748,7 +1736,7 @@ def cmd_notif_keys(args) -> None:
     emit({"statuses": statuses, "keys": sorted(keys)})
 
 
-# ---------- meta ----------
+# ---------- メタデータ ----------
 
 
 def cmd_meta(args) -> None:
@@ -1759,7 +1747,7 @@ def cmd_meta(args) -> None:
         else:
             emit(data["meta"])
     elif args.action == "set":
-        # try parsing as JSON for numbers/arrays/objects, fall back to string
+        # 数値・配列・オブジェクトをJSONとして解析し、失敗した場合は文字列にする。
         try:
             value = json.loads(args.value)
         except (json.JSONDecodeError, TypeError, ValueError):
@@ -1773,7 +1761,7 @@ def cmd_meta(args) -> None:
         print("ok")
 
 
-# ---------- work log ----------
+# ---------- 作業記録 ----------
 
 
 def parse_time(s: str) -> str:
@@ -1983,10 +1971,10 @@ def _today_plan(
 
 
 def _calc_hours_from_segments(segments: list, default_break: int) -> tuple:
-    """segments: list of {start, end}. Returns (hours, total_break_minutes_inferred)."""
+    """{start, end}の一覧を受け取り、実働時間と推定休憩分の組を返す。"""
     if not segments:
         return None, default_break
-    # If a single segment, treat as start-end with the default break deducted.
+    # 区間が一つなら開始から終了までとみなし、既定の休憩時間を差し引く。
     if len(segments) == 1:
         seg = segments[0]
         if seg.get("start") and seg.get("end"):
@@ -1997,7 +1985,7 @@ def _calc_hours_from_segments(segments: list, default_break: int) -> tuple:
             )
             return round(max(0, minutes) / 60, 2), default_break
         return None, default_break
-    # Multiple segments: sum each, no extra break deduction (gaps are breaks).
+    # 複数区間は個別に合計する。区間の間が休憩のため、追加で休憩を差し引かない。
     total = 0
     total_gap = 0
     last_end = None
@@ -2019,7 +2007,7 @@ def _leave_hours(entry: dict) -> float:
 
 
 def _set_work_hours(entry: dict, work_hours) -> None:
-    """Update actual and credited hours while preserving leave annotation."""
+    """休暇の記載を維持し、実働時間と認定時間を更新する。"""
     entry["work_hours"] = work_hours
     if work_hours is None:
         entry["hours"] = None
@@ -2035,9 +2023,9 @@ def _entry_work_hours(entry: dict, default_break: int):
     if "work_hours" in entry:
         return entry["work_hours"]
     if entry.get("leave"):
-        # A leave-only entry has no actual work yet, but its leave credit must
-        # still be included in the day's credited hours. A start-only entry
-        # remains incomplete until its end is recorded.
+        # 休暇だけの記録には実働時間がないが、休暇相当の時間は
+        # 当日の認定時間に含める。開始時刻だけの記録は、
+        # 終了時刻が記録されるまで未完了として扱う。
         if entry.get("start") and not entry.get("end"):
             return None
         return 0.0
@@ -2069,9 +2057,9 @@ def _half_day_leave_hours(daily_norma: float) -> float:
 
 
 def cmd_work_set(args) -> None:
-    """Record or overwrite a day's work entry from one or more start/end pairs.
+    """一つ以上の開始・終了の組から、当日の作業記録を保存または上書きする。
 
-    Pairs are passed as repeated --segment "HH:MM-HH:MM". Single value sets only start.
+    --segment "HH:MM-HH:MM"を繰り返して渡す。時刻が一つなら開始時刻だけを設定する。
     """
     data = load()
     d = args.date or today_str()
@@ -2090,7 +2078,7 @@ def cmd_work_set(args) -> None:
         hours, gap = _calc_hours_from_segments(segments, default_break)
         _set_work_hours(entry, hours)
         entry["break_minutes_inferred"] = gap if len(segments) > 1 else default_break
-        # also expose start/end for convenience (first/last)
+        # 参照しやすいよう、最初の開始時刻と最後の終了時刻も返す。
         entry["start"] = segments[0]["start"] if segments else None
         entry["end"] = (
             segments[-1]["end"] if segments and segments[-1].get("end") else None
@@ -2098,7 +2086,7 @@ def cmd_work_set(args) -> None:
 
     if args.break_minutes is not None:
         entry["break_minutes_override"] = args.break_minutes
-        # recompute if single segment
+        # 区間が一つの場合は再計算する。
         if entry.get("segments") and len(entry["segments"]) == 1:
             hours, _ = _calc_hours_from_segments(entry["segments"], args.break_minutes)
             _set_work_hours(entry, hours)
@@ -2114,7 +2102,7 @@ def cmd_work_set(args) -> None:
     else:
         entry.pop("planned", None)
         if args.source:
-            entry["source"] = args.source  # e.g., "slack_clock" or "manual"
+            entry["source"] = args.source  # 例: slack_clockまたはmanual
 
     entry["updated_at"] = now_iso()
     data["work_log"][d] = entry
@@ -2134,7 +2122,7 @@ def _parse_work_punch(value: str) -> tuple[str, datetime]:
 
 
 def _work_punch_entries(punches: list[str]) -> dict[str, list[dict]]:
-    """Pair explicit dated punches and keep each segment on its start date."""
+    """日付付きの打刻を組にし、各区間を開始日の記録にまとめる。"""
     entries: dict[str, list[dict]] = {}
     pending_start = None
     previous_timestamp = None
@@ -2184,7 +2172,7 @@ def _work_punch_entries(punches: list[str]) -> dict[str, list[dict]]:
 
 
 def cmd_work_punches(args) -> None:
-    """Save dated punches and assign overnight work to its start date."""
+    """日付付きの打刻を保存し、日をまたぐ勤務を開始日に割り当てる。"""
     try:
         segments_by_date = _work_punch_entries(args.punches)
     except ValueError as exc:
@@ -2212,7 +2200,7 @@ def cmd_work_punches(args) -> None:
 
 
 def cmd_work_leave_set(args) -> None:
-    """Record a full-day, half-day, or hourly leave entry."""
+    """全日・半日・時間単位の休暇を記録する。"""
     data = load()
     d = args.date or today_str()
     entry = data["work_log"].get(d, {})
@@ -2294,7 +2282,7 @@ def cmd_work_show(args) -> None:
 
 
 def _workdays_between(start_date: date, end_date: date, holidays: set) -> int:
-    """Count weekdays (Mon-Fri) between start_date and end_date inclusive, excluding holidays."""
+    """開始日と終了日を含む月曜から金曜の日数を、祝日を除いて数える。"""
     if end_date < start_date:
         return 0
     count = 0
@@ -2325,7 +2313,7 @@ def _unfilled_work_entries(data: dict, month: str, through: str) -> list:
 
 
 def cmd_work_unfilled_entries(args) -> None:
-    """List workdays with missing or start-only entries."""
+    """記録がない営業日、または開始時刻だけの営業日を一覧にする。"""
     data = load()
     month = args.month or today_str()[:7]
     through = args.through or today_str()
@@ -2354,7 +2342,7 @@ def cmd_work_summary(args) -> None:
     holidays = set(meta.get(f"holidays_{month}", []))
     workdays_total = _workdays_between(month_first, month_last, holidays)
 
-    # target hours
+    # 目標時間
     # 残り営業日が3以下になったら target_hours_no_buffer に切り替える（早上がりモード）。
     # target_hours_no_buffer が未設定の場合は常に target_hours を使う。
     _target_full = meta.get(f"target_hours_{month}") or 0.0
@@ -2376,7 +2364,7 @@ def cmd_work_summary(args) -> None:
     else:
         target = _target_full
 
-    # cumulative — sum logged hours up to and including yesterday
+    # 昨日までに記録された時間を累計する。
     today = date.today()
     cumulative = 0.0
     logged_days = 0
@@ -2389,13 +2377,13 @@ def cmd_work_summary(args) -> None:
         # planned（フレックス退勤予定）は実績ではないので cumulative に混ぜない。
         if e.get("planned"):
             continue
-        # always count past days; for today, count only if both start and end set
+        # 過去日は常に集計し、当日は開始・終了の両方が設定された場合だけ集計する。
         if d < today_iso or (d == today_iso and e.get("end")):
             cumulative += e["hours"]
             logged_days += 1
     cumulative = round(cumulative, 2)
 
-    # remaining workdays: from today through end of month, inclusive (only if month is current/future)
+    # 当月または未来の月だけ、今日から月末までを両端を含めて残営業日として数える。
     if (year, mon) > (today.year, today.month):
         remaining_workdays = workdays_total
         anchor = month_first
@@ -2495,7 +2483,7 @@ def cmd_work_summary(args) -> None:
     emit(summary)
 
 
-# ---------- daily logs ----------
+# ---------- 日次記録 ----------
 
 # コンディションのスコア項目。daily_logs エントリに保持し、デイリーノートの
 # ## ふりかえり の `- コンディション:` 行に出す。値は 1-_SCORE_MAX の int か
@@ -2583,7 +2571,7 @@ def cmd_daily_list(args) -> None:
     emit(logs)
 
 
-# ---------- migrate ----------
+# ---------- 移行 ----------
 
 _KIND_TO_FROM = {"must": "others", "will": "me"}
 
@@ -2606,14 +2594,14 @@ def cmd_migrate(args) -> None:
     emit({"migrated": count, "backup": str(bak)})
 
 
-# ---------- arg parser ----------
+# ---------- 引数解析 ----------
 
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    # tasks
+    # タスク
     a = sub.add_parser("add", help="add a task")
     a.add_argument("title")
     a.add_argument(
@@ -2831,14 +2819,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     nk.set_defaults(func=cmd_notif_keys)
 
-    # meta
+    # メタデータ
     m = sub.add_parser("meta", help="read/write meta keys")
     m.add_argument("action", choices=["get", "set", "unset"])
     m.add_argument("key", nargs="?")
     m.add_argument("value", nargs="?")
     m.set_defaults(func=cmd_meta)
 
-    # work log
+    # 作業記録
     w = sub.add_parser("work", help="work hours log")
     wsub = w.add_subparsers(dest="work_cmd", required=True)
 
@@ -2936,7 +2924,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     wsum.set_defaults(func=cmd_work_summary)
 
-    # daily logs
+    # 日次記録
     dl = sub.add_parser("daily", help="daily retrospective logs")
     dlsub = dl.add_subparsers(dest="daily_cmd", required=True)
 

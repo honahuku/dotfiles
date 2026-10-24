@@ -14,6 +14,17 @@ def only_reading_arguments:
     | test("[;&|()\\n]") | not
   );
 
+def has_shell_control_operator:
+  ((gsub("'[^']*'"; "") | test("`|\\$\\(")))
+  or (
+    gsub("'[^']*'|\"(?:\\\\.|[^\"\\\\])*\""; "")
+    | test("[;&|()\\n]")
+  );
+
+def targets_git_main_checkout($path):
+  ($path | test("(^|/)git/[^/]+/[^/]+/"))
+  and (($path | test("(^|/)git/[^/]+/[^/]+/\\.worktree/")) | not);
+
 def command_is($name):
   (only_reading_arguments | not)
   and test(
@@ -33,6 +44,20 @@ def policy_deny($reason):
 def deny_sensitive_commands:
 (.tool_input.command // .tool_input.cmd // "") as $command
 | if (
+    ((.tool_name == "Write" or .tool_name == "Edit")
+      and ((.tool_input.file_path // "") | targets_git_main_checkout(.)))
+    or (
+      .tool_name == "apply_patch"
+      and ($command | test("(?m)^\\*\\*\\* (?:Add|Update) File: [^\\n]*/git/[^/]+/[^/]+/(?!\\.worktree/)"))
+    )
+  ) then
+    policy_deny("~/git配下のGit管理ファイルはmain checkoutで編集しない。登録済みworktree内のパスを指定する。")
+  elif (
+    (.tool_name == "Bash" or .tool_name == "exec_command" or .tool_name == "functions.exec_command")
+    and ($command | has_shell_control_operator)
+  ) then
+    policy_deny("1回のexec_commandは単一コマンドにする。シェル演算子やコマンド置換を含む複合コマンドは拒否する。独立した処理は別々のツール呼び出しにする。")
+  elif (
     (.tool_name == "Bash" or .tool_name == "exec_command" or .tool_name == "functions.exec_command")
     and ($command | ascii_downcase | command_is("aws"))
   ) then

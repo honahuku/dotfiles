@@ -1,5 +1,5 @@
-"""Work log, 退勤目安の補正, today_plan, and work-summary tests for the `tasks`
-CLI. The `tasks` fixture comes from conftest.py.
+"""`tasks` CLIの勤務記録、退勤目安の補正、today_plan、work-summaryを検証する。
+`tasks`フィクスチャはconftest.pyで定義する。
 """
 
 import datetime as _datetime
@@ -9,16 +9,16 @@ import pytest
 
 
 class _FrozenDate(_datetime.date):
-    """A date subclass whose .today() is pinned, while date(y,m,d) still works.
+    """date(y,m,d)による生成を保ち、.today()だけを固定するdateの派生クラス。
 
-    cmd_work_summary calls both date.today() and date(year, mon, 1); patching
-    tasks_cli.date with this keeps construction intact and only fixes "today".
+    cmd_work_summaryはdate.today()とdate(year, mon, 1)を呼ぶ。
+    tasks_cli.dateをこのクラスに置き換え、日付の生成を保ったまま今日の日付を固定する。
     """
 
     _frozen = None
 
     def __new__(cls, *args, **kwargs):
-        # Allow real construction: date(2026, 6, 1) etc.
+        # date(2026, 6, 1)など、通常の日付生成は許可する。
         return _datetime.date.__new__(_datetime.date, *args, **kwargs)
 
     @classmethod
@@ -32,10 +32,10 @@ def _frozen_date(year, month, day):
 
 
 class _FrozenDatetime(_datetime.datetime):
-    """A datetime subclass whose .now() is pinned, while construction still works.
+    """生成処理を保ち、.now()だけを固定するdatetimeの派生クラス。
 
-    _today_plan reads datetime.now() for the current clock time; freezing it lets
-    tests assert exact remaining_work_minutes / today_start values.
+    _today_planはdatetime.now()で現在時刻を取得する。
+    時刻を固定して、remaining_work_minutes / today_startの値を正確に検証する。
     """
 
     _frozen = None
@@ -50,7 +50,7 @@ def _frozen_now(year, month, day, hour, minute):
     return _FrozenDatetime
 
 
-# ---------- work log ----------
+# ---------- 作業記録 ----------
 
 
 def test_summary_includes_unfilled_without_writing(tasks, capsys, monkeypatch):
@@ -220,7 +220,9 @@ def test_work_unfilled_entries(tasks, capsys):
         "meta", "set", "workdays_2026-06", '["2026-06-08", "2026-06-09", "2026-06-10"]'
     )
     tasks.run("work", "set", "--date", "2026-06-08", "--segment", "09:00-18:00")
-    tasks.run("work", "set", "--date", "2026-06-09", "--segment", "0900")  # start only
+    tasks.run(
+        "work", "set", "--date", "2026-06-09", "--segment", "0900"
+    )  # 開始時刻のみ
     capsys.readouterr()
     tasks.run(
         "work",
@@ -235,7 +237,7 @@ def test_work_unfilled_entries(tasks, capsys):
     statuses = {e["date"]: e["status"] for e in out["unfilled_entries"]}
     assert statuses["2026-06-09"] == "start_only"
     assert statuses["2026-06-10"] == "missing"
-    assert "2026-06-08" not in statuses  # fully filled
+    assert "2026-06-08" not in statuses  # 必要項目をすべて入力済み
 
 
 def test_work_summary_behind_pace(tasks, capsys, monkeypatch):
@@ -278,7 +280,7 @@ def test_work_summary_future_month(tasks, capsys, monkeypatch):
     capsys.readouterr()
     tasks.run("work", "summary", "--month", "2026-06")
     out = json.loads(capsys.readouterr().out)
-    # entire month's workdays remain when the month is still in the future
+    # 対象月が未来の場合、その月の全営業日を残営業日として扱う。
     assert out["remaining_workdays"] == out["workdays_in_month"]
 
 
@@ -290,7 +292,7 @@ def test_work_summary_future_month(tasks, capsys, monkeypatch):
 # ツールの既定定数（所定8h・月バッファ1h・コアタイム16:00・フレキシブルタイム終了22:00・
 # 12h上限・標準09:30/18:30）は meta で上書きできる。テストは meta 既定でも上書きでも検証する。
 
-# --- _pace_correction ---
+# --- ペース補正（_pace_correction） ---
 # 入力: pace_diff（正=貯金 負=不足）, even_norma（均等割りノルマ h）, meta
 # 返り: {norma, core_time_floored, capped_12h} など。norma は補正後の今日ノルマ h。
 
@@ -329,7 +331,7 @@ def test_pace_correction_max_daily_hours_meta_override(tasks):
     assert r["capped_12h"] is True
 
 
-# --- _flex_carryover ---
+# --- フレックス繰越（_flex_carryover） ---
 # 入力: planned_days（[(date_str, 退勤希望min)]）, today_start_min, today_started(bool),
 #       future_workdays（今日〜最遠予定日の普通日 date_str の集合）, today_str, meta
 # 返り: {D, a_today_min, T_min, ...}。a_today_min は今日に上乗せする前借り（分）。
@@ -688,7 +690,7 @@ def test_today_plan_returns_work_available_minutes(tasks, capsys, monkeypatch):
     assert plan["work_available_minutes"] == co - st - plan["break_minutes"]
 
 
-# ---------- internal helpers: hours / workdays ----------
+# ---------- 内部の補助関数: 時間・営業日 ----------
 
 
 def test_calc_hours_empty_segments(tasks):
@@ -696,7 +698,7 @@ def test_calc_hours_empty_segments(tasks):
 
 
 def test_calc_hours_single_incomplete_segment(tasks):
-    # start-only segment → can't compute hours
+    # 開始時刻しかない区間は、時間を計算できない。
     assert tasks.module._calc_hours_from_segments(
         [{"start": "09:00", "end": None}], 60
     ) == (None, 60)
@@ -717,20 +719,20 @@ def test_parse_time_colon_and_compact(tasks):
     assert tasks.module.parse_time("0900") == "09:00"
 
 
-# ---------- work_summary edges ----------
+# ---------- work_summaryの境界条件 ----------
 
 
 def test_work_summary_satisfied_when_target_met(tasks, capsys, monkeypatch):
-    # Past month with cumulative >= target → month_over_satisfied.
+    # 過去月で累計時間が目標以上なら、month_over_satisfiedになる。
     monkeypatch.setattr(tasks.module, "date", _frozen_date(2026, 7, 1))
     tasks.run("meta", "set", "target_hours_2026-06", "5")
     tasks.run("meta", "set", "holidays_2026-06", "[]")
     tasks.run("work", "set", "--date", "2026-06-01", "--segment", "09:00-15:00")  # 5h
-    # An out-of-month entry and an hours=None entry exercise the skip branches.
+    # 対象月外の記録とhours=Noneの記録で、集計を飛ばす分岐を検証する。
     tasks.run("work", "set", "--date", "2026-05-30", "--segment", "09:00-18:00")
     tasks.run(
         "work", "set", "--date", "2026-06-02", "--segment", "0900"
-    )  # start only, hours None
+    )  # 開始時刻のみのため、時間はNoneになる。
     capsys.readouterr()
     tasks.run("work", "summary", "--month", "2026-06")
     out = json.loads(capsys.readouterr().out)
@@ -738,7 +740,7 @@ def test_work_summary_satisfied_when_target_met(tasks, capsys, monkeypatch):
 
 
 def test_work_summary_unfilled_break_past_through(tasks, capsys):
-    # workdays list extends past --through; the loop must break early.
+    # 営業日の一覧が--throughより先まで続く場合、ループを途中で終了する。
     tasks.run("meta", "set", "workdays_2026-06", '["2026-06-08", "2026-06-30"]')
     capsys.readouterr()
     tasks.run(
@@ -752,7 +754,7 @@ def test_work_summary_unfilled_break_past_through(tasks, capsys):
     )
     out = json.loads(capsys.readouterr().out)
     dates = {e["date"] for e in out["unfilled_entries"]}
-    assert "2026-06-30" not in dates  # beyond --through, skipped via break
+    assert "2026-06-30" not in dates  # --throughを過ぎるため、breakで処理を打ち切る。
 
 
 # ---------- work show: 存在しない日付は null / 空 dict ----------
@@ -774,7 +776,7 @@ def test_work_show_missing_month_returns_empty(tasks, capsys):
 
 
 def test_work_set_invalid_segment_raises(tasks):
-    # parse_time("abc") will raise ValueError — no graceful handling currently.
+    # parse_time("abc")はValueErrorを送出し、現状では回復処理を行わない。
     with pytest.raises((ValueError, SystemExit)):
         tasks.run("work", "set", "--date", "2026-06-08", "--segment", "abc-xyz")
 
@@ -783,8 +785,8 @@ def test_work_set_invalid_segment_raises(tasks):
 
 
 def test_work_set_end_before_start_clamps_to_zero(tasks, capsys):
-    # Reversed segment (end < start): _calc_hours_from_segments clamps via max(0, ...)
-    # so hours becomes 0.0 rather than negative or None.
+    # 終了が開始より前の区間では、_calc_hours_from_segmentsがmax(0, ...)で下限を設ける。
+    # そのため、時間は負の値やNoneではなく0.0になる。
     tasks.run("work", "set", "--date", "2026-06-08", "--segment", "18:00-09:00")
     out = json.loads(capsys.readouterr().out)
     assert out["2026-06-08"]["hours"] == 0.0
@@ -807,10 +809,10 @@ def test_parse_time_end_of_day(tasks):
 
 
 def test_work_summary_no_target_uses_zero(tasks, capsys, monkeypatch):
-    # If target_hours_YYYY-MM is not set, summary treats target as 0 and
-    # returns month_over_satisfied (cumulative 0 >= target 0).
+    # target_hours_YYYY-MMが未設定なら、summaryは目標を0とみなし、
+    # 累計0が目標0以上のためmonth_over_satisfiedを返す。
     monkeypatch.setattr(tasks.module, "date", _frozen_date(2026, 7, 1))
-    # Intentionally do NOT set target_hours_2026-06.
+    # target_hours_2026-06を意図的に設定しない。
     capsys.readouterr()
     tasks.run("work", "summary", "--month", "2026-06")
     out = json.loads(capsys.readouterr().out)
@@ -818,7 +820,7 @@ def test_work_summary_no_target_uses_zero(tasks, capsys, monkeypatch):
     assert out["pace"] == "month_over_satisfied"
 
 
-# ---------- work summary: target_hours_no_buffer ----------
+# ---------- 作業時間の集計: target_hours_no_buffer ----------
 
 
 def test_work_summary_no_buffer_used_when_few_workdays_remain(
@@ -867,14 +869,14 @@ def test_work_summary_no_buffer_key_absent_uses_target_hours(
     assert out["target_hours"] == 176
 
 
-# ---------- work summary: today_plan absent when remaining_workdays == 0 ----------
+# ---------- 作業時間の集計: 残営業日0の場合のtoday_plan ----------
 
 
 def test_today_plan_absent_when_no_remaining_workdays(tasks, capsys, monkeypatch):
-    # If today is the last workday of the month and all hours are logged,
-    # remaining_workdays becomes 0 and today_target_hours is None, but
-    # today_plan should still be present (we are IN the current month).
-    # The important invariant: no KeyError and the plan field exists.
+    # 今日が月の最終営業日で、すべての時間を記録済みなら、
+    # remaining_workdaysは0、today_target_hoursはNoneになるが、
+    # 当月であるためtoday_planは引き続き存在する。
+    # KeyErrorが発生せず、予定のフィールドが存在することを保証する。
     monkeypatch.setattr(tasks.module, "date", _frozen_date(2026, 6, 30))
     monkeypatch.setattr(tasks.module, "datetime", _frozen_now(2026, 6, 30, 10, 0))
     tasks.run("meta", "set", "target_hours_2026-06", "160")

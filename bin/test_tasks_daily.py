@@ -1,10 +1,10 @@
-"""Daily-log and notif-keys tests for the `tasks` CLI. The `tasks` fixture
-comes from conftest.py.
+"""`tasks` CLIの日次記録とnotif-keysを検証する。
+`tasks`フィクスチャはconftest.pyで定義する。
 """
 
 import json
 
-# ---------- daily logs ----------
+# ---------- 日次記録 ----------
 
 
 def test_daily_save_and_show(tasks, capsys):
@@ -92,12 +92,12 @@ def test_daily_list_with_month_and_limit(tasks, capsys):
     capsys.readouterr()
     tasks.run("daily", "list", "--month", "2026-06", "--limit", "1")
     out = json.loads(capsys.readouterr().out)
-    # reverse-sorted by date, filtered to June, limited to 1 → 2026-06-02
+    # 日付の降順で6月に絞り、1件だけ取得すると2026-06-02になる。
     assert len(out) == 1
     assert out[0]["date"] == "2026-06-02"
 
 
-# ---------- notif-keys ----------
+# ---------- 通知キー ----------
 
 
 def test_notif_keys(tasks, capsys):
@@ -134,7 +134,7 @@ def test_notif_keys_skips_open_and_non_github(tasks, capsys):
     capsys.readouterr()
     tasks.run("notif-keys")
     out = json.loads(capsys.readouterr().out)
-    assert out["keys"] == []  # open github task & local task both excluded
+    assert out["keys"] == []  # openのGitHubタスクとローカルタスクをどちらも除外する。
 
 
 # ---------- daily list: エントリなし ----------
@@ -164,25 +164,23 @@ def test_daily_save_standup_stored(tasks, capsys):
         "--date",
         "2026-07-09",
         "--standup",
-        "- ORBIT-555: plan merge 済み、実装着手",
+        "- TASK-101: plan merge 済み、実装着手",
     )
     capsys.readouterr()
     tasks.run("daily", "show", "--date", "2026-07-09")
     out = json.loads(capsys.readouterr().out)
-    assert out["standup"] == "- ORBIT-555: plan merge 済み、実装着手"
+    assert out["standup"] == "- TASK-101: plan merge 済み、実装着手"
 
 
 def test_daily_save_standup_merges_without_clobber(tasks, capsys):
     # standup と他フィールドは同一日付でマージされ、未指定側は保持される。
     tasks.run("daily", "save", "--date", "2026-07-09", "--good", "進んだ")
-    tasks.run(
-        "daily", "save", "--date", "2026-07-09", "--standup", "ORBIT-555 実装着手"
-    )
+    tasks.run("daily", "save", "--date", "2026-07-09", "--standup", "TASK-101 実装着手")
     capsys.readouterr()
     tasks.run("daily", "show", "--date", "2026-07-09")
     out = json.loads(capsys.readouterr().out)
     assert out["good"] == "進んだ"
-    assert out["standup"] == "ORBIT-555 実装着手"
+    assert out["standup"] == "TASK-101 実装着手"
     assert len(tasks.store()["daily_logs"]) == 1
 
 

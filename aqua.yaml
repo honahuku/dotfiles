@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/aquaproj/aqua/main/json-schema/aqua-yaml.json
-# aqua - Declarative CLI Version Manager
+# aqua: 設定ファイルでCLIの導入とバージョンを管理するツール
 # https://aquaproj.github.io/
 # checksum:
 #   enabled: true

@@ -77,8 +77,10 @@
     - 起動方法：`python3`で実行してよい。
 - skill-creator
     - 対象：付属の`scripts/`配下のスクリプト。
+    - スキル作成・更新後の`quick_validate.py <スキルのディレクトリ>`による検証も、この例外に含む。追加の実行許可を求めない。
     - 起動方法：実行に必要な`python`・`python3`・`uv run`も許可する。
-    - `quick_validate.py`の実行も含む。PyYAMLが不足する場合は、`uv run --with pyyaml python <skill-creator配置>/scripts/quick_validate.py <対象スキル>`で検証してよい。
+    - 実行前に適用されるskill-creatorの配置先を確認し、その配下の既存スクリプトを指定する。汎用言語の実行禁止を理由に、この検証を未許可と扱わない。
+    - PyYAMLが不足する場合は、`uv run --with pyyaml python <skill-creator配置>/scripts/quick_validate.py <対象スキル>`で検証してよい。
 - Renovate
     - 対象：`renovate-config-validator`と`renovate`のローカル実行。
     - 起動方法：これらのCLIを起動するための`npx`・`npm exec`・Node経由の実行も許可する。
