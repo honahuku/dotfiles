@@ -8,9 +8,8 @@
 /.gitmodules
 /.worktrees/
 
-# LazyVim starter template由来のファイル
+# LazyVim starter template由来のライセンスは、必要性を確認するまで追跡しない
 /nvim/LICENSE
-/nvim/README.md
 
 # Python bytecode
 __pycache__/
