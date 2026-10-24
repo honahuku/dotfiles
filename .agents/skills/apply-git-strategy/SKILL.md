@@ -17,6 +17,6 @@ Git内部状態を書き換える前は、worktree作成も含めて`~/.agents/d
 | PR作成・本文更新・Ready化の案内                 | `prepare-pr-for-review`、`references/pr-workflow.md`         |
 | AGENTS.md・スキル・hookの作成や更新             | `write-agent-instructions`                                   |
 
-個人用設定の改善では、着手前に`~/.agents/docs/common/context-policy.md`の時間帯を確認する。環境固有のGit制限・自動反映の例外が必要なら、非公開資料の`global-policy`と`apply-git-strategy`の該当セクションを読む。
+dotfiles・個人ツールの変更では、着手前に`~/.agents/docs/common/context-policy.md`の配置判断と時間帯を確認する。環境固有のGit制限・自動反映の例外が必要なら、非公開資料の`global-policy`と`apply-git-strategy`の該当セクションを読む。
 
-編集後は変更先と差分を確認する。コミットやPRの作成を依頼されていない公開リポジトリで、反映作業まで自動で進めない。
+編集後は変更先と差分を確認する。設定移行の反映確認には`context-policy.md`の「端末への反映確認」を使う。コミットやPRの作成を依頼されていない公開リポジトリで、反映作業まで自動で進めない。
