@@ -43,6 +43,13 @@ if [[ "$mode" != "--staged" && "$mode" != "--worktree" && "$mode" != "--all" ]];
   exit 2
 fi
 repository="$(git -C "$repository" rev-parse --show-toplevel)"
+# worktree直下の.gitは管理用ファイルのため、配下の.gitだけを別リポジトリの混入として検出する。
+nested_git_paths="$(find "$repository" -mindepth 2 -name .git -print)"
+if [[ -n "$nested_git_paths" ]]; then
+  echo "public candidate contains nested Git repositories:" >&2
+  echo "$nested_git_paths" >&2
+  exit 1
+fi
 # 除外を固定リストにすると、自作スキルまで誤って除外し続けるため両定義を照合する。
 if [[ "$mode" == "--staged" ]]; then
   vendir_roots="$(git -C "$repository" show :vendir.yml | yq -r '.directories[].path' -)"
