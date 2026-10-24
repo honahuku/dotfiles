@@ -37,7 +37,11 @@ Renovateによる依存更新PR、Renovate設定の変更PR、Renovateのロー�
 
 コードの主張は`file:path:line`で裏付ける。pathはrepo相対パス、lineは対象HEADの行番号とし、チャットでは同じ位置へのGitHubリンクかローカル絶対パスのリンクを添える。文書は該当ページやセクション、実環境は読み取り結果と対象環境を示す。Webの出典は本文を読んで主張との一致を確かめ、読めなければ根拠にしない。
 
-検証は許可された静的検査とCI結果の読み取りに限る。Terraform・Kubernetes manifestでは`write-safe-code-and-scripts`のインフラ検証手順を読み、`terraform`・`kubectl`をローカル実行しない。必要な禁止CLIの結果を対象headのCIから取得できなければ、別の方法で代替せず判断を仰ぐ。適用・デプロイや、それを起動するmerge・push・CI操作は行わない。
+検証は許可された静的検査とCI結果の読み取りに限る。TerraformではHCP Terraformのrunのplan結果の読み取りも含む。Terraform・Kubernetes manifestでは`write-safe-code-and-scripts`のインフラ検証手順を読み、`terraform`・`kubectl`をローカル実行しない。必要な禁止CLIの結果を対象headのCI（TerraformではHCP Terraformのrunも含む）から取得できなければ、別の方法で代替せず判断を仰ぐ。適用・デプロイや、それを起動するmerge・push・CI操作は行わない。
+
+Terraformの変更を含む場合は、[plan結果の列挙](references/terraform-plan-results.md)を読み、対象環境ごとの全リソースと操作を照合する。
+
+Kubernetes manifestの変更を含む場合は、[Git上のmanifest差分検証](references/manifest-diff-results.md)を読み、生成後のリソースを比較する。Terraformとmanifestの差分一覧は、[共通の表示規則](references/infrastructure-diff-results.md)に従う。
 
 CIで報告済みの整形・lint・型の問題は重複コメントにしない。ただし、未解決の不具合や必須CIの失敗は承認判断に残す。成功した検査のWarningも`write-safe-code-and-scripts`の警告確認手順で評価し、コメントの重複抑制を指摘の確認省略にしない。生成物は生成元との整合性や依存更新の影響を確認し、テスト用の例外は本番へ流入しないことを確かめる。
 
@@ -85,6 +89,10 @@ repoのAGENTS.md、設計要件、運用方針を一般的な推奨より優先�
 最新HEAD、CI、既存コメントを再取得する。HEADが変わっていれば、影響する箇所の評価、図、approve判断を更新する。解決済みや重複の投稿候補は除く。既存コメントにある未解決の問題は、結論には含める。
 
 最終応答では、変更範囲、ワークスルーの図と説明、変更前後、観点別の評価、approve判断、コメント候補をこの順に示す。観点別の評価は、今回の事実と根拠、評価、必要な修正または確認事項をつなげる。適用されない観点を機械的に埋めず、未検証と問題なしを区別する。
+
+Terraformの変更を含む場合は、既存の出力に加え、変更前後の説明に[plan結果の一覧](references/terraform-plan-results.md)を含める。
+
+Kubernetes manifestの変更を含む場合も、変更前後の説明に[manifest差分の一覧](references/manifest-diff-results.md)を含める。
 
 RenovateのPRでは、[依存更新の出力](references/renovate-review.md#結果に含めること)も変更前後の説明と観点別の評価に含める。
 
