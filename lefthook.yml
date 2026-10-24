@@ -1,7 +1,4 @@
-output:
-  - failure
-  - execution_out
-  - summary
+extends: [.config/lefthook/plain-output.yml]
 
 pre-commit:
   commands:
