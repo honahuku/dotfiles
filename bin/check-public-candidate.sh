@@ -3,7 +3,23 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-patterns_file="${DOTFILES_PRIVATE_ROOT:?DOTFILES_PRIVATE_ROOT must point to the private configuration repository}/config/public-forbidden-patterns.txt"
+private_root="${DOTFILES_PRIVATE_ROOT:-}"
+# GUIからのcommitでも検査できるよう、シェルの初期化には依存しない。
+if [[ -z "$private_root" ]]; then
+  for private_candidate in "$HOME"/git/*/dotfiles-private; do
+    [[ -d "$private_candidate" ]] || continue
+    if [[ -n "$private_root" ]]; then
+      echo "multiple private configuration repositories; set DOTFILES_PRIVATE_ROOT" >&2
+      exit 2
+    fi
+    private_root="$private_candidate"
+  done
+  if [[ -z "$private_root" ]]; then
+    echo "private configuration repository not found; set DOTFILES_PRIVATE_ROOT" >&2
+    exit 2
+  fi
+fi
+patterns_file="$private_root/config/public-forbidden-patterns.txt"
 mode="${1:---staged}"
 repository="${2:-.}"
 violations=0
