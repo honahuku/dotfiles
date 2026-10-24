@@ -15,6 +15,10 @@ run = [
 description = "配置予定と競合を確認する"
 run = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
 
+["agents:check"]
+description = "共通資料・スキル・判定処理の欠落とリンク先の相違を検出する"
+run = "mise dot status --missing ~/.agents/docs/common ~/.agents/docs/work/context.md ~/.agents/docs/personal/context.md ~/.agents/skills ~/.agents/hooks ~/.agents/prh"
+
 ["docs:tree"]
 description = "README用のディレクトリ構成を表示する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
