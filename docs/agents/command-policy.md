@@ -78,6 +78,7 @@
 - skill-creator
     - 対象：付属の`scripts/`配下のスクリプト。
     - 起動方法：実行に必要な`python`・`python3`・`uv run`も許可する。
+    - `quick_validate.py`の実行も含む。PyYAMLが不足する場合は、`uv run --with pyyaml python <skill-creator配置>/scripts/quick_validate.py <対象スキル>`で検証してよい。
 - Renovate
     - 対象：`renovate-config-validator`と`renovate`のローカル実行。
     - 起動方法：これらのCLIを起動するための`npx`・`npm exec`・Node経由の実行も許可する。
@@ -101,8 +102,8 @@
 - 原則：`bash`・`sh`・`zsh`など、インタプリタ経由でのスクリプトファイル実行を全面禁止する。`bash foo.sh`などが対象となる。
 - 実行が必要なスクリプトは、ユーザーに実行権限（`chmod +x`）を付与してもらい、`./foo.sh`の形でパスを直接指定して動かす。
 - 明示的に実行を許可するスクリプト
-    - 対象：公開dotfilesの`bin/check-skill-safety.sh`。
-    - 起動方法：`./bin/check-skill-safety.sh`で直接実行する。インタプリタ経由では呼び出さない。
+    - 対象：公開dotfilesの`bin/check-skill-safety.sh`と、公開前検査の`bin/check-public-candidate.sh --worktree`・`--staged`。
+    - 起動方法：`./bin/<スクリプト名>`で直接実行する。インタプリタ経由では呼び出さない。
 
 ### 実行権限の変更
 
@@ -216,5 +217,6 @@
 
 - 実行を許可する条件
     - `write-technical-docs`が技術文書の表記規約を明示的に検査するときだけ。
+    - スキル・共通資料に記載した技術手順の検査も対象とする。
 - 実行コマンド：`npx --yes --package prh -- prh --rules ~/.agents/prh/rules-technical-ja.yml <file>`
 - 必ずサンドボックス外で実行する。
