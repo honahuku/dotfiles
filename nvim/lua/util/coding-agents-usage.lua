@@ -104,44 +104,6 @@ function M.is_current_period(cache_period, current_period)
   return cache_period == current_period
 end
 
----ccusage monthly --jsonの出力から指定した年月のClaude API相当額（USD）を取り出す。
----@param json_str string
----@param target_period string?
----@return number?
-function M.parse_claude_cost_usd(json_str, target_period)
-  local ok, decoded = pcall(vim.json.decode, json_str)
-  if not ok or type(decoded) ~= "table" then
-    return nil
-  end
-  local monthly = decoded.monthly or decoded
-  if type(monthly) ~= "table" then
-    return nil
-  end
-
-  target_period = target_period or M.current_period()
-  local total_cost = 0
-  for _, month in ipairs(monthly) do
-    if month.period == target_period then
-      local agents = month.agents
-      if type(agents) ~= "table" then
-        return nil
-      end
-
-      -- 全体のtotalCostにはCodexなども含まれ得るため、別取得するCodexとの二重計上を避ける。
-      for _, agent in ipairs(agents) do
-        if agent.agent == "claude" then
-          if type(agent.totalCost) ~= "number" then
-            return nil
-          end
-          total_cost = total_cost + agent.totalCost
-        end
-      end
-    end
-  end
-
-  return total_cost
-end
-
 ---Codex desktopと同じアカウント単位のクレジット値を使うため、レート制限APIを利用する。
 ---Codex app-serverのJSONLレスポンスから今月の使用クレジットを取り出す。
 ---@param jsonl string
@@ -248,7 +210,7 @@ function M.format_pace_diff(diff_pt)
 end
 
 ---@class CodingAgentsUsageStats
----@field cost_usd number ClaudeとCodexの合計USD額
+---@field cost_usd number 取得元ごとの利用額を合算したUSD額
 ---@field budget_usd number
 ---@field ratio_percent integer
 ---@field pace_diff_label string? tasks work summaryが未取得なら省略される
@@ -393,12 +355,12 @@ local function safe_system(cmd, opts, on_exit)
 end
 
 -- 合計だけでは取得元ごとの値を調べられないため、表示しない内訳も保存する。
-local function update_cost_cache(period, claude_cost_usd, codex_cost_usd)
-  local cost_usd = claude_cost_usd + codex_cost_usd
+local function update_cost_cache(period, usage_cost_usd, codex_cost_usd)
+  local cost_usd = usage_cost_usd + codex_cost_usd
   write_json_file(cost_cache_path, {
     version = M.COST_CACHE_VERSION,
     period = period,
-    claude_cost_usd = claude_cost_usd,
+    usage_cost_usd = usage_cost_usd,
     codex_cost_usd = codex_cost_usd,
     cost_usd = cost_usd,
     updated_at = os.time(),
@@ -406,8 +368,8 @@ local function update_cost_cache(period, claude_cost_usd, codex_cost_usd)
   recompute_display_stats()
 end
 
----ccusageを非同期実行し、指定した年月のClaude USDコストを返す。
-local function refresh_claude_cost_cache(period, on_cost)
+---ccusageを非同期実行し、設定された抽出処理で指定月のUSDコストを取り出す。
+local function refresh_usage_cost_cache(period, on_cost)
   safe_system(
     M.CC_USAGE_CMD,
     { text = true },
@@ -415,7 +377,7 @@ local function refresh_claude_cost_cache(period, on_cost)
       if result.code ~= 0 then
         return
       end
-      local cost_usd = M.parse_claude_cost_usd(result.stdout, period)
+      local cost_usd = M.parse_usage_cost_usd(result.stdout, period)
       if not cost_usd then
         return
       end
@@ -472,21 +434,21 @@ end
 -- 失敗時は前回の合計を保持する。初回取得がそろわなければ表示しない。
 local function refresh_cost_cache()
   local period = M.current_period()
-  local claude_cost_usd
+  local usage_cost_usd
   local codex_cost_usd
 
   local function finish_if_ready()
-    if claude_cost_usd ~= nil and codex_cost_usd ~= nil then
+    if usage_cost_usd ~= nil and codex_cost_usd ~= nil then
       if M.is_current_period(period, M.current_period()) then
-        update_cost_cache(period, claude_cost_usd, codex_cost_usd)
+        update_cost_cache(period, usage_cost_usd, codex_cost_usd)
       else
         refresh_cost_cache()
       end
     end
   end
 
-  refresh_claude_cost_cache(period, function(cost_usd)
-    claude_cost_usd = cost_usd
+  refresh_usage_cost_cache(period, function(cost_usd)
+    usage_cost_usd = cost_usd
     finish_if_ready()
   end)
   refresh_codex_cost_cache(function(cost_usd)
@@ -527,6 +489,10 @@ end
 function M.configure(opts)
   assert(type(opts) == "table", "Coding Agents 使用量: 設定を指定してください")
   assert(
+    type(opts.parse_usage_cost_usd) == "function",
+    "Coding Agents 使用量: 利用額の抽出処理を指定してください"
+  )
+  assert(
     is_positive_amount(opts.codex_usd_per_credit),
     "Coding Agents 使用量: 換算率は正の有限値で指定してください"
   )
@@ -543,6 +509,7 @@ function M.configure(opts)
   M.BUDGET_OVERRIDES = overrides
   M.CODEX_USD_PER_CREDIT = opts.codex_usd_per_credit
   M.UTC_OFFSET_HOURS = utc_offset_hours
+  M.parse_usage_cost_usd = opts.parse_usage_cost_usd
 end
 
 function M.setup(opts)

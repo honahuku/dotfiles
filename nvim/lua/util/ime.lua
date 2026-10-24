@@ -2,7 +2,7 @@
 -- zenhan.exe(GetForegroundWindow + WM_IME_CONTROLでIMEを直接操作するツール)を
 -- Windows側に配置し、WSL interop経由で呼ぶことで検知・切り替えの両方を行う。
 -- im-select.exe(ActivateKeyboardLayoutベース)ではこの開閉状態を検知できなかった。
--- see https://github.com/iuchim/zenhan
+-- 参照: https://github.com/iuchim/zenhan
 local M = {}
 local platform = require("platform")
 

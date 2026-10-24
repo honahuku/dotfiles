@@ -1,8 +1,8 @@
-"""Shared, non-fixture helpers for the `tasks` CLI test suite.
+"""tasks CLIのテストで共有する、フィクスチャ以外の補助関数。
 
-Test files import from here (`from _test_helpers import _load_tasks_module`).
-The `tasks` fixture lives in conftest.py and depends on `_load_tasks_module`
-defined here.
+各テストからfrom _test_helpers import _load_tasks_moduleで読み込む。
+tasksフィクスチャはconftest.pyにあり、ここで定義する
+_load_tasks_moduleを使う。
 """
 
 import importlib.util
@@ -28,8 +28,8 @@ SAMPLE_WORK_RULES = {
 
 
 def _load_tasks_module(configured=True):
-    # The script has no .py extension, so spec_from_file_location can't infer a
-    # loader on its own — pass a SourceFileLoader explicitly.
+    # スクリプトに.py拡張子がなく、spec_from_file_locationではローダーを推定できないため、
+    # SourceFileLoaderを明示的に渡す。
     loader = SourceFileLoader("tasks_cli", str(SCRIPT_PATH))
     spec = importlib.util.spec_from_loader("tasks_cli", loader)
     mod = importlib.util.module_from_spec(spec)

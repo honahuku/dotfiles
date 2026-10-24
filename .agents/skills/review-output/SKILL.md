@@ -22,7 +22,7 @@ description: 応答・文書の送信・保存前に、主述・修飾・説明�
 
 | 確認対象 | 資料 |
 | --- | --- |
-| commitなど本人操作を依頼する応答、その依頼につなぐ検証結果の報告 | `~/.agents/docs/common/manual-operations.md`の依頼前の検証提示。実行済みの確認コマンド・結果が本文にすべてあり、その後に未実行の本人操作が分かれているか確認する |
+| 本人操作の依頼、検査結果の報告、コミットメッセージ案の提示 | `~/.agents/docs/common/manual-operations.md`の依頼前の検証提示。依頼文がなくても適用し、対象作業のツール出力と本文を照合する |
 | PRの未返信コメントの調査、コメント対応の着手前、返信案の作成前 | `references/output-review.md`のPRコメントの返信状況 |
 | 応答の送信前・文書の保存前。短文、見出し、表、箇条書きも含む | `references/output-review.md`の主述・対象・修飾の確認 |
 | 文書・PR・コメント・Notion等の執筆前と送信前 | `references/output-review.md`の説明先をまたぐ重複チェック |

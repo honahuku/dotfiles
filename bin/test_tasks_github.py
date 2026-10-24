@@ -1,6 +1,7 @@
-"""GitHub-integration tests for the `tasks` CLI: _gh_state / _gh_self_login /
-_gh_comment_resolved, blocker resolution, stale-pending sweep, and
-malformed-JSON handling. The `tasks` fixture comes from conftest.py.
+"""`tasks` CLIのGitHub連携を検証する。
+_gh_state / _gh_self_login / _gh_comment_resolved、待機理由の解消、
+長期間更新のない待機タスクの処理、不正なJSONへの対応を対象とする。
+`tasks`フィクスチャはconftest.pyで定義する。
 """
 
 import datetime as _datetime
@@ -9,7 +10,7 @@ from types import SimpleNamespace
 
 
 def _fake_run(stdout="", returncode=0):
-    """Build a subprocess.run replacement returning a canned CompletedProcess-like."""
+    """用意したCompletedProcess相当の結果を返すsubprocess.runの代替を作る。"""
 
     def run(*args, **kwargs):
         return SimpleNamespace(returncode=returncode, stdout=stdout, stderr="")
@@ -17,7 +18,7 @@ def _fake_run(stdout="", returncode=0):
     return run
 
 
-# ---------- GitHub helpers (subprocess mocked) ----------
+# ---------- GitHubの補助関数（子プロセスをモック化） ----------
 
 
 def test_gh_notif_key_variants(tasks):
@@ -120,7 +121,7 @@ def test_resolve_blocked_state_unknown_stays(tasks, capsys, monkeypatch):
 
 
 def test_resolve_blocked_skips_open_tasks(tasks, capsys, monkeypatch):
-    # An open task with no blocker must be left untouched by --resolve-blocked.
+    # 待ち先のないopenタスクは、--resolve-blockedで変更してはならない。
     tasks.run("add", "free")
     capsys.readouterr()
     tasks.run("list", "--resolve-blocked")
@@ -128,17 +129,17 @@ def test_resolve_blocked_skips_open_tasks(tasks, capsys, monkeypatch):
     assert tasks.by_title("free")["status"] == "open"
 
 
-# ---------- stale pending sweep (any list call) ----------
+# ---------- 長期停滞したpendingの再開（すべてのlist呼び出し） ----------
 #
-# A pending task that hasn't moved (updated_at) for a week is probably stuck on
-# the user's side, not the blocker's. Any `list` call flips it back to open so
-# it re-surfaces, and reports it under _stale_unblocked with how long it sat —
-# so the user can decide what to do. This runs on every list, not just
-# --resolve-blocked.
+# updated_atが1週間変わらないpendingタスクは、待ち先ではなく
+# 本人側で停滞している可能性がある。listの呼び出し時にopenへ戻して
+# 再表示し、停滞期間を_stale_unblockedへ記録して、
+# 本人が次の行動を判断できるようにする。--resolve-blockedの指定時だけでなく、
+# すべてのlist呼び出しで実行する。
 
 
 def _age_pending(tasks, title, days, blocked_by="https://github.com/o/r/pull/1"):
-    """Make an existing task pending with updated_at set `days` ago."""
+    """既存タスクをpendingにし、updated_atを`days`日前に設定する。"""
     data = tasks.store()
     old = (_datetime.datetime.now() - _datetime.timedelta(days=days)).isoformat(
         timespec="seconds"
@@ -173,7 +174,7 @@ def test_stale_pending_recent_stays_pending(tasks, capsys):
 
 
 def test_stale_pending_boundary_seven_days(tasks, capsys):
-    # Exactly 7 days (plus a hair, to dodge second-level rounding) counts as stale.
+    # ちょうど7日でも停滞と判定する。秒単位の丸めを避けるため、わずかに余裕を加える。
     tasks.run("add", "borderline", "--from", "others")
     _age_pending(tasks, "borderline", days=7)
     capsys.readouterr()
@@ -184,7 +185,7 @@ def test_stale_pending_boundary_seven_days(tasks, capsys):
 
 
 def test_stale_pending_handles_utc_z_timestamp(tasks, capsys):
-    # GitHub-sourced tasks carry a trailing-Z UTC updated_at; it must parse.
+    # GitHub由来のupdated_atに含まれるUTCの末尾Zを解析できることを確認する。
     tasks.run("add", "gh stuck", "--from", "others")
     data = tasks.store()
     old = _datetime.datetime.now() - _datetime.timedelta(days=10)
@@ -202,7 +203,7 @@ def test_stale_pending_handles_utc_z_timestamp(tasks, capsys):
 
 
 def test_stale_pending_open_task_untouched(tasks, capsys):
-    # An old but already-open task is not a pending sweep target.
+    # 古くても既にopenのタスクは、pendingの再開処理の対象にしない。
     tasks.run("add", "old open")
     data = tasks.store()
     old = (_datetime.datetime.now() - _datetime.timedelta(days=30)).isoformat(
@@ -220,7 +221,7 @@ def test_stale_pending_open_task_untouched(tasks, capsys):
 
 
 def test_stale_pending_missing_updated_at_stays_pending(tasks, capsys):
-    # No updated_at to anchor age on → leave it pending rather than guess.
+    # updated_atがなく経過時間を判断できない場合は、推測せずpendingに保つ。
     tasks.run("add", "no stamp", "--from", "others")
     data = tasks.store()
     for t in data["tasks"]:
@@ -236,7 +237,7 @@ def test_stale_pending_missing_updated_at_stays_pending(tasks, capsys):
     assert tasks.by_title("no stamp")["status"] == "pending"
 
 
-# ---------- _gh_state JSON edge ----------
+# ---------- _gh_stateのJSON境界条件 ----------
 
 
 def test_gh_state_bad_json(tasks, monkeypatch):
@@ -250,7 +251,7 @@ def test_gh_state_issue_url(tasks, monkeypatch):
     assert st == {"state": "CLOSED", "merged": False}
 
 
-# ---------- _gh_self_login ----------
+# ---------- ログイン名の取得（_gh_self_login） ----------
 
 
 def test_gh_self_login_ok(tasks, monkeypatch):
@@ -276,7 +277,7 @@ def test_gh_self_login_gh_missing(tasks, monkeypatch):
     assert tasks.module._gh_self_login() is None
 
 
-# ---------- _gh_comment_resolved ----------
+# ---------- コメントへの応答判定（_gh_comment_resolved） ----------
 
 
 def _comment_api_router(
@@ -289,18 +290,18 @@ def _comment_api_router(
     review_comments=None,
     comment_raw=None,
 ):
-    """Return a fake subprocess.run that answers the gh api calls
-    _gh_comment_resolved makes, keyed by the path argument.
+    """_gh_comment_resolvedによるgh api呼び出しに、パス引数に応じて応答する
+    subprocess.runの代替を返す。
 
-    Serves both blocker kinds: an #issuecomment-<id> blocker's body comes from
-    repos/.../issues/comments/<id>, while a #discussion_r<id> (PR review comment)
-    blocker's body comes from repos/.../pulls/comments/<id>. The same router
-    answers both; review_comments injects the PR review-comment thread that the
-    discussion path reads on top of the issue-comments timeline.
+    #issuecomment-<id>の本文はrepos/.../issues/comments/<id>、
+    #discussion_r<id>のPRレビューコメント本文は
+    repos/.../pulls/comments/<id>から取得する。両方を同じルーターで扱う。
+    review_commentsでは、discussion側がIssueコメントの時系列に加えて読み込む
+    PRレビューコメントのスレッドを渡す。
 
-    Any of issue_comments / reviews / commits / review_comments / comment_raw
-    may be a raw string to inject a malformed-JSON response for that endpoint;
-    otherwise the value is JSON-encoded as normal.
+    issue_comments / reviews / commits / review_comments / comment_rawに
+    文字列を渡すと、その取得先から不正なJSONが返る状況を再現できる。
+    それ以外の値は通常どおりJSONに変換する。
     """
     issue_comments = issue_comments if issue_comments is not None else []
     reviews = reviews if reviews is not None else []
@@ -311,9 +312,9 @@ def _comment_api_router(
         return v if isinstance(v, str) else json.dumps(v)
 
     def run(cmd, *args, **kwargs):
-        # cmd looks like ["gh", "api", "--method", "GET", <path>, ...]
+        # cmdは["gh", "api", "--method", "GET", <path>, ...]の形式になる。
         path = cmd[4] if len(cmd) > 4 else ""
-        # _gh_self_login uses ["gh", "api", "user", ...]
+        # _gh_self_loginは["gh", "api", "user", ...]を使う。
         if path == "user":
             return SimpleNamespace(returncode=0, stdout="me\n", stderr="")
         if "issues/comments/" in path or "pulls/comments/" in path:
@@ -327,7 +328,7 @@ def _comment_api_router(
             or "/pulls/1?" in path
             or path == "repos/o/r/pulls/1"
         ):
-            # The .user.login jq is requested; emulate jq output (just the login).
+            # .user.loginを求めるjq出力を再現し、ログイン名だけを返す。
             body = pr_author
         elif "/issues/1/comments" in path:
             body = _dump(issue_comments)
@@ -382,18 +383,18 @@ def test_gh_comment_resolved_via_commit(tasks, monkeypatch):
 
 def test_gh_comment_resolved_no_activity(tasks, monkeypatch):
     url = "https://github.com/o/r/pull/1#issuecomment-555"
-    router = _comment_api_router()  # no comments/reviews/commits after
+    router = _comment_api_router()  # 後続のコメント・レビュー・コミットはない。
     monkeypatch.setattr("subprocess.run", router)
     assert tasks.module._gh_comment_resolved(url) is None
 
 
 def test_gh_comment_resolved_not_a_comment_url(tasks):
-    # No #issuecomment- fragment → returns None without any API call.
+    # #issuecomment-のフラグメントがなければ、APIを呼ばずNoneを返す。
     assert tasks.module._gh_comment_resolved("https://github.com/o/r/pull/1") is None
 
 
 def test_gh_comment_resolved_no_created_at(tasks, monkeypatch):
-    # Comment has no created_at → can't anchor "after", so bail out.
+    # コメントにcreated_atがなければ前後を判断できないため、処理を中止する。
     url = "https://github.com/o/r/pull/1#issuecomment-555"
     router = _comment_api_router(comment_created="")
     monkeypatch.setattr("subprocess.run", router)
@@ -401,8 +402,8 @@ def test_gh_comment_resolved_no_created_at(tasks, monkeypatch):
 
 
 def test_gh_comment_resolved_no_other_side(tasks, monkeypatch):
-    # No @mentions in the body and the PR author is ourselves ("me"), so the
-    # "other side" set is empty — nobody to wait on, return None.
+    # 本文にメンションがなく、PR作成者も自分（me）の場合は、
+    # 応答を待つ相手がいないためNoneを返す。
     url = "https://github.com/o/r/pull/1#issuecomment-555"
     router = _comment_api_router(comment_body="just a note, no pings", pr_author="me")
     monkeypatch.setattr("subprocess.run", router)
@@ -415,18 +416,18 @@ def test_gh_comment_resolved_comment_fetch_fails(tasks, monkeypatch):
     assert tasks.module._gh_comment_resolved(url) is None
 
 
-# ---------- _gh_comment_resolved: #discussion_r<id> (PR review comment) ----------
+# ---------- PRレビューコメントへの応答判定（_gh_comment_resolved・#discussion_r<id>） ----------
 #
-# A blocker URL ending in #discussion_r<id> points at an inline PR review
-# comment, not the issue-comment timeline. Its body lives at
-# repos/.../pulls/comments/<id>, and a reply by the other side lands in the PR
-# review-comment thread (repos/.../pulls/1/comments) — which the issue-comments
-# timeline does not surface. Resolution otherwise follows the same "ball came
-# back" rule as #issuecomment-.
+# 末尾が#discussion_r<id>の待ち先URLは、Issueコメントの時系列ではなく
+# PRの行コメントを指す。本文は
+# repos/.../pulls/comments/<id>にあり、相手からの返信はPRの
+# レビュースレッド（repos/.../pulls/1/comments）に投稿される。
+# Issueコメントの時系列には現れないが、待ちの解除条件は
+# #issuecomment-と同じく、相手からの応答があったこととする。
 
 
 def test_gh_comment_resolved_discussion_reply_in_review_thread(tasks, monkeypatch):
-    # The other side replied in the review-comment thread after our comment.
+    # 自分のコメント後に、相手がレビュースレッドへ返信している。
     url = "https://github.com/o/r/pull/1#discussion_r3346035452"
     router = _comment_api_router(
         review_comments=[
@@ -438,21 +439,21 @@ def test_gh_comment_resolved_discussion_reply_in_review_thread(tasks, monkeypatc
 
 
 def test_gh_comment_resolved_discussion_no_reply(tasks, monkeypatch):
-    # Latest activity is our own comment (the blocker); nobody replied after.
-    # Mirrors PR #1973: the thread ends on the reviewee's own message.
+    # 最新の活動が待ちの起点となる自分のコメントで、その後の返信がない。
+    # PR #1973と同様に、スレッドがレビューを受ける側の発言で終わっている。
     url = "https://github.com/o/r/pull/1#discussion_r3346035452"
     router = _comment_api_router(
         review_comments=[
             {"created_at": "2026-05-30T00:00:00Z", "user": {"login": "teammate"}}
-        ],  # before our comment
+        ],  # 自分のコメントより前
     )
     monkeypatch.setattr("subprocess.run", router)
     assert tasks.module._gh_comment_resolved(url) is None
 
 
 def test_gh_comment_resolved_discussion_reply_by_self_ignored(tasks, monkeypatch):
-    # A reply after the comment, but it's us ("me") — our own follow-up must not
-    # auto-resolve our own block.
+    # コメント後の返信が自分（me）による補足の場合は、
+    # 自分の待ちを自動解除してはならない。
     url = "https://github.com/o/r/pull/1#discussion_r3346035452"
     router = _comment_api_router(
         comment_body="@teammate please look",
@@ -500,7 +501,7 @@ def test_resolve_blocked_discussion_still_waiting(tasks, capsys, monkeypatch):
     url = "https://github.com/o/r/pull/1#discussion_r999"
     tasks.run("add", "discussion reply", "--from", "others", "--blocked-by", url)
     capsys.readouterr()
-    router = _comment_api_router()  # no reply after our comment
+    router = _comment_api_router()  # 自分のコメント後に返信はない。
     monkeypatch.setattr("subprocess.run", router)
     tasks.run("list", "--resolve-blocked")
     out = json.loads(capsys.readouterr().out)
@@ -508,20 +509,20 @@ def test_resolve_blocked_discussion_still_waiting(tasks, capsys, monkeypatch):
     assert tasks.by_title("discussion reply")["status"] == "pending"
 
 
-# ---------- malformed-JSON handling: warn on stderr, stay safe, exit 0 ----------
+# ---------- 不正なJSONの処理: 標準エラーへの警告・安全な値・終了コード0 ----------
 #
-# With no error-tracking service behind the CLI, stderr is the only trace a
-# swallowed bad response leaves. These tests pin the contract:
-#   - a one-line "[tasks] warning: ..." goes to stderr
-#   - stdout stays clean JSON / the helper returns the safe value
-#   - the command never raises (i.e. would exit 0)
+# CLIの背後にエラー追跡サービスがないため、不正な応答を処理した痕跡は
+# 標準エラー出力だけに残る。次の動作をテストで保証する。
+#   - 標準エラー出力に「[tasks] warning: ...」の形式で警告を1行出す。
+#   - 標準出力はJSONだけを維持し、補助関数は安全な値を返す。
+#   - コマンドは例外を送出せず、終了コード0で終わる。
 
 
 def test_gh_state_malformed_warns_and_returns_none(tasks, monkeypatch, capsys):
     monkeypatch.setattr("subprocess.run", _fake_run(stdout="{not json"))
     result = tasks.module._gh_state("https://github.com/o/r/pull/1")
     err = capsys.readouterr().err
-    assert result is None  # safe: state unknown
+    assert result is None  # 状態不明の場合の安全な値
     assert "[tasks] warning:" in err
     assert "o/r#1" in err
 
@@ -530,7 +531,7 @@ def test_comment_blocker_body_malformed_warns_and_stays_blocked(
     tasks, monkeypatch, capsys
 ):
     url = "https://github.com/o/r/pull/1#issuecomment-555"
-    # The blocker comment itself is unreadable → cannot judge → leave blocked.
+    # 待ちの起点となるコメントを読めない場合は判断せず、待ちを維持する。
     router = _comment_api_router(comment_raw="{broken")
     monkeypatch.setattr("subprocess.run", router)
     result = tasks.module._gh_comment_resolved(url)
@@ -544,7 +545,7 @@ def test_comment_comments_list_malformed_warns_then_checks_next_source(
     tasks, monkeypatch, capsys
 ):
     url = "https://github.com/o/r/pull/1#issuecomment-555"
-    # issue-comments list is garbage, but a later source (reviews) has the reply.
+    # Issueコメントの一覧が不正でも、後から調べるレビューに返信がある。
     router = _comment_api_router(
         issue_comments="{broken",
         reviews=[
@@ -554,7 +555,7 @@ def test_comment_comments_list_malformed_warns_then_checks_next_source(
     monkeypatch.setattr("subprocess.run", router)
     result = tasks.module._gh_comment_resolved(url)
     err = capsys.readouterr().err
-    assert result == "teammate"  # fell through to reviews, still resolved
+    assert result == "teammate"  # レビューまで調べて応答を検出する。
     assert "skipping that source" in err
     assert "comments list" in err
 
@@ -582,19 +583,19 @@ def test_comment_commits_list_malformed_warns(tasks, monkeypatch, capsys):
 def test_resolve_blocked_malformed_keeps_pending_and_exits_clean(
     tasks, capsys, monkeypatch
 ):
-    """End-to-end through the CLI: a malformed gh response must NOT crash the
-    command, must leave the task blocked, and must surface a stderr warning
-    while keeping stdout valid JSON."""
+    """CLI経由で、不正なgh応答でも異常終了せず、タスクの待機状態を維持することを検証する。
+    stderrに警告を出し、stdoutは有効なJSONのままにする。
+    """
     url = "https://github.com/o/r/pull/1#issuecomment-555"
     tasks.run("add", "review reply", "--from", "others", "--blocked-by", url)
     capsys.readouterr()
     router = _comment_api_router(comment_raw="{broken")
     monkeypatch.setattr("subprocess.run", router)
-    # No exception == exit 0 for this code path.
+    # この処理経路では例外がなければ終了コード0になる。
     tasks.run("list", "--resolve-blocked")
     captured = capsys.readouterr()
-    out = json.loads(captured.out)  # stdout is still parseable JSON
-    assert out["tasks"] == []  # pending task excluded from the open list
-    assert "_unblocked" not in out  # nothing was wrongly unblocked
-    assert "[tasks] warning:" in captured.err  # but the anomaly was reported
+    out = json.loads(captured.out)  # 標準出力は引き続きJSONとして解析できる。
+    assert out["tasks"] == []  # pendingのタスクはopenの一覧から除外する。
+    assert "_unblocked" not in out  # 誤って待ちを解除したタスクはない。
+    assert "[tasks] warning:" in captured.err  # 異常は警告で報告する。
     assert tasks.by_title("review reply")["status"] == "pending"

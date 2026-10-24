@@ -1,5 +1,5 @@
-"""CRUD, ordering, filtering, dependency, snooze, and migration tests for the
-`tasks` CLI. The `tasks` fixture comes from conftest.py.
+"""`tasks` CLIのCRUD、並び順、絞り込み、依存関係、スヌーズ、移行を検証する。
+`tasks`フィクスチャはconftest.pyで定義する。
 """
 
 import datetime as _datetime
@@ -7,7 +7,7 @@ import json
 
 import pytest
 
-# ---------- add ----------
+# ---------- 追加 ----------
 
 
 @pytest.mark.parametrize("option", ["--normalize", "--by-tier"])
@@ -49,7 +49,7 @@ def test_add_defaults_to_me_at_tail(tasks, capsys):
     capsys.readouterr()
     t = tasks.by_title("first")
     assert t["from"] == "me"
-    assert t["queue_pos"] == 10  # first task starts at 10, not 0
+    assert t["queue_pos"] == 10  # 最初のタスクは0ではなく10から始まる。
     assert t["due"] is None
 
 
@@ -98,7 +98,7 @@ def test_add_blocked_by_sets_pending(tasks, capsys):
     assert tasks.by_title("blocked")["status"] == "pending"
 
 
-# ---------- list / sort ----------
+# ---------- 一覧と並べ替え ----------
 
 
 def test_list_sorts_by_queue_pos(tasks, capsys):
@@ -112,20 +112,20 @@ def test_list_sorts_by_queue_pos(tasks, capsys):
 
 
 def test_overdue_bubbles_to_front(tasks, capsys, monkeypatch):
-    # Freeze "today" so the test is deterministic.
+    # テスト結果が実行日に依存しないよう、今日の日付を固定する。
     monkeypatch.setattr(tasks.module, "today_str", lambda: "2026-06-08")
     tasks.run("add", "normal", "--queue-pos", "10")
     tasks.run("add", "overdue", "--queue-pos", "999", "--due", "2026-06-01")
     capsys.readouterr()
     tasks.run("list")
     out = json.loads(capsys.readouterr().out)
-    # overdue task should come first despite a much larger queue_pos
+    # queue_posが大きくても、期限切れのタスクが先頭になる。
     assert out["tasks"][0]["title"] == "overdue"
 
 
 def test_dated_task_beats_undated(tasks, capsys, monkeypatch):
-    # A task with any due date (even far in the future) sorts ahead of an
-    # undated one, regardless of queue_pos. Having a deadline outranks tier.
+    # 期限が遠い将来でも、期限付きタスクはqueue_posによらず
+    # 期限なしより先に並ぶ。期限の有無はtierより優先される。
     monkeypatch.setattr(tasks.module, "today_str", lambda: "2026-06-08")
     tasks.run("add", "dated", "--queue-pos", "20", "--due", "2026-12-31")
     tasks.run("add", "undated", "--queue-pos", "10")
@@ -136,8 +136,8 @@ def test_dated_task_beats_undated(tasks, capsys, monkeypatch):
 
 
 def test_dated_tasks_sort_by_date_ascending(tasks, capsys, monkeypatch):
-    # Among dated tasks, overdue and future alike order by date ascending, so
-    # overdue naturally comes first and nearer deadlines precede farther ones.
+    # 期限付きタスクは、過去・未来を問わず期限の昇順で並ぶ。
+    # そのため、期限切れが先になり、近い期限が遠い期限より先になる。
     monkeypatch.setattr(tasks.module, "today_str", lambda: "2026-06-08")
     tasks.run("add", "future-far", "--queue-pos", "10", "--due", "2026-12-31")
     tasks.run("add", "overdue", "--queue-pos", "20", "--due", "2026-06-01")
@@ -170,7 +170,7 @@ def test_list_from_filter_me(tasks, capsys):
     assert [t["title"] for t in out["tasks"]] == ["self task"]
 
 
-# ---------- update ----------
+# ---------- 更新 ----------
 
 
 def test_update_from_and_due(tasks, capsys):
@@ -202,7 +202,7 @@ def test_update_clears_due_with_empty_string(tasks, capsys):
     assert tasks.by_title("x")["due"] is None
 
 
-# ---------- reorder ----------
+# ---------- 順序変更 ----------
 
 
 def _add_three(tasks, capsys):
@@ -223,17 +223,17 @@ def test_reorder_head_takes_min_minus_one(tasks, capsys):
 
 def test_reorder_head_never_goes_below_one(tasks, capsys):
     _add_three(tasks, capsys)
-    # Force the head task down to pos=1 so there's no integer gap before it.
+    # 先頭タスクをpos=1にし、その前に整数を挿入する余地をなくす。
     cid = tasks.by_title("C")["id"]
     tasks.run("update", cid, "--queue-pos", "1")
     capsys.readouterr()
-    # Now head-move B: min is 1, 1-1=0 (<1) → renumber, B lands positive at front.
+    # Bを先頭へ移すと最小値1から引いた値が0になるため、番号を振り直して正の値で先頭に置く。
     bid = tasks.by_title("B")["id"]
     tasks.run("reorder", bid, "--head")
     capsys.readouterr()
     assert tasks.by_title("B")["queue_pos"] >= 1
     assert tasks.positions()[0][0] == "B"
-    # No task should ever hold a non-positive queue_pos.
+    # queue_posが0以下のタスクを作ってはならない。
     assert all(p >= 1 for _, p in tasks.positions())
 
 
@@ -252,7 +252,7 @@ def test_reorder_before_inserts_between(tasks, capsys):
     cid = tasks.by_title("C")["id"]
     tasks.run("reorder", aid, "--before", cid)
     capsys.readouterr()
-    # A should now sit between B (20) and C (30): order B, A, C
+    # AをB（20）とC（30）の間に置き、B・A・Cの順にする。
     assert [t for t, _ in tasks.positions()] == ["B", "A", "C"]
 
 
@@ -262,13 +262,13 @@ def test_reorder_after_inserts_between(tasks, capsys):
     cid = tasks.by_title("C")["id"]
     tasks.run("reorder", aid, "--after", cid)
     capsys.readouterr()
-    # A moves to just after C: order B, C, A
+    # AをCの直後へ移し、B・C・Aの順にする。
     assert [t for t, _ in tasks.positions()] == ["B", "C", "A"]
 
 
 def test_reorder_before_renumbers_when_no_gap(tasks, capsys):
     _add_three(tasks, capsys)
-    # Make B and C adjacent integers so there's no gap to slot A before C.
+    # BとCを連続する整数にし、Cの直前にAを挿入する余地をなくす。
     bid = tasks.by_title("B")["id"]
     cid = tasks.by_title("C")["id"]
     tasks.run("update", bid, "--queue-pos", "9")
@@ -277,7 +277,7 @@ def test_reorder_before_renumbers_when_no_gap(tasks, capsys):
     aid = tasks.by_title("A")["id"]
     tasks.run("reorder", aid, "--before", cid)
     capsys.readouterr()
-    # After renumber + insert, A must end up directly before C in order.
+    # 番号の振り直しと挿入の後も、AがCの直前になることを確認する。
     order = [t for t, _ in tasks.positions()]
     assert order.index("A") + 1 == order.index("C")
 
@@ -301,12 +301,12 @@ def test_normalize_preserves_order(tasks, capsys):
     assert [t for t, _ in tasks.positions()] == ["Y", "X"]
 
 
-# ---------- tier classification ----------
+# ---------- tierの分類 ----------
 
 
 def test_task_tier_classifies_by_title_and_source(tasks):
     tier = tasks.module._task_tier
-    # tier3: Renovate dependency-update review.
+    # tier3: Renovateによる依存関係更新のレビュー。
     assert (
         tier(
             {
@@ -318,7 +318,7 @@ def test_task_tier_classifies_by_title_and_source(tasks):
         )
         == 3
     )
-    # tier2: human PR review request.
+    # tier2: 人から依頼されたPRレビュー。
     assert (
         tier(
             {
@@ -330,7 +330,7 @@ def test_task_tier_classifies_by_title_and_source(tasks):
         )
         == 2
     )
-    # tier1: own PR reply — from=others but title carries a tier1 marker.
+    # tier1: 自分のPRへの返信。from=othersでも、タイトルにtier1の目印がある。
     assert (
         tier(
             {
@@ -342,7 +342,7 @@ def test_task_tier_classifies_by_title_and_source(tasks):
         )
         == 1
     )
-    # tier1: self-initiated / non-github real work.
+    # tier1: 自発的な作業、またはGitHub以外の実作業。
     assert (
         tier(
             {
@@ -354,7 +354,7 @@ def test_task_tier_classifies_by_title_and_source(tasks):
         )
         == 1
     )
-    # tier0: in-progress bubbles ahead of every tier regardless of title.
+    # tier0: in-progressはタイトルに関係なく、すべてのtierより先に並ぶ。
     assert (
         tier(
             {
@@ -369,8 +369,8 @@ def test_task_tier_classifies_by_title_and_source(tasks):
 
 
 def test_task_tier_renovate_beats_reviewer_suffix(tasks):
-    # A title that happens to carry both markers must resolve to tier3
-    # (dependency-update is evaluated first, so it wins over the Reviewer suffix).
+    # 両方の目印を含むタイトルはtier3と判定する。
+    # 依存関係更新の判定が先なので、Reviewerの接尾辞より優先される。
     tier = tasks.module._task_tier
     t = {
         "title": "x 依存更新 レビュー (project #9) — レビュー (Reviewer)",
@@ -381,7 +381,7 @@ def test_task_tier_renovate_beats_reviewer_suffix(tasks):
     assert tier(t) == 3
 
 
-# ---------- reorder --by-tier ----------
+# ---------- tier別の順序変更 ----------
 
 
 def _add_github(tasks, title):
@@ -398,10 +398,10 @@ def _add_github(tasks, title):
 
 
 def test_reorder_by_tier_orders_groups(tasks, capsys):
-    # Add in a deliberately scrambled order; --by-tier must regroup 1 → 2 → 3.
-    _add_github(tasks, "keda v2 依存更新 レビュー (project #1)")  # tier3
-    _add_github(tasks, "PR #2: 基盤追加 — レビュー (Reviewer)")  # tier2
-    _add_github(tasks, "PR #3: 自分のPR — 返信")  # tier1
+    # 順序を意図的に混ぜて追加し、--by-tierで1・2・3の順に分類し直す。
+    _add_github(tasks, "keda v2 依存更新 レビュー (project #1)")  # 優先区分3（tier3）
+    _add_github(tasks, "PR #2: 基盤追加 — レビュー (Reviewer)")  # 優先区分2（tier2）
+    _add_github(tasks, "PR #3: 自分のPR — 返信")  # 優先区分1（tier1）
     capsys.readouterr()
     tasks.run("reorder", "--by-tier")
     capsys.readouterr()
@@ -411,17 +411,17 @@ def test_reorder_by_tier_orders_groups(tasks, capsys):
         "PR #2: 基盤追加 — レビュー (Reviewer)",
         "keda v2 依存更新 レビュー (project #1)",
     ]
-    # Positions are renumbered in steps of 10 starting at 10.
+    # 位置の番号は10から始め、10刻みで振り直す。
     assert [p for _, p in tasks.positions()] == [10, 20, 30]
 
 
 def test_reorder_by_tier_preserves_intra_tier_manual_order(tasks, capsys):
-    # Two tier3 tasks; flip their manual order, then --by-tier must keep that
-    # flipped order within the tier (manual reorder is not clobbered).
+    # tier3の二つのタスクの手動順序を入れ替え、--by-tierでも
+    # 同じtier内の順序が保たれることを確認する。
     _add_github(tasks, "a v1 依存更新 レビュー (project #1)")
     _add_github(tasks, "b v1 依存更新 レビュー (project #2)")
     bid = tasks.by_title("b v1 依存更新 レビュー (project #2)")["id"]
-    tasks.run("reorder", bid, "--head")  # b moved before a manually
+    tasks.run("reorder", bid, "--head")  # 手動でbをaの前へ移す。
     capsys.readouterr()
     tasks.run("reorder", "--by-tier")
     capsys.readouterr()
@@ -434,10 +434,12 @@ def test_reorder_by_tier_preserves_intra_tier_manual_order(tasks, capsys):
 
 def test_reorder_by_tier_reviewee_beats_renovate(tasks, capsys):
     # Regression for the c9748037 case: an own-PR reply (— 返信) registered
-    # AFTER a pile of Renovate reviews must still sort ahead of them.
+    # Renovateレビュー群の後に登録しても、それらより先に並ぶことを確認する。
     for i in range(3):
         _add_github(tasks, f"dep{i} 依存更新 レビュー (project #{i})")
-    _add_github(tasks, "PR #356: プロジェクト削除 — 返信")  # tier1, added last
+    _add_github(
+        tasks, "PR #356: プロジェクト削除 — 返信"
+    )  # 優先区分1（tier1）を最後に追加する。
     capsys.readouterr()
     tasks.run("reorder", "--by-tier")
     capsys.readouterr()
@@ -445,29 +447,31 @@ def test_reorder_by_tier_reviewee_beats_renovate(tasks, capsys):
 
 
 def test_reorder_by_tier_puts_in_progress_first(tasks, capsys):
-    # in-progress is tier0: its queue_pos becomes the smallest so Obsidian's
-    # filename prefix (driven by queue_pos) also shows it first — matching the
-    # list view where status_rank already floats it to the top.
-    _add_github(tasks, "PR #1: 自分のPR — 返信")  # tier1
-    _add_github(tasks, "dep 依存更新 レビュー (project #2)")  # tier3
+    # in-progressはtier0のため、queue_posが最小になる。
+    # queue_posを使うObsidianのファイル名の接頭辞でも先頭になり、
+    # status_rankで先頭にする一覧表示と一致する。
+    _add_github(tasks, "PR #1: 自分のPR — 返信")  # 優先区分1（tier1）
+    _add_github(tasks, "dep 依存更新 レビュー (project #2)")  # 優先区分3（tier3）
     wid = tasks.by_title("dep 依存更新 レビュー (project #2)")["id"]
     tasks.run("update", wid, "--status", "in-progress")
     capsys.readouterr()
     tasks.run("reorder", "--by-tier")
     capsys.readouterr()
-    # positions() only lists open/pending, so check queue_pos directly.
+    # positions()はopen・pendingだけを返すため、queue_posを直接確認する。
     wip = tasks.by_title("dep 依存更新 レビュー (project #2)")
     tier1 = tasks.by_title("PR #1: 自分のPR — 返信")
     assert wip["queue_pos"] < tier1["queue_pos"]
 
 
 def test_reorder_by_tier_dated_beats_undated(tasks, capsys, monkeypatch):
-    # --by-tier bakes the list order into queue_pos, so a dated task (even a
-    # low-tier Renovate one) gets a smaller queue_pos than an undated tier1 task.
-    # This keeps Obsidian's filename order identical to the list view.
+    # --by-tierは一覧順をqueue_posへ反映するため、期限付きタスクは
+    # 優先度の低いRenovateでも、期限なしのtier1より小さいqueue_posになる。
+    # これにより、Obsidianのファイル名順と一覧表示の順序が一致する。
     monkeypatch.setattr(tasks.module, "today_str", lambda: "2026-06-08")
-    _add_github(tasks, "PR #1: 自分のPR — 返信")  # tier1, undated
-    _add_github(tasks, "dep 依存更新 レビュー (project #2)")  # tier3, undated
+    _add_github(tasks, "PR #1: 自分のPR — 返信")  # 期限なしの優先区分1（tier1）
+    _add_github(
+        tasks, "dep 依存更新 レビュー (project #2)"
+    )  # 期限なしの優先区分3（tier3）
     tasks.run(
         "add",
         "dep 依存更新 レビュー (project #3)",
@@ -479,39 +483,43 @@ def test_reorder_by_tier_dated_beats_undated(tasks, capsys, monkeypatch):
         "https://github.com/o/r/pull/3",
         "--due",
         "2026-06-20",
-    )  # tier3, dated
+    )  # 期限付きの優先区分3（tier3）
     capsys.readouterr()
     tasks.run("reorder", "--by-tier")
     capsys.readouterr()
     dated = tasks.by_title("dep 依存更新 レビュー (project #3)")
     undated_tier1 = tasks.by_title("PR #1: 自分のPR — 返信")
-    # A dated tier3 task outranks an undated tier1 task in queue_pos.
+    # 期限付きtier3は、queue_posで期限なしtier1より先になる。
     assert dated["queue_pos"] < undated_tier1["queue_pos"]
 
 
 def test_reorder_by_tier_matches_list_order(tasks, capsys, monkeypatch):
-    # The queue_pos order baked by --by-tier must equal the list display order:
-    # list (via _task_sort_key) and --by-tier share one ordering rule.
+    # --by-tierでqueue_posへ反映した順序は、一覧の表示順と一致する。
+    # listの_task_sort_keyと--by-tierは同じ並び順の規則を使う。
     monkeypatch.setattr(tasks.module, "today_str", lambda: "2026-06-08")
-    _add_github(tasks, "PR #1: 自分のPR — 返信")  # tier1, undated
-    _add_github(tasks, "PR #2: 基盤 — レビュー (Reviewer)")  # tier2, undated
-    _add_github(tasks, "dep 依存更新 レビュー (project #3)")  # tier3, undated
+    _add_github(tasks, "PR #1: 自分のPR — 返信")  # 期限なしの優先区分1（tier1）
+    _add_github(
+        tasks, "PR #2: 基盤 — レビュー (Reviewer)"
+    )  # 期限なしの優先区分2（tier2）
+    _add_github(
+        tasks, "dep 依存更新 レビュー (project #3)"
+    )  # 期限なしの優先区分3（tier3）
     tasks.run(
         "add", "締切あり作業", "--from", "others", "--due", "2026-06-20"
-    )  # tier1, dated
+    )  # 期限付きの優先区分1（tier1）
     capsys.readouterr()
     tasks.run("reorder", "--by-tier")
     capsys.readouterr()
-    # Order the store by queue_pos (what Obsidian filenames follow).
+    # Obsidianのファイル名順に合わせ、保存データをqueue_pos順に並べる。
     by_qpos = [t for t, _ in tasks.positions()]
     tasks.run("list")
     by_list = [t["title"] for t in json.loads(capsys.readouterr().out)["tasks"]]
     assert by_qpos == by_list
-    # And the head is the dated task, ahead of every undated tier.
+    # 期限付きタスクが先頭になり、期限なしのすべてのtierより先になる。
     assert by_list[0] == "締切あり作業"
 
 
-# ---------- delete ----------
+# ---------- 削除 ----------
 
 
 def test_delete_removes_task(tasks, capsys):
@@ -523,7 +531,7 @@ def test_delete_removes_task(tasks, capsys):
     assert tasks.store()["tasks"] == []
 
 
-# ---------- error paths (exit on not-found) ----------
+# ---------- エラー経路（未検出時に終了） ----------
 
 
 def test_update_unknown_id_exits(tasks):
@@ -626,7 +634,7 @@ def test_update_completed_at_explicit(tasks, capsys):
 
 
 def test_update_completed_at_without_status(tasks, capsys):
-    # --completed-at alone (already done task) should update only the timestamp
+    # 完了済みタスクへの--completed-at単独指定では、時刻だけを更新する。
     tasks.run("add", "x")
     capsys.readouterr()
     tid = tasks.by_title("x")["id"]
@@ -713,8 +721,8 @@ def test_update_title_and_notes(tasks, capsys):
 
 
 def test_update_notes_appends_explicitly(tasks, capsys):
-    # --append-notes appends to existing notes (separated by a blank line), so prior
-    # context is never silently lost.
+    # --append-notesは空行で区切って既存メモへ追記するため、以前の
+    # 文脈を失わない。
     tasks.run("add", "t", "--notes", "first")
     capsys.readouterr()
     tid = tasks.by_title("t")["id"]
@@ -724,7 +732,7 @@ def test_update_notes_appends_explicitly(tasks, capsys):
 
 
 def test_update_notes_overwrite_replaces(tasks, capsys):
-    # --replace-all-notes is the explicit (dangerous) opt-in to discard existing notes.
+    # --replace-all-notesは、既存メモの破棄を明示的に選ぶ破壊的な操作である。
     tasks.run("add", "t", "--notes", "first")
     capsys.readouterr()
     tid = tasks.by_title("t")["id"]
@@ -734,7 +742,7 @@ def test_update_notes_overwrite_replaces(tasks, capsys):
 
 
 def test_update_notes_append_when_empty(tasks, capsys):
-    # Appending onto empty notes yields just the new text (no leading separator).
+    # 空のメモへの追記では、先頭の区切りを付けずに新しい本文だけを保存する。
     tasks.run("add", "t")
     capsys.readouterr()
     tid = tasks.by_title("t")["id"]
@@ -798,8 +806,8 @@ def test_update_source_url_clear(tasks, capsys):
 
 
 def test_update_source_does_not_overwrite_source_url(tasks, capsys):
-    # Regression: `--source slack` was matched by argparse as an abbreviation of
-    # `--source-url`, clobbering the URL with the literal string "slack".
+    # 回帰防止: argparseが--source slackを--source-urlの省略形と解釈し、
+    # URLを文字列slackで上書きしていた問題を検証する。
     tasks.run(
         "add", "t", "--source", "notion", "--source-url", "https://example.com/original"
     )
@@ -812,7 +820,7 @@ def test_update_source_does_not_overwrite_source_url(tasks, capsys):
 
 
 def test_update_source_and_source_url_independently(tasks, capsys):
-    # Both --source and --source-url can be updated in one call without interference.
+    # --sourceと--source-urlを一度に指定しても、互いに干渉せず更新できる。
     tasks.run(
         "add", "t", "--source", "notion", "--source-url", "https://example.com/old"
     )
@@ -826,7 +834,7 @@ def test_update_source_and_source_url_independently(tasks, capsys):
     assert out["source_url"] == "https://example.com/new"
 
 
-# ---------- list variants ----------
+# ---------- 一覧の各表示形式 ----------
 
 
 def test_list_all_includes_done(tasks, capsys):
@@ -892,7 +900,7 @@ def test_list_format_hint_warns(tasks, capsys):
     assert "_warning" in out
 
 
-# ---------- meta ----------
+# ---------- メタデータ ----------
 
 
 def test_meta_set_get_string(tasks, capsys):
@@ -931,20 +939,20 @@ def test_meta_unset(tasks, capsys):
     assert "k" not in tasks.store()["meta"]
 
 
-# ---------- task-to-task dependency (blocked_by=task_id / --blocks / --unblocks) ----------
+# ---------- タスク間の依存関係（blocked_by=task_id・--blocks・--unblocks） ----------
 #
-# Tasks can block each other without a GitHub URL.  Two directions:
-#   B-side: tasks update B --blocked-by <A_id>   → B waits for A
-#   A-side: tasks update A --blocks <B_id>        → A declares it blocks B
+# GitHub URLなしでも、次の二方向でタスク間の待ち関係を設定できる。
+#   B側: tasks update B --blocked-by <A_id>でBがAを待つ。
+#   A側: tasks update A --blocks <B_id>でAがBを待たせると宣言する。
 #
-# When A reaches done or cancelled the script auto-opens every dependent task.
-# `list --resolve-blocked` also detects done/cancelled blockers and opens them.
+# Aがdoneまたはcancelledになると、依存する全タスクを自動的にopenへ戻す。
+# list --resolve-blockedでも、待ち先の完了・中止を検出して待っているタスクを再開する。
 
 
 def test_is_task_id_helper(tasks):
     m = tasks.module
     assert m._is_task_id("ab06e0e8") is True
-    assert m._is_task_id("ABCDEF12") is False  # uppercase not accepted
+    assert m._is_task_id("ABCDEF12") is False  # 大文字は受け付けない。
     assert m._is_task_id("ab06e0e") is False  # 7 chars
     assert m._is_task_id("ab06e0e88") is False  # 9 chars
     assert m._is_task_id("https://github.com/o/r/pull/1") is False
@@ -973,8 +981,8 @@ def test_resolve_blocked_by_task_id_done(tasks, capsys):
     bid = tasks.by_title("B")["id"]
     tasks.run("update", bid, "--blocked-by", aid)
     capsys.readouterr()
-    # Mark A as done directly in the store to test _resolve_blocked independently
-    # (bypassing cmd_update's auto-unblock so B stays pending until list runs).
+    # _resolve_blockedを単独で検証するため、保存データ内のAを直接doneにする。
+    # cmd_updateの自動解除を通さず、list実行までBをpendingに保つ。
     data = tasks.store()
     for t in data["tasks"]:
         if t["id"] == aid:
@@ -1123,10 +1131,10 @@ def test_blocks_flag_idempotent(tasks, capsys):
     aid = tasks.by_title("A")["id"]
     bid = tasks.by_title("B")["id"]
     tasks.run("update", aid, "--blocks", bid)
-    tasks.run("update", aid, "--blocks", bid)  # second call is a no-op
+    tasks.run("update", aid, "--blocks", bid)  # 2回目の呼び出しでは変更しない。
     capsys.readouterr()
     a = tasks.by_title("A")
-    assert (a.get("blocks") or []).count(bid) == 1  # not duplicated
+    assert (a.get("blocks") or []).count(bid) == 1  # 重複しない。
 
 
 def test_auto_unblock_no_output_when_none(tasks, capsys):
@@ -1139,7 +1147,7 @@ def test_auto_unblock_no_output_when_none(tasks, capsys):
 
 
 def test_blocked_by_task_id_cancel_clears_blocked_by(tasks, capsys):
-    # After auto-unblock the blocked_by field on B should be cleared.
+    # 自動解除後は、Bのblocked_byが消去されることを確認する。
     tasks.run("add", "A")
     tasks.run("add", "B")
     capsys.readouterr()
@@ -1197,7 +1205,7 @@ def test_meta_get_missing_key_returns_null(tasks, capsys):
 
 
 def test_meta_unset_missing_key_is_silent_ok(tasks, capsys):
-    # unset on a non-existent key silently succeeds (no SystemExit, no error)
+    # 存在しないキーの解除も、SystemExitやエラーを出さず成功する。
     tasks.run("meta", "unset", "no_such_key")
     assert capsys.readouterr().out.strip() == "ok"
 
@@ -1266,7 +1274,7 @@ def test_get_task_has_required_fields(tasks, capsys):
         assert field in out, f"missing field: {field}"
 
 
-# ---------- snooze (date-triggered pending) ----------
+# ---------- snooze（日付を条件にした待機） ----------
 #
 # snooze は「この日まで脇に置く」操作。status=pending + snooze_until=YYYY-MM-DD を
 # セットし、list 既定（open のみ）から隠す。snooze_until <= today になった list で
@@ -1312,7 +1320,7 @@ def test_snooze_expires_on_list_when_date_reached(tasks, capsys, monkeypatch):
 
 
 def test_snooze_expires_when_date_passed(tasks, capsys, monkeypatch):
-    # today past the snooze_until date also expires.
+    # 今日がsnooze_untilを過ぎている場合も、期限切れとして扱う。
     monkeypatch.setattr(tasks.module, "today_str", lambda: "2026-07-10")
     tasks.run("add", "overdue snooze")
     tid = tasks.by_title("overdue snooze")["id"]
@@ -1402,7 +1410,7 @@ def test_snoozed_task_shown_with_status_pending_filter(tasks, capsys, monkeypatc
     assert any(t["title"] == "hidden but findable" for t in out["tasks"])
 
 
-# ---------- migration: kind(must/will) → from(others/me) ----------
+# ---------- 移行: kind(must/will)からfrom(others/me)へ ----------
 
 
 def _inject_old_tasks(tasks, capsys, tasks_data):
@@ -1732,7 +1740,7 @@ def test_migrate_reports_count(tasks, capsys):
     assert out["migrated"] == 2
 
 
-# ---------- in-progress status ----------
+# ---------- 作業中の状態 ----------
 
 
 def test_update_to_in_progress(tasks, capsys):
@@ -1756,7 +1764,7 @@ def test_list_shows_in_progress_by_default(tasks, capsys):
 
 
 def test_in_progress_sorts_before_open(tasks, capsys):
-    # in-progress bubbles to the front even with a larger queue_pos than an open task.
+    # openのタスクよりqueue_posが大きくても、in-progressが先頭になる。
     tasks.run("add", "open-task", "--queue-pos", "10")
     tasks.run("add", "wip-task", "--queue-pos", "999")
     capsys.readouterr()
@@ -1769,8 +1777,8 @@ def test_in_progress_sorts_before_open(tasks, capsys):
 
 
 def test_in_progress_over_limit_signal_and_warning(tasks, capsys):
-    # Marking a 6th task in-progress (limit is 5) puts _in_progress_over on the
-    # update result and prints a warning to stderr.
+    # 上限5件に対して6件目をin-progressにすると、更新結果へ
+    # _in_progress_overを設定し、標準エラー出力へ警告を出す。
     for i in range(6):
         tasks.run("add", f"t{i}")
     capsys.readouterr()
@@ -1787,7 +1795,7 @@ def test_in_progress_over_limit_signal_and_warning(tasks, capsys):
 
 
 def test_in_progress_at_limit_no_signal(tasks, capsys):
-    # Exactly 5 in-progress is at the limit, not over it: no signal, no warning.
+    # in-progressがちょうど5件なら上限以内のため、超過の印も警告も出さない。
     for i in range(5):
         tasks.run("add", f"t{i}")
     capsys.readouterr()
@@ -1811,7 +1819,7 @@ def _mark_n_in_progress(tasks, n):
 
 
 def test_list_in_progress_over_limit_signal(tasks, capsys):
-    # list surfaces _in_progress_over when in-progress count exceeds the limit.
+    # in-progressが上限を超えた場合、listで_in_progress_overを返す。
     _mark_n_in_progress(tasks, 6)
     capsys.readouterr()
     tasks.run("list")

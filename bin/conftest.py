@@ -1,26 +1,23 @@
-"""Shared pytest fixtures for the `tasks` CLI script (claude-companion local store).
+"""tasks CLIのテストで共有するpytestフィクスチャ（tasksのローカル保存先）。
 
-The suite is split by domain so a single area can be run without loading the
-whole file (this keeps concurrent edits in different areas from colliding):
-    test_tasks_crud.py      add / list / update / reorder / delete / meta /
-                            snooze / migration / dependency
-    test_tasks_worklog.py   work log / pace correction / flex / today_plan /
-                            work summary
-    test_tasks_github.py    _gh_* helpers / stale-pending sweep / malformed JSON
-    test_tasks_obsidian.py  page sync / daily note / commit message / vault backup
-    test_tasks_daily.py     daily logs / notif-keys
+分野ごとにテストを分け、別分野の同時編集が衝突しにくくする。
+    test_tasks_crud.py      追加・一覧・更新・順序変更・削除・メタデータ・
+                           snooze・移行・依存関係
+    test_tasks_worklog.py   作業記録・ペース補正・フレックス・今日の予定・時間集計
+    test_tasks_github.py    _gh_*の補助関数・長期停滞の再開・不正なJSON
+    test_tasks_obsidian.py  ページ同期・デイリーノート・コミットメッセージ・vault保存
+    test_tasks_daily.py     日次記録・通知キー
 
-Run the complete suite every time:
+毎回、全テストを実行する。
     uv run --with pytest pytest .
 
-Non-fixture helpers shared across files live in _test_helpers.py; helpers used
-by only one domain stay local to that file. Every test points
-CLAUDE_COMPANION_STORE at a pytest tmp_path, so the real store
-(~/.claude-companion/tasks.json) is never touched.
+分野をまたぐ補助関数は_test_helpers.pyに置き、一分野でしか使わない関数は
+各テストファイルに置く。すべてのテストでTASKS_STOREを
+pytestのtmp_pathへ向け、実際の~/.local/share/tasks/tasks.jsonには触れない。
 
-The `tasks` script has no .py extension, so it's loaded as a module via
-importlib. `_backup_to_git` is neutralized because the tmp store is not a git
-repo (and we don't want tests pushing anything).
+tasksには.py拡張子がないため、importlibでモジュールとして読み込む。
+一時保存先はGitリポジトリではなく、テストからpushも行わないため、
+_backup_to_gitを無効化する。
 """
 
 import json
@@ -31,24 +28,24 @@ from _test_helpers import _load_tasks_module
 
 @pytest.fixture
 def tasks(tmp_path, monkeypatch):
-    """A freshly-loaded tasks module wired to a throwaway store.
+    """一時的な保存先につないだ、新しく読み込んだtasksモジュール。
 
-    Returns a helper object exposing `.run(*argv)` to invoke CLI commands and
-    `.store()` to read back the raw JSON.
+    .run(*argv)でCLIを呼び出し、.store()で保存されたJSONを読み出す
+    補助オブジェクトを返す。
     """
     store = tmp_path / "tasks.json"
-    monkeypatch.setenv("CLAUDE_COMPANION_STORE", str(store))
+    monkeypatch.setenv("TASKS_STORE", str(store))
 
     mod = _load_tasks_module()
-    # The module read STORE at import time from the env var we just set, so it
-    # already points at tmp_path. Belt and suspenders: re-point it explicitly.
+    # モジュールは読み込み時に設定済みの環境変数からSTOREを取得するため、
+    # 既にtmp_pathを参照しているが、念のため参照先を明示的に設定する。
     mod.STORE = store
-    # Don't let tests touch git. save() now calls _backup_to_git(message=...),
-    # so the stub must accept args. _backup_vault_to_git is NOT stubbed: it
-    # early-returns when the vault is unset (most tests) or not a git repo
-    # (tests that set obsidian_vault_dir at a plain tmp dir), so it never runs
-    # git on its own. Feature-D tests exercise the real function directly on a
-    # git-initialized tmp vault.
+    # テスト中のGit操作を防ぐ。save()は_backup_to_git(message=...)を呼ぶため、
+    # スタブでも引数を受け取る。_backup_vault_to_gitはスタブ化しない。
+    # vault未設定の場合（大半のテスト）やGitリポジトリではない場合には
+    # 途中で戻る（obsidian_vault_dirに通常の一時ディレクトリを設定するテスト）。
+    # そのため、この関数からGit操作は実行されない。機能Dのテストでは、
+    # Git初期化済みの一時vaultで実際の関数を直接検証する。
     monkeypatch.setattr(mod, "_backup_to_git", lambda *a, **k: None)
 
     class Harness:
@@ -64,7 +61,7 @@ def tasks(tmp_path, monkeypatch):
             return json.loads(store.read_text())
 
         def active(self):
-            """Active tasks sorted by queue_pos (the queue order)."""
+            """進行可能なタスクをqueue_posの昇順で返す。"""
             data = self.store()
             act = [t for t in data["tasks"] if t["status"] in ("open", "pending")]
             act.sort(key=lambda t: t.get("queue_pos") or 0)
@@ -77,7 +74,7 @@ def tasks(tmp_path, monkeypatch):
             raise KeyError(title)
 
         def positions(self):
-            """List of (title, queue_pos) in queue order."""
+            """キューの順序で(title, queue_pos)の一覧を返す。"""
             return [(t["title"], t["queue_pos"]) for t in self.active()]
 
     return Harness()

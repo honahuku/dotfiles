@@ -6,6 +6,9 @@ local function options()
   return {
     default_budget_usd = 600,
     codex_usd_per_credit = 0.02,
+    parse_usage_cost_usd = function()
+      return 7
+    end,
     budget_overrides = {
       { start_date = "2040-06-10", end_date = "2040-06-20", budget_usd = 1200 },
     },
@@ -134,13 +137,24 @@ describe("Coding Agents使用量", function()
     assert.are.same("", usage.statusline())
   end)
 
-  it("Claudeだけを月別内訳から取り出す", function()
-    local json = [[{"monthly":[{"period":"2040-06","totalCost":99,"agents":[
-      {"agent":"claude","totalCost":7},{"agent":"codex","totalCost":9}]}]}]]
-    assert.are.same(7, usage.parse_claude_cost_usd(json, "2040-06"))
-    assert.are.same(0, usage.parse_claude_cost_usd(json, "2040-07"))
-    assert.is_nil(usage.parse_claude_cost_usd('{"monthly":[{"period":"2040-06","totalCost":99}]}', "2040-06"))
-    assert.is_nil(usage.parse_claude_cost_usd("invalid"))
+  it("取得元固有の抽出処理を設定から受け取る", function()
+    local opts = options()
+    local received
+    opts.parse_usage_cost_usd = function(json, period)
+      received = { json, period }
+      return 12
+    end
+    usage.configure(opts)
+    assert.are.same(12, usage.parse_usage_cost_usd("sample", "2040-06"))
+    assert.are.same({ "sample", "2040-06" }, received)
+  end)
+
+  it("抽出処理を省略した場合は設定エラーにする", function()
+    local opts = options()
+    opts.parse_usage_cost_usd = nil
+    assert.has_error(function()
+      usage.configure(opts)
+    end)
   end)
 
   it("アカウントのレート情報から使用クレジットを取り出す", function()

@@ -1,4 +1,4 @@
-"""Black-box checks for the standalone tasks command."""
+"""単体のtasksコマンドを外部から検証する。"""
 
 import json
 import os
@@ -18,10 +18,10 @@ TASKS = Path(
 
 @pytest.fixture
 def isolated_tasks(tmp_path):
-    """Run the CLI with an isolated store and no configured vault."""
+    """独立した保存先を使い、保管庫を未設定にしてCLIを実行する。"""
     env = os.environ.copy()
     store = tmp_path / "tasks.json"
-    env["CLAUDE_COMPANION_STORE"] = str(store)
+    env["TASKS_STORE"] = str(store)
 
     def run(*args):
         return subprocess.run(
