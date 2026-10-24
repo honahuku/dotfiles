@@ -16,15 +16,17 @@
 
 - 環境固有の自動commit・push条件は、非公開資料の`global-policy`セクションを確認する。明示された対象以外は、コミットやPRを依頼された場合だけ実行し、コミット前に差分と追跡対象を確認する。
 
-- **`~/git/honahuku/`配下の全プロジェクトでは、Coding AgentsによるGit書き込みを禁止する。** `add`・`init`・`clone`・`fetch`・`commit`・`push`・`pull`・`merge`・`checkout`・`switch`・`reset`・`revert`・`cherry-pick`・`stash`・`clean`、worktree・branch・tag・config・remoteの変更を含む。index・refs・reflog・Git hookなどGit内部状態への直接書き込みと、GitHubなどのリポジトリ作成も禁止する。CLI・API・MCP・サブエージェントへの委譲でも同じ制限を適用する。この共通ルールに明記した例外以外は、子ディレクトリの指示で禁止を解除しない。
+- **`~/git/*`では、Coding Agentsが本人の追加指示なしに行えるGit書き込みはステージだけとする。** commit・push・merge・pull・fetch・init・clone・ブランチやworktreeの作成／切り替え／変更・tag・config・remoteの変更など、それ以外の操作は本人の指示を仰ぐ。index・refs・reflog・Git hookなどへの直接書き込み、CLI・API・MCP・サブエージェントへの委譲にも同じ範囲を適用する。
 
-- **`~/git/honahuku/`配下の全プロジェクト（`honahuku/*`）では、`git worktree add`と、それに伴う`-b`での新規ブランチ作成、clone専用の`info/exclude`への`/.worktree/`追記を許可する。** `--force`や`-B`で既存状態を強制変更してはならない。ユーザーが明示的に許可した`fetch`も実行できるが、それを根拠にほかのGit書き込みを続けない。指定した`info/exclude`への追記以外に、Git内部状態を直接編集してはならない。
+- リポジトリごとの恒常的な例外は、操作前に非公開資料`~/.agents/docs/work/context.md`の`global-policy`にある「Git操作の許可範囲」で確認する。例外にない操作は本人の指示を仰ぐ。資料が読めない場合は既定の制限を適用し、許可を推測しない。子ディレクトリの指示や通常の実装依頼だけで許可範囲を広げない。Git操作の許可は、ファイル削除・hook迂回・apply・デプロイの禁止を解除しない。
 
-- **`honahuku/*`では、対象worktreeの作業開始時にステージ済み差分と未解決競合がない場合に限り、`git add`を許可する。** `git status --short --branch`で対象worktreeの状態を確認し、コマンドの作業ディレクトリには対象worktreeの絶対パスを明示する（mainの状態を調べる場合だけ元clone直下を指定する）。作業内容を確認した追加・変更ファイルの明示的なパスだけを一つの`git add -- <path>...`に指定する。削除パス・ディレクトリ・glob・`-A`・`-u`・`-p`は使わない。ステージ状態はworktreeごとのindexに保存される。
+- **ステージのみが許可されたリポジトリでは、対象worktreeの作業開始時にステージ済み差分と未解決競合がない場合に限り、`git add`を実行する。** `git status --short --branch`で対象worktreeの状態を確認し、コマンドの作業ディレクトリには対象worktreeの絶対パスを明示する（mainの状態を調べる場合だけ元clone直下を指定する）。作業内容を確認した追加・変更ファイルの明示的なパスだけを一つの`git add -- <path>...`に指定する。削除パス・ディレクトリ・glob・`-A`・`-u`・`-p`は使わない。ステージ状態はworktreeごとのindexに保存される。
 
-- ステージ後は`git diff --cached`と`git status`で結果を確認する。いったんステージした後の追加ステージは禁止する。Coding Agentsによる`commit`・`push`・`merge`などの禁止は変わらない。
+- ステージ後は`git diff --cached`と`git status`で結果を確認する。ステージのみが許可されたリポジトリでは、いったんステージした後の追加ステージは禁止する。
 
-- honahuku配下では、`status`・`log`・`show`・`diff`・`grep`・`ls-files`・`rev-parse`・`branch --list`・`tag --list`・`remote -v`・`worktree list`など、状態を変更しない検査を許可する。不明なGit操作は実行せず、確認を求める。編集時は`apply-git-strategy`の作業開始手順に従う。
+- `status`・`log`・`show`・`diff`・`grep`・`ls-files`・`rev-parse`・`branch --list`・`tag --list`・`remote -v`・`worktree list`など、状態を変更しない検査は許可する。不明なGit操作は実行せず、本人の指示を仰ぐ。編集時は`apply-git-strategy`の作業開始手順に従う。
+
+- Issue作成も、非公開資料の「Git操作の許可範囲」に明記された対象だけを確認なしで行う。それ以外のリポジトリでは本人の指示を仰ぐ。この例外をIssueの更新・close・コメント投稿や、リポジトリ作成の許可へ広げない。
 
 - **`honahuku/*`の各リポジトリには、外部OSSをcloneしたディレクトリやGitサブモジュールを含めない。`vendor/`と`.gitmodules`はignoreし、公開前の検査でネストしたGit repoと外部repo用パスを検出する**
 

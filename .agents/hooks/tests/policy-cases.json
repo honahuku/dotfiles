@@ -1,5 +1,47 @@
 [
   {
+    "name": "write-other-owner-main-checkout",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/home/example/git/example-owner/example-repo/README.md",
+        "content": "example"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "write-other-owner-worktree",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/home/example/git/example-owner/example-repo/.worktree/fix-example/README.md",
+        "content": "example"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "patch-other-owner-main-checkout",
+    "input": {
+      "tool_name": "apply_patch",
+      "tool_input": {
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/example-owner/example-repo/README.md\n*** End Patch"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "patch-other-owner-worktree",
+    "input": {
+      "tool_name": "apply_patch",
+      "tool_input": {
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/example-owner/example-repo/.worktree/fix-example/README.md\n*** End Patch"
+      }
+    },
+    "expected": "allow"
+  },
+  {
     "name": "compound-chain",
     "input": {
       "tool_name": "Bash",

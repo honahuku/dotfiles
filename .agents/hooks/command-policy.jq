@@ -21,9 +21,9 @@ def has_shell_control_operator:
     | test("[;&|()\\n]")
   );
 
-def targets_honahuku_main_checkout($path):
-  ($path | test("(^|/)git/honahuku/[^/]+/"))
-  and (($path | test("(^|/)git/honahuku/[^/]+/\\.worktree/")) | not);
+def targets_git_main_checkout($path):
+  ($path | test("(^|/)git/[^/]+/[^/]+/"))
+  and (($path | test("(^|/)git/[^/]+/[^/]+/\\.worktree/")) | not);
 
 def command_is($name):
   (only_reading_arguments | not)
@@ -45,13 +45,13 @@ def deny_sensitive_commands:
 (.tool_input.command // .tool_input.cmd // "") as $command
 | if (
     ((.tool_name == "Write" or .tool_name == "Edit")
-      and ((.tool_input.file_path // "") | targets_honahuku_main_checkout(.)))
+      and ((.tool_input.file_path // "") | targets_git_main_checkout(.)))
     or (
       .tool_name == "apply_patch"
-      and ($command | test("(?m)^\\*\\*\\* (?:Add|Update) File: [^\\n]*/git/honahuku/[^/]+/(?!\\.worktree/)"))
+      and ($command | test("(?m)^\\*\\*\\* (?:Add|Update) File: [^\\n]*/git/[^/]+/[^/]+/(?!\\.worktree/)"))
     )
   ) then
-    policy_deny("honahuku配下のGit管理ファイルはmain checkoutで編集しない。登録済みworktree内のパスを指定する。")
+    policy_deny("~/git配下のGit管理ファイルはmain checkoutで編集しない。登録済みworktree内のパスを指定する。")
   elif (
     (.tool_name == "Bash" or .tool_name == "exec_command" or .tool_name == "functions.exec_command")
     and ($command | has_shell_control_operator)
