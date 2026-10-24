@@ -1,5 +1,7 @@
 # Git操作とファイル削除
 
+- コミットメッセージの説明と本文は、明示的な指示がなければ日本語にする。Conventional Commitsのtypeやscopeなど、所定の構文は維持する。
+
 - **本人へのコミット依頼はlazygitを前提に、worktreeの絶対パスと対象ファイルを自然文で伝え、差分に基づくConventional Commits形式のコミットメッセージ案も必ず添える。コミット用のコマンドは提示しない。Git操作の依頼と、それ以外のコマンド実行依頼は分け、同じコードブロックや`&&`等で連結しない。**
 
 - **`git rebase` は絶対に実行しない。** 履歴を整理したい場面でも rebase ではなく merge で対応できないか先に考える
@@ -18,7 +20,7 @@
 
 - **`~/git/honahuku/`配下の全プロジェクト（`honahuku/*`）では、`git worktree add`と、それに伴う`-b`での新規ブランチ作成、clone専用の`info/exclude`への`/.worktree/`追記を許可する。** `--force`や`-B`で既存状態を強制変更してはならない。ユーザーが明示的に許可した`fetch`も実行できるが、それを根拠にほかのGit書き込みを続けない。指定した`info/exclude`への追記以外に、Git内部状態を直接編集してはならない。
 
-- **`honahuku/*`では、対象worktreeの作業開始時にステージ済み差分と未解決競合がない場合に限り、`git add`を許可する。** `git status --short --branch`で対象worktreeの状態を確認し、作業内容を確認した追加・変更ファイルの明示的なパスだけを一つの`git add -- <path>...`に指定する。削除パス・ディレクトリ・glob・`-A`・`-u`・`-p`は使わない。ステージ状態はworktreeごとのindexに保存される。
+- **`honahuku/*`では、対象worktreeの作業開始時にステージ済み差分と未解決競合がない場合に限り、`git add`を許可する。** `git status --short --branch`で対象worktreeの状態を確認し、コマンドの作業ディレクトリには対象worktreeの絶対パスを明示する（mainの状態を調べる場合だけ元clone直下を指定する）。作業内容を確認した追加・変更ファイルの明示的なパスだけを一つの`git add -- <path>...`に指定する。削除パス・ディレクトリ・glob・`-A`・`-u`・`-p`は使わない。ステージ状態はworktreeごとのindexに保存される。
 
 - ステージ後は`git diff --cached`と`git status`で結果を確認する。いったんステージした後の追加ステージは禁止する。Coding Agentsによる`commit`・`push`・`merge`などの禁止は変わらない。
 

@@ -2,7 +2,7 @@
 
 ## 参照元
 
-共通指示と自作スキルは公開dotfiles、社内・個人情報は非公開資料で管理する。すべての実体をいずれかのリポジトリにコミットし、miseでファイル単位にリンクする。
+公開可能な共通指示・手順・背景は公開dotfilesに置く。非公開側には非公開情報と、公開側の作業に必要な非公開の運用条件・検査手順、その読込条件・公開資料への参照を残す。配置と分割は`docs/agents/context-policy.md`に従う。すべての実体をいずれかのリポジトリにコミットし、miseでファイル単位にリンクする。
 
 - スキル: `~/.agents/skills/<name>/SKILL.md`
 - 共通資料: `~/.agents/docs/common/`
@@ -47,7 +47,7 @@
 | コマンド実行・hook編集 | `command-policy.md` |
 | Git管理ファイルの編集前後、Git操作、タスク命名 | `apply-git-strategy`、`git-policy.md` |
 | コード・設定・スクリプトの作成や修正 | `write-safe-code-and-scripts`、`editing-policy.md` |
-| スキル・共通指示・dotfiles・個人ツールの改善に着手 | `context-policy.md`の時間帯規則。継続時も現在日時を確認する |
+| スキル・共通指示・dotfiles・個人ツールの改善に着手 | `context-policy.md`と非公開資料`~/.agents/docs/work/context.md`の`global-policy`。継続時も作業前に現在日時を確認する |
 | AGENTS.md・スキル・Coding Agents向けhookの作成・編集、肥大化・重複・起動条件・配置の見直し | 編集前と完了前に`write-agent-instructions` |
 | 計画作成・修正、計画から実装への移行 | `write-plan` |
 | 応答・成果物の推敲、長文・外部文書の送信前 | `review-output`。名前・文体・書式の詳細は`output-policy.md`の該当セクション |

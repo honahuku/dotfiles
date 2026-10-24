@@ -1,5 +1,107 @@
 [
   {
+    "name": "compound-chain",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git -C /tmp/repo status --short && git -C /tmp/repo diff"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "compound-pipe",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git status | cat"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "quoted-shell-operator-in-search",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg 'a && b' docs"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "command-substitution-in-double-quotes",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "printf '%s' \"$(pwd)\""
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "command-substitution-in-backticks",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "printf '%s' `pwd`"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "literal-substitution-in-single-quotes",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg '$(' docs"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "write-main-checkout",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/home/example/git/honahuku/dotfiles/.agents/hooks/command-policy.jq",
+        "content": "example"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "write-registered-worktree",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/home/example/git/honahuku/dotfiles/.worktree/fix-example/.agents/hooks/command-policy.jq",
+        "content": "example"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "patch-main-checkout",
+    "input": {
+      "tool_name": "apply_patch",
+      "tool_input": {
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/honahuku/dotfiles/.agents/AGENTS.md\n*** End Patch"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "patch-registered-worktree",
+    "input": {
+      "tool_name": "apply_patch",
+      "tool_input": {
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/honahuku/dotfiles/.worktree/fix-example/.agents/AGENTS.md\n*** End Patch"
+      }
+    },
+    "expected": "allow"
+  },
+  {
     "name": "read-files",
     "input": {
       "tool_name": "Bash",
