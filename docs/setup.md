@@ -53,6 +53,15 @@ clone済みの場合は`git clone`を省略する。更新する場合は未コ�
 
 `~/.bashrc`と`~/.profile`は実ファイルを残し、dotfilesを読み込む管理ブロックを追加する。適用前から開いていたBashには、`source ~/.bashrc`で設定を読み直すか、新しいシェルを開く。
 
+aqua本体もmiseから導入されるため、別途aquaのインストーラーを実行しない。新しい対話Bashで次を実行し、`aqua --version`が`.config/mise/config.toml`の指定版と一致することを確認する。
+
+```sh
+type -a mise aqua
+aqua --version
+```
+
+`~/.bashrc.local`や`~/.bash_aliases`に旧版aquaのPATH追加や旧ランタイム管理ツールの初期化が残っていると、対話シェルだけ別の版を選ぶ場合がある。既存内容を保存して競合する設定を整理し、ログインシェルと対話シェルの両方で確認する。ログインシェルだけでの確認や`mise exec`での成功を、普段の端末でも使えることの確認に代えない。
+
 <details>
 <summary>Arch Linuxのログインシェルで設定を読み込む</summary>
 
