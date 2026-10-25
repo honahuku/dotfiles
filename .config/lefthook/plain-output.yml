@@ -1,0 +1,17 @@
+colors: false
+no_tty: true
+
+# Lefthookのsummary区切り線には、colors: falseでもANSI色指定が残るため使わない。
+output:
+  - execution
+  - execution_out
+  - success
+  - failure
+
+pre-commit:
+  commands:
+    trufflehog:
+      # TruffleHogは--no-colorでも端末背景色を問い合わせるため、TERM=dumbで抑止する。
+      env:
+        TERM: dumb
+        NO_COLOR: "true"

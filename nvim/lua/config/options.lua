@@ -1,6 +1,6 @@
--- Options are automatically loaded before lazy.nvim startup
--- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
--- Add any additional options here
+-- オプションはlazy.nvimの起動前に自動的に読み込まれる。
+-- 常に設定される既定のオプション: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
+-- 追加のオプションはここで設定する。
 
 vim.opt.wrap = true
 vim.opt.linebreak = true

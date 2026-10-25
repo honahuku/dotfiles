@@ -1,0 +1,4 @@
+interface:
+  display_name: "個人文脈の参照"
+  short_description: "健康・集中・キャリア相談で個人文脈を必要時だけ参照する"
+  default_prompt: "$use-personal-contextで、機微な情報を保護しながら必要な個人文脈を参照する。"

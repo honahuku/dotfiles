@@ -1,57 +1,57 @@
 ---
 name: write-pr-activity
-description: 今日作業したGitHub PRを根拠に基づいて列挙し、本人のPR対応と依頼されたレビューに分ける。今日のPR作業一覧を求められたときに使用する。
+description: 今日作業したGitHub PRを列挙するときに、本人のPR対応と依頼されたレビューを根拠から区別する。
 ---
 
-# List today's PR activity
+# 今日作業したPRを列挙する
 
-Use this skill when asked to list GitHub pull requests that the user worked on today. The result contains only PRs with evidence of the user's work during the requested day.
+指定日の本人の作業を確認できるPRだけを含める。
 
-## Set the time window
+## 対象時間
 
-- Determine the current date, time, and the user's time zone from the conversation or available client context. Ask if the time zone cannot be established; do not infer it from the machine or repository.
-- Use the interval from local midnight, inclusive, through the time the information is collected. Convert those boundaries to absolute timestamps when querying GitHub or local history.
-- Judge activity by each event's timestamp, not by a PR's current `updated_at` value. Recheck the cutoff time before producing the list.
+会話やクライアント情報から現在の日付・時刻・タイムゾーンを確認する。不明なら確認し、マシンやrepoから推測しない。対象は現地時刻の当日0時以上、取得時刻以下とし、GitHubや履歴の検索時は絶対日時に変換する。
 
-## Find and verify candidate PRs
+現在の`updated_at`ではなく、個々のイベント時刻で活動日を判定する。出力前に取得の締切時刻を再確認する。
 
-1. Identify the authenticated GitHub account and discover the repositories available to the current connection. Do not limit the initial search to a presumed organization or repository. Use available read-only GitHub tools; if needed, use authenticated `gh` read commands or `gh api --method GET`.
-2. Search for candidate PRs using the user's activity events, PR search, and commit search. When available, read the authenticated user's events with `GET /users/{username}/events`. Cover GitHub and Git activity such as commits, pushes, PR creation or updates, comments and replies, merges, approvals, change requests, and review work. Search broadly for PRs authored by the user and PRs where the user was asked to review. Search results and event feeds find candidates; they do not prove that work occurred during the window.
-3. Treat the Events API as a discovery source only. GitHub says event delivery is not real-time and can be delayed from 30 seconds to 6 hours, so cross-check it against PR searches and each candidate's records. Follow pagination for event, comment, review, and search results where available. Record when permissions, result limits, or unavailable repositories leave coverage incomplete.
-4. For each candidate, verify the canonical PR title, number, URL, and author. Inspect the PR timeline, issue comments and replies, review comments and replies, submitted reviews, commits, and merge or review-request events. Attribute an event only when its actor and timestamp match the user and the time window.
-5. Inspect locally available repositories and worktrees for commits and available reflog evidence in the same time window. Correlate commit SHAs and branches with PRs; local Git history alone does not prove which PR an operation belongs to. State which local repositories were available for inspection.
-6. For review work not submitted to GitHub, use same-day chat history or other available records that show the review was actually started or performed. A message quoting older history is not evidence of a same-day action; check the timestamp of the work itself.
+## 候補の収集と照合
 
-GitHub's [Events API](https://docs.github.com/en/rest/activity/events), [PR timeline API](https://docs.github.com/en/rest/issues/timeline), [PR search filters](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/filtering-and-searching-issues-and-pull-requests), and [REST pagination guidance](https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api) describe the relevant records and their limits.
+1. 認証済みGitHubアカウントと、その接続から参照できるrepoを確認する。推測した組織やrepoだけに最初から絞らない。読み取り専用ツールを使い、必要なら認証済み`gh`や`gh api --method GET`を使う。
+2. 本人の活動イベント、PR検索、コミット検索から候補を探す。利用できれば`GET /users/{username}/events`を読む。コミット、push、PR作成・更新、コメント・返信、merge、approve、変更要求、レビュー作業を対象にし、本人作成のPRとレビュー依頼のあったPRを広く調べる。検索・イベントは候補発見の材料であり、当日の作業の証明ではない。
+3. Events APIは配信が即時ではなく、30秒から6時間遅れることがあるため、PR検索と候補ごとの記録で照合する。利用できるイベント、コメント、レビュー、検索のページ送りを追い、権限、取得上限、参照できないrepoによる不足を記録する。
+4. 各候補の正式タイトル、番号、URL、作者を確認する。タイムライン、Issueコメントと返信、レビューコメントと返信、送信済みレビュー、コミット、merge・レビュー依頼イベントを読む。実行者と時刻の両方が本人と対象時間に一致する活動だけを採用する。
+5. 利用可能なローカルrepoとworktreeのコミット・reflogも同じ期間で読む。SHAとブランチをPRへ対応付け、ローカル履歴だけでどのPRの作業か決めない。確認できたローカルrepoの範囲を示す。
+6. GitHubへ送信していないレビューは、当日のチャット履歴などで実際の着手・実施を確認する。古い履歴の引用を当日活動にせず、作業自体の時刻を確認する。
 
-## Classify verified work
+記録と制約は[Events API](https://docs.github.com/en/rest/activity/events)、[PRタイムライン](https://docs.github.com/en/rest/issues/timeline)、[PR検索条件](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/filtering-and-searching-issues-and-pull-requests)、[ページ送り](https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api)を参照する。
 
-### レビュイー(自分)
+## 確認した作業を分類する
 
-Include a PR the user authored or handled on the author side, with at least one verified action in the time window. Examples include creating or updating the PR, pushing or committing changes associated with it, replying to review feedback, or merging it. Do not infer author-side work from the PR merely being open or updated by someone else.
+### レビュイー（自分）
 
-### レビュワー(メンバーからの依頼)
+本人が作成したか、作者側として対応したPRで、対象時間内の活動が一つ以上確認できるものを含める。PR作成・更新、関連するコミット・push、レビューへの返信、mergeなどが該当する。開いているだけ、他人が更新しただけでは本人の作業とみなさない。
 
-Include another person's PR only when there is evidence that a member requested the review and the user actually worked on it in the time window. Evidence can be a submitted review, review comment or reply, or same-day records showing substantive review work. A review request by itself does not qualify. Reading a PR as background for another task does not qualify.
+### レビュワー（メンバーからの依頼）
 
-Do not guess an operation or role when the evidence is unclear. Do not describe reading a review as an approval; report approval only when a submitted review records the `APPROVED` state. Deduplicate PRs within each category by canonical repository and PR number.
+他人のPRは、メンバーからレビュー依頼があり、本人が対象時間内に実際に作業した根拠がある場合だけ含める。送信済みレビュー、レビューコメント・返信、実質的なレビューを行った当日記録を根拠にできる。依頼だけ、別タスクの背景として読んだだけでは含めない。
 
-## Format the result
+不明な操作や役割を推測しない。レビューを読む行為を承認と呼ばず、送信済みレビューの`APPROVED`を確認した場合だけ承認とする。各分類内では正式repoとPR番号で重複を除く。
 
-Keep the response focused on the two categories and PR links. Add one short scope line with the local date, time zone, collection cutoff, and material gaps in the GitHub, local-repository, or chat history inspected.
+## 出力
 
-見出しとPR行は次の形式にする。
+二つの分類とPRリンクを中心にする。現地日付、タイムゾーン、取得締切、GitHub・ローカル・チャット履歴の重要な不足を短い一行で示す。
 
 ```markdown
 確認範囲: <日付> 00:00–<取得時刻> (<タイムゾーン>)。<確認できた範囲と不足>
 
 ## レビュイー(自分)
+
 - [<正式なPRタイトル>](https://github.com/<owner>/<repo>/pull/<number>#top)#<number>
 
 ## レビュワー(メンバーからの依頼)
+
 - [<正式なPRタイトル>](https://github.com/<owner>/<repo>/pull/<number>#top)#<number>
 ```
 
-Use `- なし` for an empty category. If an unresolved candidate could materially change the list, state it separately as `要確認` and identify the missing evidence; do not put it in a completed-work list.
+該当なしは`- なし`とする。結論を変え得る未解決の候補は、完了した作業に混ぜず、要確認として不足する根拠を別に示す。
 
-All collection is read-only. Do not commit, push, create or update PRs, post or reply to comments, submit reviews, approve, request changes, or merge.
+収集は読み取り専用とし、commit、push、PR作成・更新、コメント・返信、レビュー送信、approve、変更要求、mergeは行わない。

@@ -1,0 +1,46 @@
+# 技術文書専用の日本語表記ルール。
+# 文体、語彙、括弧、英日間の空白はyomiyasuの対象とし、ここでは扱わない。
+# コードブロックやURLを含む文書で誤検出しないよう、明確な表記だけを登録する。
+version: 1
+rules:
+  # Kubernetes日本語翻訳ガイドの長音規則に基づく表記
+  - expected: クラスター
+    pattern: /クラスタ(?!ー)/
+  - expected: セレクター
+    pattern: /セレクタ(?!ー)/
+  - expected: コントローラー
+    pattern: /コントローラ(?!ー)/
+  - expected: トポロジー
+    pattern: /トポロジ(?!ー)/
+  - expected: ポリシー
+    pattern: /ポリシ(?!ー)/
+  - expected: クリア
+    pattern: /クリアー/
+  - expected: エンジニア
+    pattern: /エンジニアー/
+  - expected: アーキテクチャ
+    pattern: /アーキテクチャー/
+  - expected: セキュリティ
+    pattern: /セキュリティー/
+  - expected: ディレクトリ
+    pattern: /ディレクトリー/
+
+  # Kubernetes日本語翻訳ガイドの用語表記
+  - expected: インターフェース
+    pattern: /インタフェース|インタフェイス|インターフェイス/
+  - expected: プロキシ
+    pattern: /プロキシー/
+  - expected: クォータ
+    pattern: /クオータ/
+  - expected: cronジョブ
+    pattern: /cronのジョブ/
+
+  # JTF日本語標準スタイルガイドの文字種と句読点
+  - expected: 、
+    pattern: /，/
+  - expected: 。
+    pattern: /．/
+  - expected: 全角カタカナ
+    pattern: /[ｦ-ﾟ]+/
+  - expected: 半角英数字
+    pattern: /[Ａ-Ｚａ-ｚ０-９]+/

@@ -33,5 +33,5 @@ do
   end
 end
 
--- bootstrap lazy.nvim, LazyVim and your plugins
+-- lazy.nvim・LazyVim・自分のプラグインを初期化する。
 require("config.lazy")

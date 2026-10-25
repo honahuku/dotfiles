@@ -1,0 +1,488 @@
+[
+  {
+    "name": "write-other-owner-main-checkout",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/home/example/git/example-owner/example-repo/README.md",
+        "content": "example"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "write-other-owner-worktree",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/home/example/git/example-owner/example-repo/.worktree/fix-example/README.md",
+        "content": "example"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "patch-other-owner-main-checkout",
+    "input": {
+      "tool_name": "apply_patch",
+      "tool_input": {
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/example-owner/example-repo/README.md\n*** End Patch"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "patch-other-owner-worktree",
+    "input": {
+      "tool_name": "apply_patch",
+      "tool_input": {
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/example-owner/example-repo/.worktree/fix-example/README.md\n*** End Patch"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "compound-chain",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git -C /tmp/repo status --short && git -C /tmp/repo diff"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "compound-pipe",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git status | cat"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "quoted-shell-operator-in-search",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg 'a && b' docs"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "command-substitution-in-double-quotes",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "printf '%s' \"$(pwd)\""
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "command-substitution-in-backticks",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "printf '%s' `pwd`"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "literal-substitution-in-single-quotes",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg '$(' docs"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "write-main-checkout",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/home/example/git/honahuku/dotfiles/.agents/hooks/command-policy.jq",
+        "content": "example"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "write-registered-worktree",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/home/example/git/honahuku/dotfiles/.worktree/fix-example/.agents/hooks/command-policy.jq",
+        "content": "example"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "patch-main-checkout",
+    "input": {
+      "tool_name": "apply_patch",
+      "tool_input": {
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/honahuku/dotfiles/.agents/AGENTS.md\n*** End Patch"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "patch-registered-worktree",
+    "input": {
+      "tool_name": "apply_patch",
+      "tool_input": {
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/honahuku/dotfiles/.worktree/fix-example/.agents/AGENTS.md\n*** End Patch"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "read-files",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg --files docs"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "read-cloud-name",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg aws settings.txt"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "read-hook-flag",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg -- '--no-verify' docs"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "cloud-cli",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "aws sts get-caller-identity"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "cloud-wrapper",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "env AWS_PROFILE=sample aws sts get-caller-identity"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "terraform-read",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "terraform version"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "kubernetes-read",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "kubectl get pods"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "chmod",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "chmod +x /tmp/hook.sh"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "shell-file",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "bash /tmp/hook.sh"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "shell-absolute",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "/bin/sh /tmp/hook.sh"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "remove-file",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rm /tmp/file"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "remove-directory",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rmdir /tmp/dir"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "git-remove",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git -C /tmp/repo rm file"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "find-delete",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "find /tmp -name sample -delete"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "find-remove",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "find /tmp -exec rm {} +"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "hook-flag",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git commit --no-verify"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "hook-path",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git -c core.hooksPath=/tmp/hooks commit"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "hook-env",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "LEFTHOOK=0 git commit"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "rebase",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git rebase main"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "slash-branch",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git worktree add -b feat/topic /tmp/worktree main"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "valid-branch-name",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git branch --list"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "git-status",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git -C /tmp/repo status --short"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "patch-delete",
+    "input": {
+      "tool_name": "apply_patch",
+      "tool_input": {
+        "command": "*** Begin Patch\n*** Delete File: /tmp/file\n*** End Patch"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "settings-shell-hook",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/tmp/settings.json",
+        "content": "{\"hooks\":{\"PreToolUse\":[{\"command\":\"bash /tmp/hook.sh\"}]}}"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "settings-direct-hook",
+    "input": {
+      "tool_name": "Write",
+      "tool_input": {
+        "file_path": "/tmp/settings.json",
+        "content": "{\"hooks\":{\"PreToolUse\":[{\"command\":\"/tmp/hook.sh\"}]}}"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "search-preprocessor",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg --pre 'aws sts get-caller-identity' pattern file"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "branch-with-directory",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git -C /tmp/repo branch feature/topic"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "branch-force",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git -C /tmp/repo branch -f feature/topic main"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "read-preprocessor-option",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg -- '--pre' docs"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "branch-track",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git -C /tmp/repo branch --track feature/topic"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "branch-no-track",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git branch --no-track feature/topic"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "branch-list-pattern",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "git branch --list 'feature/*'"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "quoted-search-preprocessor",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg \"--pre\" \"aws sts get-caller-identity\" pattern file"
+      }
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "search-option-as-pattern",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "rg -- --pre docs"
+      }
+    },
+    "expected": "allow"
+  }
+]

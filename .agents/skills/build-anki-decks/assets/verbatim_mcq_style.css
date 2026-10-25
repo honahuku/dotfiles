@@ -1,0 +1,23 @@
+.card {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 18px;
+  text-align: left;
+  line-height: 1.6;
+}
+.question, .opt, .official-answer, .explanation, .source {
+  white-space: pre-wrap;
+}
+.options { margin-top: 18px; }
+.opt {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left !important;
+  font-size: 17px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 1px solid #999;
+}
+.official-answer, .explanation { margin-top: 18px; }
+.source { margin-top: 24px; font-size: 13px; opacity: 0.65; }
