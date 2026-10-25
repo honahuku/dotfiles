@@ -8,5 +8,14 @@ python = "3.13.16"
 "npm:vscode-langservers-extracted" = "4.10.0"
 "npm:yaml-language-server" = "2.0.0"
 
+# Google公式の配布物とバージョン情報だけを使用する。
+[tools."http:gcloud"]
+version = "590.0.1"
+url = 'https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-{{ version }}-{{ os(macos="darwin") }}-{{ arch(x64="x86_64", arm64="arm") }}.tar.gz'
+strip_components = 1
+bin_path = "bin"
+version_list_url = "https://dl.google.com/dl/cloudsdk/channels/rapid/components-2.json"
+version_json_path = ".version"
+
 [settings]
 upgrade.auto_prune = false
