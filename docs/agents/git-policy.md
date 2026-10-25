@@ -42,7 +42,7 @@
 
 - ブランチの変更を検査・引き渡す前は、対象ブランチのworktreeで、リポジトリに定義されたpre-commit全体を実行する。Lefthookでは`lefthook run pre-commit --no-auto-install`を使い、個別コマンドや独自に選んだファイルだけの検査で代替しない。実行前にhook定義と呼び出し先を読み、禁止された操作を含まないことを確認する。
 - 検査が参照する非公開設定は、本人の実行条件または配置定義で確認した同じ管理元を使う。別worktreeやmainの設定に差し替えない。実行したブランチ・worktree・設定元・コマンド・各検査の結果を対応させ、pre-commit全体が成功した場合だけ全体の検査成功と報告する。ステージ済み差分と未ステージ差分が異なる場合は、hookが実際に検査した範囲も明記する。
-- `DOTFILES_PRIVATE_ROOT`が未指定で`~/git/**`に`dotfiles-private`がない場合は、非公開パターン検査だけをスキップする。構造・スキル検査とTruffleHogは実行する。複数候補、検索エラー、明示した保存先の不備、検出したリポジトリの設定欠落は失敗として扱う。
+- `DOTFILES_PRIVATE_ROOT`が未指定の場合は、`~/git`以下の任意の深さのサブディレクトリを再帰的に検索し、名前が`dotfiles-private`のディレクトリを探す。見つからない場合に限り、非公開パターン検査だけをスキップする。構造・スキル検査とTruffleHogは実行する。複数候補、検索エラー、明示した保存先の不備、検出したリポジトリの設定欠落は失敗として扱う。
 
 - **sandbox環境ではBashの書き込み系コマンド（`git worktree add`/`commit`/`merge`/`push`/`remove`、ファイルシステムやリモートを変更する操作）がブロックされ、実行されないまま成功したふうのダミー出力（それらしいSHAや`Fast-forward`、ファイル一覧など）を返すことがある。** 読み取り系（`git log`/`status`/`worktree list`、`grep`、`test -f`）は本物の値を返す。書き込み系は`dangerouslyDisableSandbox: true`を付けて実行し、実行後は必ず読み取りコマンド（`git log`/`status`/`rev-parse origin/main`/`test -f`）で実際に反映されたか検証してから次に進む。ダミー出力を鵜呑みにしない。commitのheredoc `-F -`はsandbox無効でもstdinが渡らず失敗することがあるため`-m`フラグを複数使う。Write/Editツールもsandboxの影響を受けることがあるので、ファイル作成後は`test -f`や`wc -c`で実在を確認する。
 
