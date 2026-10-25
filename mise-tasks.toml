@@ -7,7 +7,7 @@ run = [
   "mise dot apply --yes",
   "mise -C {{ env.HOME | quote }} install",
   "aqua -c {{ vars.public_root | quote }}/aqua.yaml install",
-  '''if test -x {{ vars.powershell | quote }} && test ! -f {{ vars.windows_state | quote }}/chezmoi.toml; then mise run windows:setup; fi''',
+  '''if test -x {{ vars.powershell | quote }} && test ! -f {{ vars.windows_state | quote }}/chezmoi.toml; then if {{ vars.powershell | quote }} -NoProfile -NonInteractive -Command 'exit 0'; then mise run windows:setup; else printf '%s\n' 'Windows連携をスキップ: PowerShellを起動できません。WSLの相互運用が有効な端末で mise run windows:setup を実行してください。'; fi; fi''',
   { task = "windows:apply" },
 ]
 

@@ -14,22 +14,23 @@ if [[ -z "$private_root" ]]; then
     fi
     private_root="$private_candidate"
   done
-  if [[ -z "$private_root" ]]; then
-    echo "private configuration repository not found; set DOTFILES_PRIVATE_ROOT" >&2
+fi
+patterns_file=""
+if [[ -n "$private_root" ]]; then
+  patterns_file="$private_root/config/public-forbidden-patterns.txt"
+  if [[ ! -s "$patterns_file" ]]; then
+    echo "missing or empty patterns file: $patterns_file" >&2
     exit 2
   fi
+else
+  echo "private configuration repository not found; skipping private forbidden-pattern check" >&2
 fi
-patterns_file="$private_root/config/public-forbidden-patterns.txt"
 mode="${1:---staged}"
 repository="${2:-.}"
 violations=0
 
-if [[ ! -s "$patterns_file" ]]; then
-  echo "missing or empty patterns file: $patterns_file" >&2
-  exit 2
-fi
-
 check_text() {
+  [[ -n "$patterns_file" ]] || return 0
   local label="$1"
   local content="$2"
   local result=0

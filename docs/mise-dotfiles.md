@@ -50,7 +50,7 @@ Windowsの対象はCodex共通指示とインストール済みのTerminal設定
 
 自作スキルの説明文と参照文書は日本語にする。コード・識別子・正式な出典名は維持する。Lefthookは公開候補のパスと内容全体に対して禁止語を検査し、自作スキルには日本語の検査も行う。`vendir.yml`と`vendir.lock.yml`の両方で定義された取得先は、この二つの検査から除外して上流の原文を保つ。秘密情報の検査は継続する。
 
-禁止語の定義は非公開repoの`config/public-forbidden-patterns.txt`で管理する。Lefthookと手動検査の実行環境では、`DOTFILES_PRIVATE_ROOT`にそのrepoの絶対パスを設定する。定義が未配置・空、または環境変数が未設定なら検査は失敗する。
+禁止語の定義は非公開repoの`config/public-forbidden-patterns.txt`で管理する。`DOTFILES_PRIVATE_ROOT`に絶対パスを指定するか、`~/git/*/dotfiles-private`に一つだけあれば自動検出する。非公開repoがない環境では、その旨を表示して非公開の禁止語検査だけを省略する。日本語・外部repo混入・秘密情報の検査は継続する。指定または自動検出したrepoの定義が未配置・空なら失敗し、自動検出候補が複数ある場合も明示指定を求めて停止する。
 
 手動検査は`./bin/check-public-candidate.sh --all`、変更範囲だけなら`--worktree`を使う。日本語の自動検査は英語だけの説明行を検出する補助であり、翻訳の正確さは原文と照合する。
 

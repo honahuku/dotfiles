@@ -34,7 +34,7 @@ fi
 "~/aqua.yaml" = "aqua.yaml"
 "~/.config/nvim" = "nvim"
 "~/.codex/AGENTS.md" = ".agents/AGENTS.md"
-"~/.codex/config.toml" = ".codex/config.toml"
+"~/.codex/config.toml/shared" = { source = ".codex/config.toml", merge = true }
 
 [dotfile_groups.public-skills]
 root = "~/git/honahuku/dotfiles/.agents/skills"
