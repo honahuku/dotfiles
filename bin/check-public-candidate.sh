@@ -51,8 +51,18 @@ if [[ "$mode" != "--staged" && "$mode" != "--worktree" && "$mode" != "--all" ]];
   exit 2
 fi
 repository="$(git -C "$repository" rev-parse --show-toplevel)"
-# worktree直下の.gitは管理用ファイルのため、配下の.gitだけを別リポジトリの混入として検出する。
-nested_git_paths="$(find "$repository" -mindepth 2 -name .git -print)"
+# ディレクトリ名だけで除外すると未登録repoを見逃すため、登録済みの.gitだけを除く。
+registered_git_paths="$(
+  git -C "$repository" worktree list --porcelain -z |
+    jq -Rs 'split("\u0000") | map(select(startswith("worktree ")) |
+      ltrimstr("worktree ") + "/.git")'
+)"
+nested_git_paths="$(
+  find "$repository" -name .git -prune -print0 |
+    jq -Rrs --argjson registered "$registered_git_paths" '
+      split("\u0000")[] | select(length > 0) |
+      . as $path | select($registered | index($path) | not)'
+)"
 if [[ -n "$nested_git_paths" ]]; then
   echo "public candidate contains nested Git repositories:" >&2
   echo "$nested_git_paths" >&2
