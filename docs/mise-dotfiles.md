@@ -7,12 +7,12 @@ mise 2026.10.17以降と、[セットアップの前提](setup.md)が必要で�
 mise run setup
 ```
 
-Windows連携があれば初回だけ保存先を確認する。承認した設定は`~/.local/share/dotfiles/windows/chezmoi.toml`へ保存する。
+Windows同期は最後に`mise run windows:sync`で行う。初回に確認した保存先は`~/.local/share/dotfiles/windows/chezmoi.toml`へ保存する。
 
 ## 通常更新
 
 ```sh
-# Windows側の未取り込み編集があれば上書きせず停止する。
+# Linux / WSL側を更新する。
 mise dot apply
 ```
 
@@ -21,7 +21,7 @@ mise dot apply
 ## 競合で停止したとき
 
 - Linux側：既存ファイルやリンク元を確認し、必要な内容を管理元へ取り込む。不要と判断した旧リンクだけを手動で削除し、再実行する。`.bashrc`・`.profile`の実ファイルと`~/.codex/skills/.system`は削除しない。
-- Windows側：`mise run windows:diff`で差分を確認し、変更対象と差分の内容をユーザーに示して判断を求める。原本へ取り込む、共通設定を適用する、適用を保留する、のどれにするかユーザーが決めるまで、原本の編集やWindows側への適用は行わない。判断を受けて必要な変更を原本へ反映した後、`mise dot apply`を実行する。差が残る場合もユーザーの判断を確認し、適用する場合は対話端末で`mise run windows:resolve`を使う。
+- Windows側：`mise run windows:diff`で差分を確認し、変更対象と差分の内容をユーザーに示して判断を求める。原本へ取り込む、共通設定を適用する、適用を保留する、のどれにするかユーザーが決めるまで、原本の編集やWindows側への適用は行わない。判断を受けて必要な変更を原本へ反映した後、`mise dot apply`で同期元を更新し、`mise run windows:sync`を実行する。差が残る場合もユーザーの判断を確認し、適用する場合は対話端末で`mise run windows:resolve`を使う。
 
 Windows側で停止しても、先行する配置は完了している場合がある。設定編集を終えてから適用し、終了状態と差分を確認する。中間ファイルは再生成されるため、直接編集しない。
 

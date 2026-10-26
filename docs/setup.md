@@ -88,7 +88,7 @@ DesktopではWSLを実行環境に選ぶ。[共通指示とスキル](codex.md)�
 
 ## Windows Terminal
 
-初回セットアップで保存先を確認する。設定編集を終えてから適用する。
+WSL側のセットアップ後、`mise run windows:sync`で保存先を確認して同期する。設定編集を終えてから適用する。
 
 既定プロファイルは各PCのデフォルトWSLを使う。必要ならWindows側で`wsl --set-default <ディストリビューション名>`を実行する。[WSLの公式手順](https://learn.microsoft.com/windows/wsl/reference)を参照する。
 

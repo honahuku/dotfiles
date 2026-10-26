@@ -1,5 +1,5 @@
 [setup]
-description = "設定を初期配置し、Windowsの保存先を初回だけ確認する"
+description = "Linux / WSLの設定とツールを導入し、共通指示・スキルの配置を確認する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 depends = ["setup:check"]
 confirm = { message = "表示された配置予定を確認しましたか？ 設定を配置し、管理対象ツールを導入します。", default = "no" }
@@ -7,9 +7,13 @@ run = [
   "mise dot apply --yes",
   "mise -C {{ env.HOME | quote }} install",
   "aqua -c {{ vars.public_root | quote }}/aqua.yaml install",
-  '''if test -x {{ vars.powershell | quote }} && test ! -f {{ vars.windows_state | quote }}/chezmoi.toml; then mise run windows:setup; fi''',
-  { task = "windows:apply" },
+  { task = "agents:check" },
 ]
+
+["windows:sync"]
+description = "WSL側のセットアップ後、Windowsの保存先を確認して設定を同期する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run = [{ task = "windows:setup" }, { task = "windows:apply" }]
 
 ["setup:check"]
 description = "配置予定と競合を確認する"

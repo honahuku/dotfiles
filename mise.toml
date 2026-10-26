@@ -9,9 +9,6 @@ chezmoi = "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- chezmoi --co
 [task_config]
 includes = ["{{ vars.public_root }}/mise-tasks.toml"]
 
-[bootstrap.hooks]
-post-dotfiles = "mise run windows:apply"
-
 [dotfiles]
 "~/.local/bin/tasks" = "bin/tasks"
 "~/.local/share/dotfiles/windows/source/.agents.md" = { source = ".agents/AGENTS.md", mode = "copy" }
