@@ -2,7 +2,7 @@
 
 - コミットメッセージの説明と本文は、明示的な指示がなければ日本語にする。Conventional Commitsのtypeやscopeなど、所定の構文は維持する。
 
-- 本人へGit操作を依頼する前に、`manual-operations.md`の「依頼前の検証提示」を適用し、実行済みの検証コマンドと結果をチャット本文に示す。
+- 本人へGit操作を依頼する前に、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の「依頼前の検証提示」を適用し、実行済みの検証コマンドと結果をチャット本文に示す。
 
 - **本人へGit操作を依頼するときは、コミット・mergeなどの操作ごとに、対象worktreeの絶対パスを必ず本文に示す。複数のworktreeが対象なら、絶対パスと依頼する操作をそれぞれ列挙する。lazygitで操作するためコマンドを省略する場合も、worktreeの絶対パスは省略しない。「上記のworktree」「残る3つ」などの参照だけで済ませない。**
 
@@ -34,6 +34,19 @@
 worktreeの準備に`--force`や`-B`を使わず、既存状態を強制変更しない。許可した`info/exclude`への追記以外は、index・refs・reflog・Git hookなどへの直接書き込みで制限を迂回しない。
 
 Git書き込みの前に、適用中の上位指示にある恒常的な例外と既定を照合する。確認できない許可を推測しない。子ディレクトリの指示や通常の実装依頼だけで許可範囲を広げない。Git操作の許可は、ファイル削除・hook迂回・apply・デプロイの禁止を解除しない。
+
+### リポジトリ別の許可
+
+| 対象 | 追加確認なしで許可する操作 |
+| --- | --- |
+| GitHub上の所有者が`sansaninc`かつprivate | 依頼された変更のcommit・push・draft PR作成 |
+| 上記以外、または所有者・可視性が未確認 | 上記の既定だけを適用する。追加の書き込みには本人の明示指示が必要 |
+
+ローカルの配置名だけで判定せず、操作前に`gh repo view <owner>/<repo> --json nameWithOwner,isPrivate`などで所有者と可視性を確認する。public・internalにはprivateの例外を適用しない。今後の恒常的な許可はこの表で管理し、`SKILL.md`や別資料に重ねて定義しない。
+
+merge・PRのReady化・コメント投稿にはこの例外を適用しない。apply・デプロイを起動するpushも実行しない。必要なhook・検証は省略しない。
+
+### ステージと個別操作の条件
 
 - **ステージのみが許可されたリポジトリでは、対象worktreeの作業開始時にステージ済み差分と未解決競合がない場合に限り、`git add`を実行する。** `git status --short --branch`で対象worktreeの状態を確認し、コマンドの作業ディレクトリには対象worktreeの絶対パスを明示する（mainの状態を調べる場合だけ元clone直下を指定する）。作業内容を確認した追加・変更ファイルの明示的なパスだけを一つの`git add -- <path>...`に指定する。削除パス・ディレクトリ・glob・`-A`・`-u`・`-p`は使わない。ステージ状態はworktreeごとのindexに保存される。
 

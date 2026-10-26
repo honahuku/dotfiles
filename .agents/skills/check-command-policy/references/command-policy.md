@@ -50,7 +50,7 @@
 - 意図しない削除を`-target`や`-refresh=false`で隠さない。
 - Coding AgentsによるTerraform CLI・apply・デプロイの実行禁止は変わらない。
 
-## AWS CLI
+## AWS CLIの実行条件
 
 - 原則：Coding AgentsはAWS CLIを実行しない。AWS CLI実行ファイルの起動をコマンド単位で拒否する。
     - 別名・ラッパー・別ツール・サブエージェントによる代行も禁止する。
@@ -58,7 +58,7 @@
     - 検索語・通常の引数・ファイルパスに`aws`が含まれるだけの操作。
     - 利用可能なMCPによる読み取り調査。
 - MCPの利用も、既存のapply・デプロイ・リソース変更の禁止を解除しない。
-- CLIが必要な場合は、`manual-operations.md`の「AWS CLIの手動実行」に従い、ログ保存付きのコマンドを本人へ提示する。
+- CLIが必要な場合は、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の「AWS CLIの手動実行」に従い、ログ保存付きのコマンドを本人へ提示する。
 
 ## 汎用プログラミング言語
 
@@ -116,7 +116,7 @@
 
 ## GitHub APIとコメント投稿
 
-### gh api
+### gh apiの実行条件
 
 - 原則：`gh api`には必ず`--method GET`を明示する。書き込み（POST・PUT・PATCH・DELETE）は禁止する。
 - 書き込みを許可する例外（sync-github用）は、次の2パターンだけとする。
@@ -202,7 +202,7 @@
 
 ## 個別ツールの実行条件
 
-### tasks
+### tasksの実行条件
 
 - 実行環境で解決できる`tasks`を使う。PATH上の実行ファイルだけでなく、既存のalias・関数も対象とし、実体パスを固定しない。
 - ユーザーと同じalias・関数を利用できることを前提とする。使えない場合は環境の不具合として扱い、`troubleshoot-environment`に従って、まず`.bashrc`などの読み込み経路・条件を確認する。不備があれば修正する。

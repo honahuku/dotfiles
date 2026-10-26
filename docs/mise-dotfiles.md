@@ -38,7 +38,6 @@ Windowsの対象はCodex共通指示とインストール済みのTerminal設定
 | 配置先                              | 管理元                                                                          |
 | ----------------------------------- | ------------------------------------------------------------------------------- |
 | `~/.codex/AGENTS.md`                | 公開側の`.agents/AGENTS.md`                                                     |
-| `~/.agents/docs/common/`             | 公開側の`docs/agents/`。miseの`public-agent-docs`グループでファイル単位にリンク |
 | `~/.agents/skills/` | 自作スキルとvendir取得先 |
 | `~/.agents/hooks/`                  | 公開側の共通判定。登録方法と確認手順は[共通hook](../.agents/hooks/README.md)を参照 |
 | `~/.agents/prh/`                    | 公開側の技術日本語ルール                                                        |
