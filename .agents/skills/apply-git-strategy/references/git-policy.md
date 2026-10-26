@@ -2,9 +2,11 @@
 
 - コミットメッセージの説明と本文は、明示的な指示がなければ日本語にする。Conventional Commitsのtypeやscopeなど、所定の構文は維持する。
 
-- 本人へGit操作を依頼する前に、`manual-operations.md`の「依頼前の検証提示」を適用し、実行済みの検証コマンドと結果をチャット本文に示す。
+- 本人へGit操作を依頼する前に、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の「依頼前の検証提示」を適用し、実行済みの検証コマンドと結果をチャット本文に示す。
 
-- **本人へのコミット依頼はlazygitを前提に、worktreeの絶対パスと対象ファイルを自然文で伝え、差分に基づくConventional Commits形式のコミットメッセージ案も必ず添える。コミット用のコマンドは提示しない。Git操作の依頼と、それ以外のコマンド実行依頼は分け、同じコードブロックや`&&`等で連結しない。**
+- **本人へGit操作を依頼するときは、コミット・mergeなどの操作ごとに、対象worktreeの絶対パスを必ず本文に示す。複数のworktreeが対象なら、絶対パスと依頼する操作をそれぞれ列挙する。lazygitで操作するためコマンドを省略する場合も、worktreeの絶対パスは省略しない。「上記のworktree」「残る3つ」などの参照だけで済ませない。**
+
+- **本人へのコミット依頼はlazygitを前提に、対象ファイルを自然文で伝え、差分に基づくConventional Commits形式のコミットメッセージ案も必ず添える。コミット用のコマンドは提示しない。Git操作の依頼と、それ以外のコマンド実行依頼は分け、同じコードブロックや`&&`等で連結しない。**
 
 - **`git rebase` は絶対に実行しない。** 履歴を整理したい場面でも rebase ではなく merge で対応できないか先に考える
 
@@ -22,16 +24,29 @@
 
 `~/git/*`の既定は次のとおりとする。CLI・API・MCP・サブエージェントへの委譲でも同じ範囲を適用する。
 
-| 操作                                                   | 許可条件                                                                                                                                                                                                      |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 状態を変更しない読み取り                               | 追加確認なしで実行できる                                                                                                                                                                                      |
-| worktreeの準備                                         | `git worktree add`、それに伴う`-b`でのブランチ作成、clone専用の`info/exclude`への`/.worktree/`追記を追加確認なしで実行できる。既存worktreeの再利用確認などは`apply-git-strategy/references/worktree.md`に従う |
-| ステージ                                               | 下記の条件を満たす場合に実行できる                                                                                                                                                                            |
-| commit・push・merge・pull・fetchなど上記以外の書き込み | 本人の明示指示またはリポジトリごとの恒常的な例外が必要                                                                                                                                                        |
+| 操作 | 許可条件 |
+| --- | --- |
+| 状態を変更しない読み取り | 追加確認なしで実行できる |
+| worktreeの準備 | `git worktree add`、それに伴う`-b`でのブランチ作成、clone専用の`info/exclude`への`/.worktree/`追記を追加確認なしで実行できる。既存worktreeの再利用確認などは`apply-git-strategy/references/worktree.md`に従う |
+| ステージ | 下記の条件を満たす場合に実行できる |
+| commit・push・merge・pull・fetchなど上記以外の書き込み | 本人の明示指示またはリポジトリごとの恒常的な例外が必要 |
 
 worktreeの準備に`--force`や`-B`を使わず、既存状態を強制変更しない。許可した`info/exclude`への追記以外は、index・refs・reflog・Git hookなどへの直接書き込みで制限を迂回しない。
 
 Git書き込みの前に、適用中の上位指示にある恒常的な例外と既定を照合する。確認できない許可を推測しない。子ディレクトリの指示や通常の実装依頼だけで許可範囲を広げない。Git操作の許可は、ファイル削除・hook迂回・apply・デプロイの禁止を解除しない。
+
+### リポジトリ別の許可
+
+| 対象 | 追加確認なしで許可する操作 |
+| --- | --- |
+| GitHub上の所有者が`sansaninc`かつprivate | 依頼された変更のcommit・push・draft PR作成 |
+| 上記以外、または所有者・可視性が未確認 | 上記の既定だけを適用する。追加の書き込みには本人の明示指示が必要 |
+
+ローカルの配置名だけで判定せず、操作前に`gh repo view <owner>/<repo> --json nameWithOwner,isPrivate`などで所有者と可視性を確認する。public・internalにはprivateの例外を適用しない。今後の恒常的な許可はこの表で管理し、`SKILL.md`や別資料に重ねて定義しない。
+
+merge・PRのReady化・コメント投稿にはこの例外を適用しない。apply・デプロイを起動するpushも実行しない。必要なhook・検証は省略しない。
+
+### ステージと個別操作の条件
 
 - **ステージのみが許可されたリポジトリでは、対象worktreeの作業開始時にステージ済み差分と未解決競合がない場合に限り、`git add`を実行する。** `git status --short --branch`で対象worktreeの状態を確認し、コマンドの作業ディレクトリには対象worktreeの絶対パスを明示する（mainの状態を調べる場合だけ元clone直下を指定する）。作業内容を確認した追加・変更ファイルの明示的なパスだけを一つの`git add -- <path>...`に指定する。削除パス・ディレクトリ・glob・`-A`・`-u`・`-p`は使わない。ステージ状態はworktreeごとのindexに保存される。
 
@@ -63,6 +78,9 @@ Git書き込みの前に、適用中の上位指示にある恒常的な例外�
 - hookが動くGit操作（commit・mergeなど）は、1回のツール呼び出しにつき1操作だけ実行する。終了コードに加えてWarningを含む全出力を読み、`write-safe-code-and-scripts`の警告確認手順を完了してから、次のGit書き込みを別の呼び出しで行う。同じ`functions.exec`内で後続のadd・commit・pushを予約しない。TruffleHogのエラー時はAGENTS.mdの停止・報告手順に従う。
 
 - **`git commit`の前に、対象リポジトリでlefthookのpre-commit（TruffleHogによるsecret検知）を必ず実行させる。** メインチェックアウトの`.git/hooks/pre-commit`に`LEFTHOOK_CONFIG`でメインの`lefthook.yml`の絶対パスを固定注入済みの独立リポジトリでは、worktree側に`lefthook.yml`を個別配置しなくても発動する（hooksはworktree間で共有されるがconfigはworktree自身のトップレベルからしか探索されないため、`LEFTHOOK_CONFIG`で固定する対応が必要になる）。まだこの対応をしていない独立リポジトリ（新規clone直後など）では、`lefthook.yml`（`extends: [~/.lefthook-global.yml]`のみ）をトップレベルに作成して`lefthook install`し、生成された`.git/hooks/pre-commit`の`call_lefthook()`定義の直前に`export LEFTHOOK_CONFIG="<トップレベルの絶対パス>/lefthook.yml"`を追記してから`git commit`する。`LEFTHOOK=0`や`--no-verify`でのスキップは絶対禁止のhook迂回に当たるため使わない。
+
+
+
 
 ## Git・GitHub CLIの実行
 

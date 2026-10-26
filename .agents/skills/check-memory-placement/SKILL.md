@@ -3,7 +3,7 @@ name: check-memory-placement
 description: メモリの作成・追記・共有、指示の保存先を決める前に、既存スキルと情報の公開可否を確認する。
 ---
 
-保存先や共有方法を決める前に、`~/.agents/docs/common/context-policy.md`を読む。個人情報・社内情報は公開しない。
+保存先や共有方法を決める前に、`~/.agents/skills/write-agent-instructions/references/context-policy.md`を読む。個人情報・社内情報は公開しない。
 
 環境固有の保存先・共有範囲が不明な場合は、ユーザーに確認する。
 

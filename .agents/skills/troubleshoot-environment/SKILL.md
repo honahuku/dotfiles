@@ -19,4 +19,4 @@ description: CLI・認証・PATH・alias・関数・シェル初期化・サン�
 | allowパターンと引用符の不一致 | `references/bash-allow-quote-variants.md` |
 | timeout・断続的なエラーなど分散システムの障害 | `references/distributed-failure-investigation.md` |
 
-本人に操作を依頼する場合は、共通の`manual-operations.md`も確認し、実行済みの準備と未実行の本人操作を分ける。本人操作を依頼した後は、その完了報告を待って確認する。共通資料は`~/.agents/docs/common/`にある。
+本人に操作を依頼する場合は、`references/manual-operations.md`も確認し、実行済みの準備と未実行の本人操作を分ける。本人操作を依頼した後は、その完了報告を待って確認する。

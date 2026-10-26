@@ -22,7 +22,7 @@ run = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
 ["agents:check"]
 description = "共通資料・スキル・判定処理の欠落とリンク先の相違を検出する"
 run = [
-  "mise dot status --missing ~/.agents/docs/common ~/.agents/skills ~/.agents/hooks ~/.agents/prh",
+  "mise dot status --missing ~/.agents/skills ~/.agents/hooks ~/.agents/prh",
   '''test -d "$HOME/.agents/skills"''',
   '''test -n "$(find "$HOME/.agents/skills/" -name SKILL.md -type f -print -quit)"''',
   '''test -z "$(find "$HOME/.agents/skills/" -name SKILL.md -type l -print)"''',

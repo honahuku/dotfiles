@@ -34,10 +34,6 @@ fi
 "~/.codex/AGENTS.md" = ".agents/AGENTS.md"
 "~/.codex/config.toml" = ".codex/config.toml"
 
-[dotfile_groups.public-agent-docs]
-root = "~/git/honahuku/dotfiles/docs/agents"
-target = "~/.agents/docs/common"
-mode = "symlink-each"
 
 [dotfile_groups.public-agent-hooks]
 root = "~/git/honahuku/dotfiles/.agents/hooks"
