@@ -39,6 +39,7 @@ packages:
     - name: twpayne/chezmoi@v2.73.3
     - name: typst/typst@v0.15.1
     - name: koalaman/shellcheck@v0.11.0
+    - name: rhysd/actionlint@v1.7.12
     - name: mvdan/sh@v3.14.1
     - name: LuaLS/lua-language-server@3.19.2
     - name: artempyanykh/marksman@2026-02-08

@@ -40,7 +40,7 @@ mise --version
 
 既存環境では、先に[管理元の移行](#既存環境の管理元を揃える)と設定の競合を確認する。
 
-private設定を併用する場合は、公開側を適用する前にprivate側のセットアップ手順を使う。公開設定だけを使う場合は、次を実行する。
+このrepoを取得し、次を実行する。
 
 ```sh
 git clone https://github.com/honahuku/dotfiles.git ~/git/honahuku/dotfiles
@@ -88,7 +88,7 @@ DesktopではWSLを実行環境に選ぶ。[共通指示とスキル](codex.md)�
 
 ## Windows Terminal
 
-初回セットアップで保存先を確認する。設定編集を終えてから適用する。
+WSL側のセットアップ後、`mise run windows:sync`で保存先を確認して同期する。設定編集を終えてから適用する。
 
 既定プロファイルは各PCのデフォルトWSLを使う。必要ならWindows側で`wsl --set-default <ディストリビューション名>`を実行する。[WSLの公式手順](https://learn.microsoft.com/windows/wsl/reference)を参照する。
 

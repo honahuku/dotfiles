@@ -1,0 +1,5 @@
+app\.notion\.com
+slack\.com
+googleapis\.com
+\/mnt\/c\/Users\/
+(^|[^\p{Han}])(?:この|その|該当|対象|当該|各|同|本|前|次)?\x{7BC0}($|[^\p{Han}])

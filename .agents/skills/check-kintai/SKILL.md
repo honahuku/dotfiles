@@ -3,7 +3,7 @@ name: check-kintai
 description: 勤怠ペースと退勤目安の確認、不在に伴うフレックス退勤予定の登録に使う。kintai-paceを探している場合も対象とする。
 ---
 
-環境固有の情報は`~/.agents/docs/work/context.md`の`check-kintai`セクションを参照する。対象業務で必要なセクションを取得できない場合、値や権限を推測せず停止する。
+勤怠の保存先・集計規則・操作権限を確認し、不明な値はユーザーに尋ねる。
 
 # 勤怠ペースの確認と退勤予定の登録
 
@@ -34,7 +34,7 @@ description: 勤怠ペースと退勤目安の確認、不在に伴うフレッ�
 
 **Step A: 月次確認**
 
-`target_hours_<YYYY-MM>`が未設定なら、今月の所定勤務時間をユーザーに確認する。確認先は非公開資料の`check-kintai`セクションを参照する。回答値を`tasks meta set target_hours_<YYYY-MM> <時間数>`で一つだけ保存してから続ける。設定済みなら再質問しない。
+`target_hours_<YYYY-MM>`が未設定なら、今月の所定勤務時間をユーザーに確認する。回答値を`tasks meta set target_hours_<YYYY-MM> <時間数>`で一つだけ保存してから続ける。設定済みなら再質問しない。
 
 ---
 

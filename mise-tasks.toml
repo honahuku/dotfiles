@@ -1,5 +1,5 @@
 [setup]
-description = "設定を初期配置し、Windowsの保存先を初回だけ確認する"
+description = "Linux / WSLの設定とツールを導入し、共通指示・スキルの配置を確認する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 depends = ["setup:check"]
 confirm = { message = "表示された配置予定を確認しましたか？ 設定を配置し、管理対象ツールを導入します。", default = "no" }
@@ -7,9 +7,13 @@ run = [
   "mise dot apply --yes",
   "mise -C {{ env.HOME | quote }} install",
   "aqua -c {{ vars.public_root | quote }}/aqua.yaml install",
-  '''if test -x {{ vars.powershell | quote }} && test ! -f {{ vars.windows_state | quote }}/chezmoi.toml; then mise run windows:setup; fi''',
-  { task = "windows:apply" },
+  { task = "agents:check" },
 ]
+
+["windows:sync"]
+description = "WSL側のセットアップ後、Windowsの保存先を確認して設定を同期する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run = [{ task = "windows:setup" }, { task = "windows:apply" }]
 
 ["setup:check"]
 description = "配置予定と競合を確認する"
@@ -17,7 +21,13 @@ run = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
 
 ["agents:check"]
 description = "共通資料・スキル・判定処理の欠落とリンク先の相違を検出する"
-run = "mise dot status --missing ~/.agents/docs/common ~/.agents/docs/work/context.md ~/.agents/docs/personal/context.md ~/.agents/skills ~/.agents/hooks ~/.agents/prh"
+run = [
+  "mise dot status --missing ~/.agents/docs/common ~/.agents/skills ~/.agents/hooks ~/.agents/prh",
+  '''test -d "$HOME/.agents/skills"''',
+  '''test -n "$(find "$HOME/.agents/skills/" -name SKILL.md -type f -print -quit)"''',
+  '''test -z "$(find "$HOME/.agents/skills/" -name SKILL.md -type l -print)"''',
+  '''test -z "$(find "$HOME/.agents/skills/" -xtype l -print)"''',
+]
 
 ["docs:tree"]
 description = "README用のディレクトリ構成を表示する"
