@@ -77,6 +77,7 @@
     - 起動方法：`python3`で実行してよい。
 - skill-creator
     - 対象：付属の`scripts/`配下のスクリプト。
+    - `~/.codex/skills/.system/skill-creator/scripts/quick_validate.py`も明示的な許可対象とする。
     - スキル作成・更新後の`quick_validate.py <スキルのディレクトリ>`による検証も、この例外に含む。追加の実行許可を求めない。
     - 起動方法：実行に必要な`python`・`python3`・`uv run`も許可する。
     - 実行前に適用されるskill-creatorの配置先を確認し、その配下の既存スクリプトを指定する。汎用言語の実行禁止を理由に、この検証を未許可と扱わない。

@@ -3,6 +3,12 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+public_patterns_file="$script_dir/../config/public-forbidden-patterns.txt"
+if [[ ! -s "$public_patterns_file" ]]; then
+  echo "missing or empty patterns file: $public_patterns_file" >&2
+  exit 2
+fi
+pattern_args=(--file "$public_patterns_file")
 private_root="${DOTFILES_PRIVATE_ROOT:-}"
 # GUIからのcommitでも検査できるよう、シェルの初期化には依存しない。
 if [[ -z "$private_root" ]]; then
@@ -19,13 +25,13 @@ if [[ -z "$private_root" ]]; then
     private_root="$private_candidate"
   done <<<"$private_candidates"
 fi
-patterns_file=""
 if [[ -n "$private_root" ]]; then
   patterns_file="$private_root/config/public-forbidden-patterns.txt"
   if [[ ! -s "$patterns_file" ]]; then
     echo "missing or empty patterns file: $patterns_file" >&2
     exit 2
   fi
+  pattern_args+=(--file "$patterns_file")
 else
   echo "SKIP: private pattern check (dotfiles-private not found under ~/git)" >&2
 fi
@@ -34,12 +40,11 @@ repository="${2:-.}"
 violations=0
 
 check_text() {
-  [[ -n "$patterns_file" ]] || return 0
   local label="$1"
   local content="$2"
   local result=0
   local matches
-  matches="$(rg --line-number --only-matching --text --ignore-case --file "$patterns_file" <<<"$content")" || result=$?
+  matches="$(rg --line-number --only-matching --text --ignore-case "${pattern_args[@]}" <<<"$content")" || result=$?
   if [[ "$result" == 0 ]]; then
     printf 'forbidden content: %s\n' "$label" >&2
     printf '%s\n' "$matches" >&2
