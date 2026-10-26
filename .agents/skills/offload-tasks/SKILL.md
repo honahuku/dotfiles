@@ -3,7 +3,7 @@ name: offload-tasks
 description: 長く放置した自発的なタスクを、ObsidianやNotionのアイデアメモへ戻して整理するときに使う。
 ---
 
-環境固有の情報は`~/.agents/docs/work/context.md`の`offload-tasks`セクションを参照する。対象業務で必要なセクションを取得できない場合、値や権限を推測せず停止する。
+保存先・権限・手順が不明な場合は、環境の指示を確認し、不足する情報をユーザーに尋ねる。
 
 長期放置された from=me タスクを、タスクストアからアイディアメモに退避する。タスクとしての具体化をやめ、Obsidian inbox または Notion のアイデアストックに移す。
 

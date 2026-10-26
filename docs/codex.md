@@ -2,7 +2,7 @@
 
 ## 共通指示を配置する
 
-共通指示は[`.agents/AGENTS.md`](../.agents/AGENTS.md)で管理する。Linux / WSLとWindowsへの配置は[miseの配置手順](mise-dotfiles.md)に従う。private併用時はprivate側の共通指示を使う。
+共通指示は[`.agents/AGENTS.md`](../.agents/AGENTS.md)で管理する。Linux / WSLとWindowsへの配置は[miseの配置手順](mise-dotfiles.md)に従う。
 
 `AGENTS.override.md` は共通の `AGENTS.md` より優先されます。共通指示が反映されない場合は、対象ディレクトリにこのファイルがないか確認してください。配置後、新しいCodexセッションを開きます。
 

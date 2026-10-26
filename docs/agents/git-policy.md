@@ -31,7 +31,7 @@
 
 worktreeの準備に`--force`や`-B`を使わず、既存状態を強制変更しない。許可した`info/exclude`への追記以外は、index・refs・reflog・Git hookなどへの直接書き込みで制限を迂回しない。
 
-Git書き込みの前に、非公開資料がある場合は`~/.agents/docs/work/context.md`の`global-policy`内「Git操作の許可範囲」を読み、既定と例外を照合する。資料が読めない場合は既定の制限を適用し、許可を推測しない。子ディレクトリの指示や通常の実装依頼だけで許可範囲を広げない。Git操作の許可は、ファイル削除・hook迂回・apply・デプロイの禁止を解除しない。
+Git書き込みの前に、適用中の上位指示にある恒常的な例外と既定を照合する。確認できない許可を推測しない。子ディレクトリの指示や通常の実装依頼だけで許可範囲を広げない。Git操作の許可は、ファイル削除・hook迂回・apply・デプロイの禁止を解除しない。
 
 - **ステージのみが許可されたリポジトリでは、対象worktreeの作業開始時にステージ済み差分と未解決競合がない場合に限り、`git add`を実行する。** `git status --short --branch`で対象worktreeの状態を確認し、コマンドの作業ディレクトリには対象worktreeの絶対パスを明示する（mainの状態を調べる場合だけ元clone直下を指定する）。作業内容を確認した追加・変更ファイルの明示的なパスだけを一つの`git add -- <path>...`に指定する。削除パス・ディレクトリ・glob・`-A`・`-u`・`-p`は使わない。ステージ状態はworktreeごとのindexに保存される。
 
@@ -39,7 +39,7 @@ Git書き込みの前に、非公開資料がある場合は`~/.agents/docs/work
 
 - `status`・`log`・`show`・`diff`・`grep`・`ls-files`・`rev-parse`・`branch --list`・`tag --list`・`remote -v`・`worktree list`など、状態を変更しない検査は許可する。不明なGit操作は実行せず、本人の指示を仰ぐ。編集時は`apply-git-strategy`の作業開始手順に従う。
 
-- Issue作成も、非公開資料の「Git操作の許可範囲」に明記された対象だけを確認なしで行う。それ以外のリポジトリでは本人の指示を仰ぐ。この例外をIssueの更新・close・コメント投稿や、リポジトリ作成の許可へ広げない。
+- Issue作成は、本人の明示指示または適用中の上位指示で恒常的に許可された対象だけを実行する。この例外をIssueの更新・close・コメント投稿や、リポジトリ作成の許可へ広げない。
 
 - **`honahuku/*`の各リポジトリには、外部OSSをcloneしたディレクトリやGitサブモジュールを含めない。`vendor/`と`.gitmodules`はignoreし、公開前の検査でネストしたGit repoと外部repo用パスを検出する**
 
@@ -50,8 +50,7 @@ Git書き込みの前に、非公開資料がある場合は`~/.agents/docs/work
 ## Git書き込み前後の確認
 
 - ブランチの変更を検査・引き渡す前は、対象ブランチのworktreeで、リポジトリに定義されたpre-commit全体を実行する。Lefthookでは`lefthook run pre-commit --no-auto-install`を使い、個別コマンドや独自に選んだファイルだけの検査で代替しない。実行前にhook定義と呼び出し先を読み、禁止された操作を含まないことを確認する。
-- 検査が参照する非公開設定は、本人の実行条件または配置定義で確認した同じ管理元を使う。別worktreeやmainの設定に差し替えない。実行したブランチ・worktree・設定元・コマンド・各検査の結果を対応させ、pre-commit全体が成功した場合だけ全体の検査成功と報告する。ステージ済み差分と未ステージ差分が異なる場合は、hookが実際に検査した範囲も明記する。
-- `DOTFILES_PRIVATE_ROOT`が未指定の場合は、`~/git`以下の任意の深さのサブディレクトリを再帰的に検索し、名前が`dotfiles-private`のディレクトリを探す。見つからない場合に限り、非公開パターン検査だけをスキップする。構造・スキル検査とTruffleHogは実行する。複数候補、検索エラー、明示した保存先の不備、検出したリポジトリの設定欠落は失敗として扱う。
+- 検査には、本人が指定した設定または対象repoの設定を使う。別worktreeやmainの設定に差し替えない。実行したブランチ・worktree・設定元・コマンド・各検査の結果を対応させ、pre-commit全体が成功した場合だけ全体の検査成功と報告する。ステージ済み差分と未ステージ差分が異なる場合は、hookが実際に検査した範囲も明記する。
 
 - **sandbox環境ではBashの書き込み系コマンド（`git worktree add`/`commit`/`merge`/`push`/`remove`、ファイルシステムやリモートを変更する操作）がブロックされ、実行されないまま成功したふうのダミー出力（それらしいSHAや`Fast-forward`、ファイル一覧など）を返すことがある。** 読み取り系（`git log`/`status`/`worktree list`、`grep`、`test -f`）は本物の値を返す。書き込み系は`dangerouslyDisableSandbox: true`を付けて実行し、実行後は必ず読み取りコマンド（`git log`/`status`/`rev-parse origin/main`/`test -f`）で実際に反映されたか検証してから次に進む。ダミー出力を鵜呑みにしない。commitのheredoc `-F -`はsandbox無効でもstdinが渡らず失敗することがあるため`-m`フラグを複数使う。Write/Editツールもsandboxの影響を受けることがあるので、ファイル作成後は`test -f`や`wc -c`で実在を確認する。
 
@@ -64,6 +63,9 @@ Git書き込みの前に、非公開資料がある場合は`~/.agents/docs/work
 - hookが動くGit操作（commit・mergeなど）は、1回のツール呼び出しにつき1操作だけ実行する。終了コードに加えてWarningを含む全出力を読み、`write-safe-code-and-scripts`の警告確認手順を完了してから、次のGit書き込みを別の呼び出しで行う。同じ`functions.exec`内で後続のadd・commit・pushを予約しない。TruffleHogのエラー時はAGENTS.mdの停止・報告手順に従う。
 
 - **`git commit`の前に、対象リポジトリでlefthookのpre-commit（TruffleHogによるsecret検知）を必ず実行させる。** メインチェックアウトの`.git/hooks/pre-commit`に`LEFTHOOK_CONFIG`でメインの`lefthook.yml`の絶対パスを固定注入済みの独立リポジトリでは、worktree側に`lefthook.yml`を個別配置しなくても発動する（hooksはworktree間で共有されるがconfigはworktree自身のトップレベルからしか探索されないため、`LEFTHOOK_CONFIG`で固定する対応が必要になる）。まだこの対応をしていない独立リポジトリ（新規clone直後など）では、`lefthook.yml`（`extends: [~/.lefthook-global.yml]`のみ）をトップレベルに作成して`lefthook install`し、生成された`.git/hooks/pre-commit`の`call_lefthook()`定義の直前に`export LEFTHOOK_CONFIG="<トップレベルの絶対パス>/lefthook.yml"`を追記してから`git commit`する。`LEFTHOOK=0`や`--no-verify`でのスキップは絶対禁止のhook迂回に当たるため使わない。
+
+
+
 
 ## Git・GitHub CLIの実行
 

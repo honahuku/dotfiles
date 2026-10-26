@@ -339,7 +339,7 @@ local function recompute_display_stats()
 end
 
 -- コマンド未検出時の同期エラーは非同期コールバックでは扱えない。
--- 利用量の取得失敗でprivate設定の初期化まで中断しないよう、呼び出し自体を保護する。
+-- 利用量の取得失敗で呼び出し元の初期化まで中断しないよう、呼び出し自体を保護する。
 local function safe_system(cmd, opts, on_exit)
   local ok, process_or_error = pcall(vim.system, cmd, opts, on_exit)
   if not ok then

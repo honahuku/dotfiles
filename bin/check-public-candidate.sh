@@ -9,31 +9,13 @@ if [[ ! -s "$public_patterns_file" ]]; then
   exit 2
 fi
 pattern_args=(--file "$public_patterns_file")
-private_root="${DOTFILES_PRIVATE_ROOT:-}"
-# GUIからのcommitでも検査できるよう、シェルの初期化には依存しない。
-if [[ -z "$private_root" ]]; then
-  private_candidates=""
-  if [[ -d "$HOME/git" ]]; then
-    private_candidates="$(find "$HOME/git" -type d -name dotfiles-private -prune -print)"
-  fi
-  while IFS= read -r private_candidate; do
-    [[ -d "$private_candidate" ]] || continue
-    if [[ -n "$private_root" ]]; then
-      echo "multiple private configuration repositories; set DOTFILES_PRIVATE_ROOT" >&2
-      exit 2
-    fi
-    private_root="$private_candidate"
-  done <<<"$private_candidates"
-fi
-if [[ -n "$private_root" ]]; then
-  patterns_file="$private_root/config/public-forbidden-patterns.txt"
-  if [[ ! -s "$patterns_file" ]]; then
-    echo "missing or empty patterns file: $patterns_file" >&2
+extra_patterns_file="${DOTFILES_FORBIDDEN_PATTERNS_FILE:-}"
+if [[ -n "$extra_patterns_file" ]]; then
+  if [[ ! -s "$extra_patterns_file" ]]; then
+    echo "missing or empty patterns file: $extra_patterns_file" >&2
     exit 2
   fi
-  pattern_args+=(--file "$patterns_file")
-else
-  echo "SKIP: private pattern check (dotfiles-private not found under ~/git)" >&2
+  pattern_args+=(--file "$extra_patterns_file")
 fi
 mode="${1:---staged}"
 repository="${2:-.}"

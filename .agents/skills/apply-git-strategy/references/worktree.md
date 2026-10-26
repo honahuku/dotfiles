@@ -3,10 +3,9 @@
 ## 作業開始
 
 - 個人用のdotfiles・スキル・共通指示の改善依頼では、継続依頼も含め、着手前に日本時間の現在日時を取得し、`~/.agents/docs/common/context-policy.md`の「個人用の改善に着手する時間帯」を参照する。対象作業・現在時刻・例外を照合し、対象時間ならworktree作成や編集へ進まず、Obsidianの`inbox.md`へ未完了タスクだけを記録する。前のターンの時刻や、過去に着手した事実を継続の許可にしない。
-- 実際のリポジトリの場所と適用されるAGENTS.mdを確認し、Git操作の許可範囲を判定する。以下の手順に禁止された操作が含まれる場合、その操作を実行しない。環境固有の制限は、非公開資料の`global-policy`セクションを確認する。
+- 実際のrepoの場所と適用される指示を確認し、`git-policy.md`に従ってGit操作の許可範囲を判定する。
 - worktree作成がCoding Agentsに禁止されているリポジトリでは、mainへの直接編集で代替しない。制約を報告するだけで終えず、本人が安全に実行できる場合は、確認済みのブランチ・worktree状態に合わせて必要なGit操作を案内する。本人へのコミット依頼は共通の`git-policy.md`のlazygit・依頼分離の規則に従い、worktreeの絶対パスと対象ファイルを自然文で示す。許可された事前・事後確認はCoding Agentsが行い、未コミット差分などで判断できない場合は確認済みの状態と未決事項を伝える。
 - 既存差分と現在のブランチを確認する。
-- 公開dotfiles（`honahuku/dotfiles`）と非公開dotfiles（`dotfiles-private`）だけは、新規worktreeを作成する前に、同じCoding Agentsのセッションで使用した両リポジトリのworktreeを確認する。会話中の操作履歴と`git worktree list --porcelain`を照合し、`git status --short`で未コミット差分、`git log --oneline main..<branch>`でmainに未マージのコミットを調べる。同じセッションに未コミット差分または未マージコミットのあるworktreeが残っていれば、新しいworktreeを作らない。編集先リポジトリの既存worktreeで作業を続け、そちらに作業先がなければ既存作業のmain反映まで作成を待つ。別セッションのworktreeや、これら以外のリポジトリには、この作成制限を適用しない。
 - `main`ブランチは元clone直下の作業ツリーに置き、`main`用worktreeは作らない。`main`への直接編集は禁止する。Obsidian vaultを除くGit管理下の編集は、変更規模を問わず`main`から作成した専用ブランチのworktreeで行う。
 - 新規worktreeは、所有者や組織を問わず、元のclone直下の `<repo>/.worktree/<branch>` に置く。`/tmp`・兄弟ディレクトリ・`<repo-name>-worktrees/`には作らない。作業中のworktree内にさらに `.worktree/` を作らず、元のclone直下に並べる。**`<branch>` は`main`以外のブランチ名そのままで、省略・改変しない。** 既存worktreeは `git worktree list` で確認し、`main`以外のブランチで目的に合う場合だけ再利用する。worktreeを自動で移動・削除しない。
 - リンク経由で編集する場合は、リンク先の実体と所属リポジトリを確認する。保存先を決める前に、依頼の対象ファイルが既存のGitリポジトリに属するか確認する。チャットのcwdがリポジトリ外でも、対象リポジトリ内の登録済みworktreeを使う。worktreeの登録と元のcloneとの対応は、`git -C <repo> worktree list --porcelain`と`git -C <worktree> rev-parse --show-toplevel`で確認する。

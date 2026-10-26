@@ -13,4 +13,4 @@
 - レビューコメント・返信の文体は、共通資料`docs/agents/output-policy.md`の「レビュー返信コメント（Reviewee）」に従う。
 - draft解除を案内する前に `prepare-pr-for-review` スキルを使う。
 - 他人のPRをレビューするときは `review` スキルを使う。
-- PRの署名など本名表記が必要になる場面では `use-personal-context` スキルの `~/.agents/docs/personal/context.md`の`global/user-real-name.md`セクションを確認する。本名はこの場面でのみ使う。
+- PRの署名など本名表記が必要な場合は、ユーザーに表記と公開可否を確認する。本名は許可された場面だけで使う。

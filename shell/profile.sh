@@ -16,9 +16,3 @@ for _dotfiles_bin in "$HOME/.local/bin" "${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME
 done
 export PATH
 unset _dotfiles_bin
-
-if [ -n "${DOTFILES_PRIVATE_ROOT:-}" ] && [ -f "$DOTFILES_PRIVATE_ROOT/shell/profile.sh" ]; then
-  # ShellCheckではprivate repoを含めず、private側で個別に検査する。
-  # shellcheck source=/dev/null
-  . "$DOTFILES_PRIVATE_ROOT/shell/profile.sh"
-fi

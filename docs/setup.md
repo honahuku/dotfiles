@@ -40,7 +40,7 @@ mise --version
 
 既存環境では、先に[管理元の移行](#既存環境の管理元を揃える)と設定の競合を確認する。
 
-private設定を併用する場合は、公開側を適用する前にprivate側のセットアップ手順を使う。公開設定だけを使う場合は、次を実行する。
+このrepoを取得し、次を実行する。
 
 ```sh
 git clone https://github.com/honahuku/dotfiles.git ~/git/honahuku/dotfiles
