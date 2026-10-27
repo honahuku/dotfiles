@@ -1,11 +1,11 @@
--- Autocmds are automatically loaded on the VeryLazy event
--- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
+-- 自動コマンドはVeryLazyイベントで自動的に読み込まれる。
+-- 常に設定される既定の自動コマンド: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 --
--- Add any additional autocmds here
--- with `vim.api.nvim_create_autocmd`
+-- 追加の自動コマンドは、ここで
+-- vim.api.nvim_create_autocmdを使って設定する。
 --
--- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
--- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
+-- 既存の自動コマンドはグループ名で削除できる。既定のグループ名はlazyvim_で始まる。
+-- 例: vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
 -- LazyVimのlazyvim_wrap_spellはMarkdownなどでspellを有効にするが、日本語は辞書になく
 -- 全単語が赤波線になって読めなくなる。wrapは残したいのでspellだけ切る。

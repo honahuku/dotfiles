@@ -1,6 +1,21 @@
-min_version = "2026.10.15"
+min_version = "2026.10.17"
+
+[vars]
+public_root = "{{ env.DOTFILES_PUBLIC_ROOT | default(value=config_root) }}"
+windows_state = "{{ env.HOME }}/.local/share/dotfiles/windows"
+powershell = "{{ env.DOTFILES_POWERSHELL | default(value='/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe') }}"
+chezmoi = "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- chezmoi --config {{ vars.windows_state | quote }}/chezmoi.toml --source {{ vars.windows_state | quote }}/source --persistent-state {{ vars.windows_state | quote }}/state.boltdb --cache {{ vars.windows_state | quote }}/cache --no-pager --refresh-externals=always"
+
+[task_config]
+includes = ["{{ vars.public_root }}/mise-tasks.toml"]
 
 [dotfiles]
+"~/.agents/skills" = { source = ".agents/skills", mode = "symlink" }
+"~/.local/bin/tasks" = "bin/tasks"
+"~/.local/share/dotfiles/windows/source/.agents.md" = { source = ".agents/AGENTS.md", mode = "copy" }
+"~/.local/share/dotfiles/windows/source/.terminal.json" = { source = "win/terminal/settings.json", mode = "copy" }
+"~/.local/share/dotfiles/windows/source/.config.toml.tmpl" = { source = "win/chezmoi/.config.toml.tmpl", mode = "copy" }
+"~/.local/share/dotfiles/windows/source/.chezmoiexternal.toml" = { source = "win/chezmoi/.chezmoiexternal.toml", mode = "copy" }
 "~/.bashrc/dotfiles-shell" = { block = '''
 if [ -n "${BASH_VERSION:-}" ]; then
   . "$HOME/git/honahuku/dotfiles/shell/bashrc.sh"
@@ -19,16 +34,6 @@ fi
 "~/.codex/AGENTS.md" = ".agents/AGENTS.md"
 "~/.codex/config.toml" = ".codex/config.toml"
 
-[dotfile_groups.public-skills]
-root = "~/git/honahuku/dotfiles/.agents/skills"
-target = "~/.agents/skills"
-mode = "symlink-each"
-exclude = ["__pycache__", "*.pyc"]
-
-[dotfile_groups.public-agent-docs]
-root = "~/git/honahuku/dotfiles/docs/agents"
-target = "~/.agents/docs/common"
-mode = "symlink-each"
 
 [dotfile_groups.public-agent-hooks]
 root = "~/git/honahuku/dotfiles/.agents/hooks"

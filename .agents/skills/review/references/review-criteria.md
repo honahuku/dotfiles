@@ -31,9 +31,9 @@
 
 値の参照元、環境別の上書き、module、role、外部repoの契約まで追う。単一ファイルに危険そうな値があることだけで、実効権限や脆弱性の成立を断定しない。公開サービスや検証用設定など、要件と実行文脈によって判断が変わる。
 
-TerraformではCIのplanが示す変更・置換・削除をコード差分と照合する。置換の表示だけでデータ消失を断定せず、対象の性質、移行・復元手順、停止許容、依存先を確かめる。ユーザー判断が必要な影響は確認事項にする。必要なplan等を対象headのCIから取得できない場合は、コードの目視や別の検査で代替せず停止して判断を仰ぐ。
+TerraformではCIまたはHCP Terraformのrunのplanが示すchange・replace・destroyをコード差分と照合する。replaceの表示だけでデータ消失を断定せず、対象の性質、移行・復元手順、停止許容、依存先を確かめる。ユーザー判断が必要な影響は確認事項にする。必要なplan等を対象headのCIまたはHCP Terraformのrunから取得できない場合は、コードの目視や別の検査で代替せず停止して判断を仰ぐ。
 
-レビュー用の予測planと後日作る適用用planは、環境の変化で差分が変わり得る。CI実行・対象環境・Git SHA・保存planとログを対応させ、過去の成功を最新差分の根拠にしない。[Terraformのplan仕様](https://developer.hashicorp.com/terraform/cli/commands/plan)を参照する。Coding AgentsはTerraform CLIを実行しない。
+レビュー用の予測planと後日作る適用用planは、環境の変化で差分が変わり得る。CI実行またはHCP Terraformのrun・対象環境・Git SHA・保存planとログを対応させ、過去の成功を最新差分の根拠にしない。リンクの提示は[plan結果の列挙](terraform-plan-results.md)に従う。[Terraformのplan仕様](https://developer.hashicorp.com/terraform/cli/commands/plan)を参照する。Coding AgentsはTerraform CLIを実行しない。
 
 秘密情報はCLIで隠れていても、stateやplanに保存される場合がある。[Terraformの機密情報の扱い](https://developer.hashicorp.com/terraform/language/manage-sensitive-data)に照らし、保存と公開の経路を確認する。`create_before_destroy`は依存にも伝播し、同名リソースの併存制約もあるため、追加だけで無停止と判断しない。[lifecycleの仕様](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle)を対象リソースの制約と合わせて読む。
 

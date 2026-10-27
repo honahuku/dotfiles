@@ -1,212 +1,112 @@
-# 新しい環境で dotfiles を使う
+# セットアップ
 
-cloneしたリポジトリの設定を使うには、ホームディレクトリへのリンクと必要なツールの導入を行う。Linux / WSLではmiseを使う。Windowsでは、専用スクリプトでCodexの共通指示とWindows Terminalの設定をリンクする。
+Linux / WSLのBash環境で設定を配置し、必要なツールを導入する。Windowsへの配置もWSLから行う。
 
-このリポジトリでは設定と導入方法を管理し、外部OSSのソースコードやGitサブモジュールは含めません。ツール本体は各プロジェクトの公式配布元から導入します。
+## 初期準備
 
-## Linux / WSL
+インターネット接続と、Bash、Git、OpenSSHクライアント、CA証明書、curl、tar、gzip、unzip、xzを用意する。OSパッケージマネージャーの利用は、ブートストラップとOS統合に必要な最小限に留める。導入済みのものは再導入しない。jqなどのCLIはaquaから導入する。C/C++コンパイラー、make、pkg-configや開発用ライブラリは、ソースからのビルドが必要になった場合に追加する。
 
-### Debian / Ubuntuの初期準備
-
-Debian 11以降・Ubuntu 22.04以降のbash環境で、`sudo`とインターネット接続が使えることを前提とする。[miseのapt手順](https://mise.jdx.dev/installing-mise.html#apt)で導入する。miseは2026.10.15以降が必要である。
+<details>
+<summary>Debian / Ubuntu</summary>
 
 ```sh
-cd ~
 sudo apt update
-sudo apt install -y git openssh-client ca-certificates curl unzip xz-utils \
-  build-essential pkg-config ripgrep fd-find fzf jq bash-completion extrepo \
-  sensible-utils nano
-sudo extrepo enable mise
-sudo apt update
-sudo apt install -y mise
+sudo apt install --no-install-recommends bash git openssh-client ca-certificates \
+  curl tar gzip unzip xz-utils
+```
+
+</details>
+
+<details>
+<summary>Arch Linux</summary>
+
+部分更新を避けるため、システム更新も同時に行う。
+
+```sh
+sudo pacman -Syu --needed bash git openssh ca-certificates curl tar gzip unzip xz
+```
+
+</details>
+
+[mise 2026.10.17以降](https://mise.jdx.dev/installing-mise.html)を導入する。既存のmiseが要件を満たす場合は再インストールしない。
+
+```sh
+curl -fsSL https://mise.run | sh
+export PATH="$HOME/.local/bin:$PATH"
 mise --version
 ```
 
-private設定も使う場合は、次の公開リポジトリのclone後、private側のREADMEで初期調整とリンク適用を行う。その後、この文書のNode.js導入から再開する。公開側の設定を先に適用する必要はない。
+## 設定とツールを導入する
 
-### 1. リポジトリをcloneする
+既存環境では、先に[管理元の移行](#既存環境の管理元を揃える)と設定の競合を確認する。
 
-Gitが使える状態で、次を実行します。
+このrepoを取得し、次を実行する。
 
 ```sh
-mkdir -p ~/git/honahuku
 git clone https://github.com/honahuku/dotfiles.git ~/git/honahuku/dotfiles
+cd ~/git/honahuku/dotfiles
+# 配置予定の確認、設定配置、miseとaquaの管理対象ツール導入をまとめて行う。
+mise run setup
 ```
 
-すでにclone済みの場合、この手順は不要です。
+clone済みの場合は`git clone`を省略する。更新する場合は未コミットの変更を確認し、`git pull --ff-only`を使う。早送りできない場合は停止する。既存設定との競合には[配置手順](mise-dotfiles.md)に従って対応する。
 
-### 2. 設定をホームにリンクする
+`~/.bashrc`と`~/.profile`は実ファイルを残し、dotfilesを読み込む管理ブロックを追加する。適用前から開いていたBashには、`source ~/.bashrc`で設定を読み直すか、新しいシェルを開く。
 
-[miseによるリンク管理](mise-dotfiles.md)に従い、`./bin/slink.sh --dry-run`で確認してから適用する。OS標準の`~/.bashrc`と`~/.profile`は残し、読み込みブロックを追加する。private設定も使う場合は、private側のREADMEの適用手順を使う。
+<details>
+<summary>Arch Linuxのログインシェルで設定を読み込む</summary>
 
-### 3. Node.jsを導入する
-
-`shell/profile.sh`は`~/.local/bin`を`PATH`に加え、`shell/bashrc.sh`は対話Bashでmiseを有効化する。[miseのBash設定](https://mise.jdx.dev/ide-integration.html#bash)を読み込むことで、ホームの`~/.config/mise/config.toml`に定義したNode.jsをシェルで使える。
-
-リンクの作成後に新しいシェルを開くか、次を実行してNode.jsをインストールします。
+標準の`~/.bash_profile`がある場合、ログイン時に`~/.profile`が自動で読み込まれない。既存の内容を残し、次の読み込みを追加する。すでに同等の処理があれば追加しない。
 
 ```sh
-cd ~
-export PATH="$HOME/.local/bin:$PATH"
-mise trust ~/.config/mise/config.toml
-mise install
-eval "$(mise activate bash)"
-node --version
-npx --version
+if [ -f "$HOME/.profile" ]; then
+  . "$HOME/.profile"
+fi
 ```
 
-設定ではNode.jsのLTSを選びます。プロジェクトに `.mise.toml` や `mise.toml` がある場合、そのプロジェクトの指定がホームの設定より優先されます。`npx` はNode.jsに付属するnpmのコマンドで、miseはNode.jsの実行環境を提供します。
+</details>
 
-### 4. aquaとCLIを導入する
+独自の`~/.bash_profile`や`~/.bash_login`を置いている場合も、そこから`~/.profile`が読み込まれることを確認する。
 
-Linuxでは、[公式インストーラー](https://aquaproj.github.io/docs/products/aqua-installer/)をチェックサム検証後に実行する。検証に失敗した場合は、実行せず公式手順と照合する。
+認証情報は復元されない。GitHub・Codex・クラウドなどは利用時にログインする。Neovimの初回起動後は`:Lazy restore`と`:checkhealth`を実行する。[`:Lazy restore`はロックファイルに記録したバージョンへ揃える](https://lazy.folke.io/usage)。Nerd Fontを使う場合は、表示する端末側にも設定する。
 
-```sh
-cd ~
-installer_dir=$(mktemp -d)
-cd "$installer_dir"
-curl -fsSLO https://raw.githubusercontent.com/aquaproj/aqua-installer/v4.0.5/aqua-installer
-echo '451028d56959cc738564885b1dbebc2691ea038ffde04e2472e4d486a3591146  aqua-installer' | sha256sum -c - && \
-  chmod +x aqua-installer && ./aqua-installer
-export PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
-cd ~
-aqua install
-```
+## 既存環境の管理元を揃える
 
-[`aqua.yaml`](../aqua.yaml)には、aquaで管理するCLIとバージョンが記録されている。aqua本体は一覧に含まれないため、先に[公式のインストール手順](https://aquaproj.github.io/docs/install/)で導入する。`shell/profile.sh`がaquaのbinディレクトリを`PATH`に追加する。新しいシェルを開くか、次を実行する。
+CLIは`aqua.yaml`、言語環境とaqua本体は`.config/mise/config.toml`に従って導入する。初期セットアップは`mise run setup`を入口にする。独立したシェル・Pythonスクリプトを追加する前にmiseのサブコマンドとタスクで対応し、対応できない場合だけgo-taskを使う。
 
-```sh
-source ~/.bashrc
-aqua --version
-```
+1. `type -a gh node go python nvim`などで実行候補を列挙し、シンボリックリンクの実体とパッケージ所有元を確認する。Archでは`pacman -Qo /usr/bin/gh`、Debian / Ubuntuでは`dpkg-query -S /usr/bin/gh`で確認できる。aqua・miseの設定だけに記載され、まだ導入されていない場合もあるため、設定と実行パスの両方を見る。
+2. OS管理版とdotfiles指定版の一覧を作る。アンインストールを予定するパッケージの逆依存、任意依存、削除時に影響するコマンドを確認する。Archでは`pacman -Qi <package>`と`pacman -R --print <package>`、Debian / Ubuntuでは`apt-cache rdepends --installed <package>`と`apt-get --simulate remove <package>`を使う。これらは確認用であり、削除は実行しない。
+3. 具体的な削除対象、導入先とバージョン差分、同時に削除されるパッケージ、利用できなくなる期間をユーザーに示し、アンインストールの許可を得る。許可を得るまで削除しない。OSのPythonなど、他のOSパッケージに必要な実体は残す。依存関係が解決できない場合は強制削除せず、その対象の移行を保留する。
+4. 許可されたOS管理版をアンインストールしてから、`mise run setup`でaqua・mise管理版を導入する。依存・設定の自動削除や未承認パッケージの連鎖削除は行わない。ユーザーがインストールを自分で実行すると指定している場合は、エージェントはコマンドの提示まで行う。
+5. 新しいシェルで`type -a gh node go python nvim`と各コマンドのバージョンを確認する。aqua・mise側が選ばれることと、必要な既存設定・認証情報が残っていることを確認する。nvmなど旧管理元の削除とプロジェクトのバージョン指定変更は、OSパッケージの移行とは別に対象を確認する。
 
-必要なコマンドだけ入れる場合は、ホームディレクトリで実行します。
-
-```sh
-cd ~
-aqua install stylua tflint
-```
-
-`aqua install` に引数を付けない場合、`aqua.yaml` にあるすべてのCLIを導入します。定義しているのはGitHub CLI、Terraform、Codex CLI、StyLua、TFLintなどです。aquaはカレントディレクトリから親ディレクトリへ設定ファイルを探します。ホームの `aqua.yaml` を使う場合は `cd ~` して実行してください。[aquaの設定探索とinstall](https://aquaproj.github.io/docs/reference/config/)も参照してください。
-
-### 5. Neovimを導入する
-
-Neovim本体はaquaの管理対象ではありません。利用するLinuxディストリビューションの手順に従い、NeovimとGitを導入します。Arch Linuxでは次のコマンドを使います。
-
-```sh
-sudo pacman -S --needed git neovim
-```
-
-他のOSやディストリビューションでは[Neovimの公式インストールガイド](https://github.com/neovim/neovim/blob/master/INSTALL.md)を参照してください。
-
-Debian / Ubuntuでは、配布パッケージが[LazyVimの要件](https://www.lazyvim.org/)を満たすか確認する。以下は公式のLinuxアーカイブをユーザー領域に展開する、新規環境向けの手順である。`uname -m`が`aarch64`の場合は`nvim_arch=arm64`へ変更する。
-
-```sh
-cd ~
-uname -m
-nvim_arch=x86_64
-nvim_download=$(mktemp -d)
-curl -fL "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${nvim_arch}.tar.gz" \
-  -o "$nvim_download/nvim.tar.gz"
-mkdir -p "$HOME/.local/opt" "$HOME/.local/bin"
-tar -xzf "$nvim_download/nvim.tar.gz" -C "$HOME/.local/opt"
-ln -s "$HOME/.local/opt/nvim-linux-${nvim_arch}/bin/nvim" "$HOME/.local/bin/nvim"
-ln -s /usr/bin/fdfind "$HOME/.local/bin/fd"
-export PATH="$HOME/.local/bin:$PATH"
-nvim --version
-npm install -g tree-sitter-cli
-```
-
-既に同名の展開先やリンクがある環境では再実行せず、既存の導入方法を確認する。Nerd Fontを使う場合は、表示する端末側にも設定する。
-
-### 6. Neovimとプラグインを起動する
-
-初回導入後はNeovim内で`:Lazy sync`と`:checkhealth`を実行する。外部サービスへのログイン、Docker、クラウド認証、Windowsアプリはこの手順では導入されない。利用するサービスの手順で個別に設定する。
-
-```sh
-nvim
-```
-
-初回起動時、[`nvim/init.lua`](../nvim/init.lua) がlazy.nvimを取得します。[`nvim/lua/config/lazy.lua`](../nvim/lua/config/lazy.lua) はLazyVimとリポジトリ内のプラグイン定義を読み込みます。初回起動にはネットワーク接続が必要です。プラグインのバージョンは [`nvim/lazy-lock.json`](../nvim/lazy-lock.json) に記録したコミットで固定します。Neovim内で `:Lazy` を実行すると、プラグインの状態を確認できます。
-
-Neovimの設定とプラグイン定義は `nvim/` で管理します。プラグイン本体とキャッシュはホームのNeovimデータディレクトリに保存し、リポジトリには含めません。プラグインは設定に応じて必要なタイミングで読み込みます。
-
-Masonが管理するLSPサーバーやフォーマッターなど、追加ツールが必要になる場合があります。CLIをaquaで管理するときは、`aqua.yaml` に追加し、`aqua install <command>` を実行してください。Neovim本体、Git、aqua本体は `aqua.yaml` に含まれていません。
-
-WSLのクリップボード連携は、`win32yank.exe` が `PATH` にある場合に有効になります。IME連携も、対応するWindows側のコマンドがある場合に有効になります。どちらもNeovimの起動には必要ありません。
-
-導入後は次のコマンドで確認できます。
-
-```sh
-readlink -f ~/.config/nvim
-nvim --version
-command -v stylua tflint
-```
-
-`readlink` の出力先が、cloneしたリポジトリの `nvim/` であることを確認してください。プラグインの状態はNeovim内の `:Lazy` で確認できます。
+設定配置前には`mise run setup:check`で差分を確認する。旧方式の`~/.bashrc`・`~/.profile`リンクがある場合は、リンク先と内容を保存したうえで実ファイルへの移行方法を決める。管理ブロックの追加によってリポジトリのリンク元を直接書き換えないようにする。ユーザー固有の設定を失う置換は行わない。
 
 ## WindowsのCodex
 
-WindowsでCodex Desktop / CLIに共通指示を読み込ませる場合は、Windows側にリポジトリをcloneし、PowerShellからリンクスクリプトを実行します。
-
-```powershell
-New-Item -ItemType Directory -Path (Join-Path $HOME 'git\honahuku') -Force | Out-Null
-$repo = Join-Path $HOME 'git\honahuku\dotfiles'
-git clone https://github.com/honahuku/dotfiles.git $repo
-& "$repo\win\link-codex-agents.ps1"
-```
-
-すでにclone済みの場合は、`git clone` を省略してください。clone先を変えた場合は、`$repo` を実際のパスに合わせます。[`win/link-codex-agents.ps1`](../win/link-codex-agents.ps1) は `.agents/AGENTS.md` を `%USERPROFILE%\.codex\AGENTS.md` にリンクします。`CODEX_HOME` が定義されていれば、そのディレクトリがリンク先です。既存ファイルがある場合、スクリプトはバックアップを作成します。
-
-Windowsでシンボリックリンクを作るには、管理者権限が必要な場合があります。PowerShell 7とWindowsの開発者モードを使う場合は、通常権限で作成できます。
-
-このスクリプトがリンクするのはWindowsのCodex共通指示だけです。Neovimやシェルの設定はWindows側に展開しません。aquaの `openai/codex` はCodex CLI用で、Codex Desktopはインストールされません。CodexとWSLの実行環境、スキルの配置は[Codexの設定手順](codex.md)を参照してください。リンク後、新しいCodexセッションを開くと指示が読み込まれます。
+DesktopではWSLを実行環境に選ぶ。[共通指示とスキル](codex.md)の配置には上記セットアップを使う。
 
 ## Windows Terminal
 
-Windows Terminalの共通設定を使う場合は、Windows側にcloneしたリポジトリからリンクスクリプトを実行します。Windows Terminalを終了してから実行してください。
+WSL側のセットアップ後、`mise run windows:sync`で保存先を確認して同期する。設定編集を終えてから適用する。
 
-```powershell
-$repo = Join-Path $HOME 'git\honahuku\dotfiles'
-& "$repo\win\link-terminal-settings.ps1"
-```
+既定プロファイルは各PCのデフォルトWSLを使う。必要ならWindows側で`wsl --set-default <ディストリビューション名>`を実行する。[WSLの公式手順](https://learn.microsoft.com/windows/wsl/reference)を参照する。
 
-[`win/link-terminal-settings.ps1`](../win/link-terminal-settings.ps1) は、既存の設定を日時付きでバックアップしてから、Stable版の設定ファイルを `win/terminal/settings.json` へリンクします。すでに同じリンクがある場合は何もしません。
+## 設定と更新
 
-Preview版、Canary版、unpackaged版を使う場合は、`-Distribution` を指定します。
-
-```powershell
-& "$repo\win\link-terminal-settings.ps1" -Distribution Preview
-& "$repo\win\link-terminal-settings.ps1" -Distribution Canary
-& "$repo\win\link-terminal-settings.ps1" -Distribution Unpackaged
-```
-
-共通設定では、WSLのディストリビューションを固定しません。`WSL` プロファイルを既定プロファイルとし、各PCのデフォルトWSLを `~` で起動します。Windows Terminalが自動生成する各ディストリビューションのプロファイルも表示します。Codex、Claude、Neovimは各PCのデフォルトWSLで `~/git` から起動します。各PCで利用するWSLをデフォルトに設定し、その環境に必要なコマンドを導入してください。[Windows Terminalのプロファイル設定](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/profile-general)と[WSLプロファイルの自動生成](https://learn.microsoft.com/en-us/windows/terminal/tips-and-tricks)も参照してください。
-
-インストール済みのディストリビューションと現在のデフォルトは、次で確認できます。デフォルトを変更する場合は、`Ubuntu` を利用するディストリビューション名に置き換えてください。
-
-```powershell
-wsl --list --verbose
-wsl --set-default "Ubuntu"
-```
-
-[WSLの基本コマンド](https://learn.microsoft.com/windows/wsl/reference)も参照してください。
-
-## Windows用ファイルを個別に使う
-
-`win/` には、アプリの一括導入やWindowsの設定変更に使う既存バッチがあります。dotfilesのcloneや基本リンクには使わず、内容を確認してから実行してください。[`win/chocolatey.bat`](../win/chocolatey.bat) はアプリを導入し、レジストリも変更します。[`win/scoop.bat`](../win/scoop.bat) にはGitの初期化・追加コマンドがあります。Codexの指示だけをリンクするときは `win/link-codex-agents.ps1` を使います。
-
-## 設定ファイルの場所
-
-| 目的 | ファイル |
+| 対象 | 管理元 |
 | --- | --- |
-| Neovimの設定とプラグイン定義 | `nvim/` |
-| Node.jsのバージョン設定 | `.config/mise/config.toml` |
-| aquaで管理するCLIとバージョン | `aqua.yaml` |
-| Linux / WSLのリンク設定 | `mise.toml` |
-| Codexの共通指示とスキル | `.agents/` |
-| WindowsのCodex共通指示リンク | `win/link-codex-agents.ps1` |
-| Windows Terminalの共通設定 | `win/terminal/settings.json` |
-| Windows Terminalの設定リンク | `win/link-terminal-settings.ps1` |
+| 配置・競合への対応 | [配置手順](mise-dotfiles.md) |
+| ツールの役割と管理元 | [ツールの説明](tools.md) |
+| シェル | [shell/](../shell/) |
+| Neovim設定 | [nvim/](../nvim/) |
+| Windows Terminal設定 | [win/terminal/](../win/terminal/) |
 
-リンクしたファイルを編集すると、リポジトリ内のファイルが更新されます。ツールやプラグイン本体は設定ファイルとは別に導入します。各バージョンは `aqua.yaml` と `nvim/lazy-lock.json` で管理します。
+## READMEのtreeを更新する
+
+```sh
+# miseがezaを用意し、Gitで無視された項目を除いたディレクトリだけを表示する。
+mise run docs:tree
+```
+
+リポジトリ直下で実行し、出力でREADMEのtreeコードブロックを置き換える。深さは[`mise-tasks.toml`](../mise-tasks.toml)の`--level`で変更する。

@@ -1,6 +1,6 @@
--- Keymaps are automatically loaded on the VeryLazy event
--- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- Add any additional keymaps here
+-- キーマップはVeryLazyイベントで自動的に読み込まれる。
+-- 常に設定される既定のキーマップ: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
+-- 追加のキーマップはここで設定する。
 
 local map = vim.keymap.set
 

@@ -1,142 +1,80 @@
-# miseで複数のdotfilesリポジトリを使う
+# dotfilesの配置
 
-公開設定とprivate設定を別々のGitリポジトリで編集し、ホームへのリンクをmiseで管理する。公開側のファイルをprivate側へコピーする必要はない。
-
-この手順はLinux / WSLの標準配置（`~/.config`、`~/.codex`）を対象とする。別の配置先を使う場合は、適用前に`mise.toml`の対象パスを変更する。
-
-## 公開リポジトリだけを使う
-
-[miseの公式手順](https://mise.jdx.dev/installing-mise.html)で2026.10.15以降を導入し、このリポジトリを`~/git/honahuku/dotfiles`へcloneする。既存環境では、先に[競合する旧設定の確認](#既存のリンクスクリプトから移行する)を行う。
+mise 2026.10.17以降と、[セットアップの前提](setup.md)が必要である。このrepoを作業ディレクトリにする。
 
 ```sh
-cd ~/git/honahuku/dotfiles
-mise trust
-./bin/slink.sh --dry-run
-./bin/slink.sh
-mise dot status
+# 配置予定と競合を確認してから、設定と管理対象ツールを導入する。
+mise run setup
 ```
 
-[`mise.toml`](../mise.toml)がシェル、mise、lazygit、aqua、Neovim、共通指示の配置を定義する。`bin/slink.sh`はjqとmiseを使って差分と競合を検査してから適用する。実ファイルに加え、取得元が異なる既存リンクも停止対象になるため、適用にはこの入口を使う。
+Windows同期は最後に`mise run windows:sync`で行う。初回に確認した保存先は`~/.local/share/dotfiles/windows/chezmoi.toml`へ保存する。
 
-`.bashrc`と`.profile`は既存の実ファイルを残し、[管理ブロック](https://mise.jdx.dev/dotfiles/edits.html#blocks)にdotfilesを読み込む処理を追加する。再適用でブロックは重複しない。既存設定を先に読み、その後dotfilesを読み込むため、同名のaliasや変数は後者の値が優先される。端末固有の上書きは`~/.bashrc.local`に置く。
-
-シェル設定の本体は次のファイルで管理する。リポジトリ直下の`.bashrc`は旧リンク向けの互換入口である。
-
-| 用途              | 公開側             | private側          |
-| ----------------- | ------------------ | ------------------ |
-| 環境変数・PATH    | `shell/profile.sh` | `shell/profile.sh` |
-| Bashのalias・補完 | `shell/bashrc.sh`  | `shell/bashrc.sh`  |
-
-公開側を`~/git/honahuku/dotfiles`へcloneする。private側も使う場合は、`DOTFILES_PRIVATE_ROOT`にそのrepoの絶対パスを指定し、公開設定の読み込み前にexportする。既存環境で自動検出を使う場合は、`shell/profile.sh`の検索条件を確認する。privateがなくても公開側だけで動く。対話Bashでは、公開設定、private設定、miseの有効化、`~/.bashrc.local`の順に適用する。非対話シェルではaliasや補完の初期化を行わない。以下では`DOTFILES_PRIVATE_ROOT`が設定済みであることを前提とする。
-
-## privateリポジトリと組み合わせる
-
-private側に、両リポジトリを参照する`mise.toml`を置く。シェルの管理ブロックは公開側と同じ入口を使う。次の例では、Neovimを公開側から使い、個人設定も配置する。
-
-```toml
-min_version = "2026.10.15"
-
-[dotfiles]
-"~/.bashrc/dotfiles-shell" = { block = '''
-if [ -n "${BASH_VERSION:-}" ]; then
-  . "$HOME/git/honahuku/dotfiles/shell/bashrc.sh"
-fi
-''' }
-"~/.config/nvim" = "~/git/honahuku/dotfiles/nvim"
-"~/.config/nvim-private" = "nvim"
-```
-
-[Managed files | mise-en-place](https://mise.jdx.dev/dotfiles/managed.html)
-
-`source`の相対パスは[設定ファイルのディレクトリを基準に解決される](https://mise.jdx.dev/dotfiles/managed.html#whole-file-entries)。上の`nvim`はprivate側を参照する。`.profile`のブロックも公開側の`mise.toml`と同じものを定義する。
-
-両方をcloneした後、private側で実行する。
+## 通常更新
 
 ```sh
-cd "$DOTFILES_PRIVATE_ROOT"
-mise trust
-DOTFILES="$PWD" ~/git/honahuku/dotfiles/bin/slink.sh --dry-run
-DOTFILES="$PWD" ~/git/honahuku/dotfiles/bin/slink.sh
-mise dot status
+# Linux / WSL側を更新する。
+mise dot apply
 ```
 
-以後はprivate側の設定を入口にする。公開側の設定を別途適用すると、lazygitなどのリンク元が公開側へ変わるため、組み合わせ用の設定だけを適用する。
+削除やリンク先の置換を含む場合は、先に`mise run setup:check`で対象を確認する。`--force`・`--prune`は通常更新に使わない。
 
-### スキルを同じディレクトリに配置する
+## 競合で停止したとき
 
-両リポジトリのスキルを`~/.agents/skills`に置く場合は、[グループごとに取得元のディレクトリを指定する](https://mise.jdx.dev/dotfiles/groups.html)。`symlink-each`はファイル単位でリンクする。
+- Linux側：既存ファイルやリンク元を確認し、必要な内容を管理元へ取り込む。不要と判断した旧リンクだけを手動で削除し、再実行する。`.bashrc`・`.profile`の実ファイルと`~/.codex/skills/.system`は削除しない。
+- Windows側：`mise run windows:diff`で差分を確認し、変更対象と差分の内容をユーザーに示して判断を求める。原本へ取り込む、共通設定を適用する、適用を保留する、のどれにするかユーザーが決めるまで、原本の編集やWindows側への適用は行わない。判断を受けて必要な変更を原本へ反映した後、`mise dot apply`で同期元を更新し、`mise run windows:sync`を実行する。差が残る場合もユーザーの判断を確認し、適用する場合は対話端末で`mise run windows:resolve`を使う。
 
-```toml
-[dotfile_groups.public-skills]
-root = "~/git/honahuku/dotfiles/.agents/skills"
-target = "~/.agents/skills"
-mode = "symlink-each"
-exclude = ["__pycache__", "*.pyc"]
+Windows側で停止しても、先行する配置は完了している場合がある。設定編集を終えてから適用し、終了状態と差分を確認する。中間ファイルは再生成されるため、直接編集しない。
 
-[dotfile_groups.private-skills]
-root = "/path/to/private-config/.agents/skills"
-target = "~/.agents/skills"
-mode = "symlink-each"
-exclude = ["__pycache__", "*.pyc"]
-```
+## 配置を変更する
 
-[Groups | mise-en-place](https://mise.jdx.dev/dotfiles/groups.html)
+取得元と配置先は[`mise.toml`](../mise.toml)、処理は[`mise-tasks.toml`](../mise-tasks.toml)で管理する。設定方法は[miseの管理ファイル](https://mise.jdx.dev/dotfiles/managed.html)と[グループ](https://mise.jdx.dev/dotfiles/groups.html)を参照する。
 
-上の`/path/to/private-config`は、実際の非公開repoの絶対パスに置き換える。
+Windowsの対象はCodex共通指示とインストール済みのTerminal設定である。保存先はWindowsホーム配下に限る。Codexの保存先を変える場合は、初回セットアップ時に環境変数`DOTFILES_WINDOWS_CODEX_HOME`で指定する。設定済みの対象や保存先を変更する場合は、移行先と既存ファイルを確認してから適用する。
 
-両グループに同じ配置先のファイルがあると[適用前に競合となる](https://mise.jdx.dev/dotfiles/groups.html#selecting-groups)。片方の`exclude`に重複するスキルのディレクトリ名を追加し、使う版を選ぶ。`root`の相対パスは設定ファイル基準ではなく`dotfiles.root`基準になるため、この例ではホームからのパスを使う。
+## 共通指示・スキル
 
-## 既存のリンクスクリプトから移行する
-
-通常の実ファイルの`.bashrc`と`.profile`は削除しない。旧スクリプトでこれらをリンクしていた場合、管理ブロックをリンクへ書き込めないため停止する。リンク元を確認し、不要なリンクだけを手動で削除してから再実行する。
-
-実ファイルとリンク元を確認する。
-
-```sh
-ls -ld "$HOME/.bashrc"
-ls -ld "$HOME/.agents/skills"
-find -L "$HOME/.agents/skills" -type f -print
-```
-
-以下は、`.bashrc`が旧リンクであり、内容を確認して不要なリンクと判断した場合だけ実行する。
-
-```sh
-rm -- "$HOME/.bashrc"
-```
-
-専用設定やスキルが競合した場合も、必要な内容を管理元へ引き継いでから、表示された対象だけを手動で削除する。`~/.codex/skills/.system`は削除対象に含めない。削除後は`./bin/slink.sh --dry-run`で競合が解消したことを確認し、`./bin/slink.sh`を実行する。`--force`・`--prune`・`--backup`は受け付けない。
-
-## 設定を更新する
-
-### 共通指示・スキル・非公開資料
-
-汎用手順と自作スキルは公開側で管理し、社内情報と個人情報は非公開リポジトリの資料に分ける。内容を生成してホームにだけ保存せず、リンク元を必ずいずれかのリポジトリにコミットする。
+汎用手順と自作スキルはこのrepoで管理する。内容を生成してホームにだけ保存せず、リンク元をrepoにコミットする。
 
 | 配置先                              | 管理元                                                                          |
 | ----------------------------------- | ------------------------------------------------------------------------------- |
 | `~/.codex/AGENTS.md`                | 公開側の`.agents/AGENTS.md`                                                     |
-| `~/.agents/docs/common/`             | 公開側の`docs/agents/`。miseの`public-agent-docs`グループでファイル単位にリンク |
-| `~/.agents/skills/`                 | 公開側の自作スキル・vendir取得先と、非公開側の社内取得スキル                    |
+| `~/.agents/skills/` | 自作スキルとvendir取得先を含む`.agents/skills/`全体へのリンク |
 | `~/.agents/hooks/`                  | 公開側の共通判定。登録方法と確認手順は[共通hook](../.agents/hooks/README.md)を参照 |
 | `~/.agents/prh/`                    | 公開側の技術日本語ルール                                                        |
-| `~/.agents/docs/work/context.md`     | 非公開側の業務・環境資料                                                        |
-| `~/.agents/docs/personal/context.md` | 非公開側の個人資料                                                              |
-| `~/.codex/config.toml`              | 公開側の汎用設定、または非公開側の環境別設定                                    |
+| `~/.codex/config.toml` | このrepoの汎用設定 |
 
-非公開資料はファイル単位で`[dotfiles]`に登録する。自作スキルには資料を読む条件とセクション名だけを書き、個人情報・社内情報をスキル本体へ戻さない。取得スキルと自作版の名前が衝突する場合は、自作版を別名にする。
+取得スキルと自作版の名前が衝突する場合は、自作版を別名にする。
+
+## スキルの配置と更新
+
+スキルの編集元は`.agents/skills/`とする。`~/.agents/skills`はディレクトリ全体へのリンクとし、配下の`SKILL.md`は通常ファイルにする。取得物の更新はvendir定義とlockfileを一緒に反映する。初回の配置でホームの既存ディレクトリと競合した場合は、[競合で停止したとき](#競合で停止したとき)に従う。
+
+## 外部スキルの取得範囲
+
+追加・更新前に、取得する版のREADMEのInstall・Installationなどのセクションを読み、そのリポジトリが案内するインストール方法を選ぶ。手順だけでは配布範囲が分からない場合は、対応するインストーラーの実装、配布アーカイブ、プラグインのマニフェストを確認する。インストーラーを起動してホームを変更する必要はない。
+
+vendirは、その方法で選択したスキルに配布されるファイル一式を取り込む。`SKILL.md`だけに限定せず、付属のagents定義・references・scripts・assets・ライセンスなども元の相対配置で保持する。ライセンス専用の取得先を別に作ることを既定にしない。配布範囲がスキルのディレクトリ全体なら、その配下をまとめて取得し、個々のファイル名を列挙しない。READMEがリポジトリ全体の配布を指定する場合は、その一式を保持する。
+
+除外は、選んだインストール方法が除くファイルや、配布物に含まれないGit管理情報・生成キャッシュに限る。インストーラー側の除外を確認せずに独自の選別を増やさない。付属ファイルを省いて検査を通したり、ライセンスを削って取り込みを進めたりしない。取得版と配布範囲、元の相対パスをvendir定義とlockfileで対応させる。
+
+現在の取得範囲は次の一次資料で確認した。`npx skills add`を選ぶ場合は、[コピー処理と除外定義](https://github.com/vercel-labs/skills/blob/a80e4c9d12d607631249d4d7d059f835d4b2f13a/src/installer.ts)も確認する。今後の更新時には、その時点の案内と実装を再確認する。
+
+| 取得元 | 選んだ配布方法と範囲 |
+| --- | --- |
+| [mattpocock/skills](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md#installation-30-second-setup) | スキルを選択する`npx skills add`。選択したスキルのディレクトリ一式 |
+| [nanaism/yomiyasu](https://github.com/nanaism/yomiyasu/blob/v1.1.2/README.md#インストール) | 推奨される`npx skills add`。`skills/yomiyasu/`一式 |
+| [aws/agent-toolkit-for-aws](https://github.com/aws/agent-toolkit-for-aws#skills) | スキル導入用の`npx skills add`。選択したスキルのディレクトリ一式 |
+| [wheresryan22/anatomy](https://github.com/wheresryan22/anatomy/blob/e6600ffc4e8e6620eeb45bf49bcdbd5e4b84163f/README.md#install) | `npx skills add`。examplesを含むリポジトリ一式 |
+| [vercel-labs/skills](https://github.com/vercel-labs/skills/blob/13e4063a1cf913f5606d57d42ab83a86f5001e04/README.md#install-a-skill) | スキル選択用インストーラーの規則に従い、`skills/find-skills/`一式 |
+
+## 取得物と自作スキルの検査
 
 自作スキルの説明文と参照文書は日本語にする。コード・識別子・正式な出典名は維持する。Lefthookは公開候補のパスと内容全体に対して禁止語を検査し、自作スキルには日本語の検査も行う。`vendir.yml`と`vendir.lock.yml`の両方で定義された取得先は、この二つの検査から除外して上流の原文を保つ。秘密情報の検査は継続する。
 
-禁止語の定義は非公開repoの`config/public-forbidden-patterns.txt`で管理する。Lefthookと手動検査の実行環境では、`DOTFILES_PRIVATE_ROOT`にそのrepoの絶対パスを設定する。定義が未配置・空、または環境変数が未設定なら検査は失敗する。
+禁止語の定義は`config/public-forbidden-patterns.txt`を常に読む。追加の定義は`DOTFILES_FORBIDDEN_PATTERNS_FILE`で指定できる。指定した定義の欠落・空ファイルは検査失敗とする。
 
 手動検査は`./bin/check-public-candidate.sh --all`、変更範囲だけなら`--worktree`を使う。日本語の自動検査は英語だけの説明行を検出する補助であり、翻訳の正確さは原文と照合する。
 
-Codex設定は任意の別ファイルを自動結合する構成にせず、実際に読み込む`config.toml`を一つ選ぶ。社内MCP・信頼済みパスなどが必要な環境では非公開版を使い、汎用設定との差分を見て更新する。
+Codex設定は任意の別ファイルを自動結合せず、このrepoの`config.toml`を使う。
 
-共通資料・判定処理は`.agents`へ集約する。ツールが読む`~/.codex/AGENTS.md`は共通指示へのリンク、`~/.codex/config.toml`は固有の設定入口として残す。[指示ファイルの探索仕様](https://developers.openai.com/codex/guides/agents-md)に合わせ、公開版のfallback設定は空にする。別名の指示ファイルに依存する既存環境の互換設定は非公開版で保持し、内容を引き継いでから整理する。
-
-既存リンクを通した編集はリンク元のリポジトリへ反映される。配置するファイルを追加した場合は、組み合わせ用の`mise.toml`を更新し、同じ適用手順を繰り返す。スキルのグループ配下にファイルを追加した場合は、一覧への追記は不要である。
-
-`symlink-each`は[取得元から削除したファイルのリンクも次回適用時に削除する](https://mise.jdx.dev/dotfiles/managed.html#modes)。更新後もdry-runで削除対象を確認する。`--prune`は通常の適用手順に含めない。
-
-リポジトリの取得もmiseへ任せる場合は、別途[`[bootstrap.repos]`](https://mise.jdx.dev/bootstrap/repos.html)を定義する。`mise dot apply`はローカルのファイルを配置し、リポジトリのcloneや更新は行わない。
+共通資料・判定処理は`.agents`へ集約する。ツールが読む`~/.codex/AGENTS.md`は共通指示へのリンク、`~/.codex/config.toml`は固有の設定入口とする。[指示ファイルの探索仕様](https://developers.openai.com/codex/guides/agents-md)に合わせ、fallback設定は空にする。
