@@ -9,6 +9,8 @@ mise run setup
 
 Windows同期は最後に`mise run windows:sync`で行う。初回に確認した保存先は`~/.local/share/dotfiles/windows/chezmoi.toml`へ保存する。
 
+スキルだけを導入・再配置する場合は`mise run skills:install`、設定全体は`mise run setup:files`を使う。取得物への独自編集は同期前に管理元へ取り込む。タスクを取り込む構成では、利用側で`skills:restore`を定義してlockfileからの取得処理を差し替える。
+
 ## 通常更新
 
 ```sh
