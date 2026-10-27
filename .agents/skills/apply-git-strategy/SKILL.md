@@ -1,6 +1,6 @@
 ---
 name: apply-git-strategy
-description: Git操作の前に、読み取り・worktree作成・ステージ・commit・push等の許可範囲を確認する。Git管理ファイルの編集前後、ブランチ・タスク命名、PR操作にも使う。
+description: Git操作の許可範囲と作業場所を確認する。Git管理ファイルの編集、ブランチ・タスク命名、PR操作、miseやdotfilesのファイル配置にも使う。
 ---
 
 # Gitと作業場所のルール
@@ -18,3 +18,5 @@ description: Git操作の前に、読み取り・worktree作成・ステージ�
 dotfiles・個人ツールの変更では、着手前に`~/.agents/skills/write-agent-instructions/references/context-policy.md`の配置判断と時間帯を確認する。
 
 編集後は変更先と差分を確認する。設定移行の反映確認には`~/.agents/skills/write-agent-instructions/references/context-policy.md`の「端末への反映確認」を使う。
+
+miseやdotfilesのファイル配置を変更する前にも、同資料の「端末への反映確認」を読み、配置定義と冪等性の条件を確認する。
