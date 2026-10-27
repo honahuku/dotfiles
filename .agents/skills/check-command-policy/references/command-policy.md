@@ -66,6 +66,7 @@
 
 - `python`・`python3`・`node`・`ruby`・`perl`など、汎用プログラミング言語をコマンドとして実行しない。
 - ワンライナーや任意のスクリプト実行も禁止する。
+- ただし、`~/.codex/skills/.system/skill-creator/scripts/*.py`は明示的に実行を許可する。下記のskill-creatorの例外を優先し、追加確認を求めない。
 - `rg`・`jq`・`awk`・`sed`で代替できない場合はユーザーに相談する。
 
 ### 許可する例外
@@ -77,11 +78,10 @@
     - 起動方法：配置先を確認し、`python3 <スクリプトの絶対パス> ...`で実行してよい。セッションを問わず追加確認を求めない。
     - この例外を汎用言語の実行禁止より優先する。`python3 -c`などの任意コード、スキル外のファイルや同名ディレクトリに独自作成したスクリプトには許可を広げない。
 - skill-creator
-    - 対象：付属の`scripts/`配下のスクリプト。
-    - `~/.codex/skills/.system/skill-creator/scripts/quick_validate.py`も明示的な許可対象とする。
+    - 対象：`~/.codex/skills/.system/skill-creator/scripts/*.py`。このディレクトリに付属するPythonスクリプトをすべて明示的に許可し、`quick_validate.py`に限定しない。
     - スキル作成・更新後の`quick_validate.py <スキルのディレクトリ>`による検証も、この例外に含む。追加の実行許可を求めない。
     - 起動方法：実行に必要な`python`・`python3`・`uv run`も許可する。
-    - 実行前に適用されるskill-creatorの配置先を確認し、その配下の既存スクリプトを指定する。汎用言語の実行禁止を理由に、この検証を未許可と扱わない。
+    - 実行前に上記ディレクトリに付属する既存スクリプトであることを確認し、絶対パスで指定する。別ディレクトリの同名スクリプトや独自作成したスクリプトへ許可を広げない。汎用言語の実行禁止を理由に、この検証を未許可と扱わない。
     - PyYAMLが不足する場合は、`uv run --with pyyaml python <skill-creator配置>/scripts/quick_validate.py <対象スキル>`で検証してよい。
 - Renovate
     - 対象：`renovate-config-validator`と`renovate`のローカル実行。
