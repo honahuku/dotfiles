@@ -19,9 +19,13 @@ run = [
 
 ["skills:install"]
 description = "スキルの取得・配置・検査を行い、再実行で同じ配置に揃える"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+dir = "{{ vars.public_root }}"
 vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
 run = [
-  { task = "skills:restore" },
+  "git diff --exit-code HEAD -- .agents/skills",
+  '''test -z "$(git ls-files --others --exclude-standard -- .agents/skills)"''',
+  "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- vendir sync --locked",
   "mise dot status {{ vars.target | quote }}",
   "mise dot diff {{ vars.target | quote }}",
   "mise dot apply --dry-run {{ vars.target | quote }}",
@@ -38,16 +42,6 @@ run = [
   '''test -n "$(find {{ vars.target | quote }}/ -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
   '''test -z "$(find {{ vars.target | quote }}/ -name SKILL.md -type l -print)"''',
   '''test -z "$(find {{ vars.target | quote }}/ -xtype l -print)"''',
-]
-
-["skills:restore"]
-description = "lockfileに記録した外部スキルの配布物を復元する"
-tools = { "github:aquaproj/aqua" = "2.65.0" }
-dir = "{{ vars.public_root }}"
-run = [
-  "git diff --exit-code HEAD -- .agents/skills",
-  '''test -z "$(git ls-files --others --exclude-standard -- .agents/skills)"''',
-  "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- vendir sync --locked",
 ]
 
 ["windows:sync"]
