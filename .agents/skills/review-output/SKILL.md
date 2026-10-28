@@ -1,6 +1,6 @@
 ---
 name: review-output
-description: 応答・文書の送信・保存前に、主述・修飾・説明の過不足・重複を確認する。PRの未返信コメントを報告し、対応や返信案を考える前にも使う。技術内容の設計や執筆はwrite-technical-docsで行う。
+description: 応答・文書の送信・保存前に、主述・修飾・説明の過不足・重複を確認する。自分のPRのコメント調査・対応可否の判断・返信案の作成前にも使う。技術内容の設計や執筆はwrite-technical-docsで行う。
 ---
 
 # 応答と成果物の確認
@@ -23,7 +23,8 @@ description: 応答・文書の送信・保存前に、主述・修飾・説明�
 | 確認対象 | 資料 |
 | --- | --- |
 | 本人操作の依頼、検査結果の報告、コミットメッセージ案の提示 | `~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の依頼前の検証提示。依頼文がなくても適用し、対象作業のツール出力と本文を照合する |
-| PRの未返信コメントの調査、コメント対応の着手前、返信案の作成前 | `references/output-review.md`のPRコメントの返信状況 |
+| 自分のPRのコメント調査・対応可否の判断・返信案の作成前 | `references/output-review.md`のPRコメントの返信状況 |
+| PR作成・更新後の完了報告 | `references/output-review.md`のPR作成・更新後の完了報告 |
 | 応答の送信前・文書の保存前。短文、見出し、表、箇条書きも含む | `references/output-review.md`の主述・対象・修飾の確認 |
 | 文書・PR・コメント・Notion等の執筆前と送信前 | `references/output-review.md`の説明先をまたぐ重複チェック |
 | 長文成果物の独立した確認 | `references/adversarial-review.md` |

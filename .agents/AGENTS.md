@@ -55,6 +55,7 @@
 | 日本語の推敲 | `yomiyasu` |
 | 技術文書・PRやIssueの技術的な内容・構成・根拠を作成・変更する | `write-technical-docs`。表現だけを確認・修正する場合は`review-output` |
 | PRの作成・本文更新・レビュー準備 | `prepare-pr-for-review` |
+| 自分のPRに届いたコメントの確認・対応可否の判断・返信案の作成 | `review-output`のPRコメント確認手順を、調査の着手前に読む |
 | 他人のPRのレビュー | `review` |
 | MCPの利用、Notion操作 | `check-mcp-policy`。Notionは明示依頼時だけ使う |
 | 実行制限・hook拒否・環境の不具合、削除等の本人操作 | `troubleshoot-environment`、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md` |

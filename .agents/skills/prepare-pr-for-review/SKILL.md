@@ -1,6 +1,6 @@
 ---
 name: prepare-pr-for-review
-description: 自分のPRの作成・本文更新・レビュー準備の前に使う。draftも対象。Ready化は許可せず、他人のPRにはreviewを使う。
+description: 自分のPRの作成・本文更新・レビュー準備・CI確認後の完了報告に使う。draftも対象。Ready化は許可せず、他人のPRにはreviewを使う。
 ---
 
 # PRを作成・更新し、レビューに備える
@@ -10,6 +10,8 @@ description: 自分のPRの作成・本文更新・レビュー準備の前に�
 ## 読み込むタイミング
 
 draftを含むPR作成・本文の作成や更新を依頼されたら、説明を書き始める前に読む。PRの作成・本文更新の直前には「PR説明のセルフレビュー」と「PR / Issue への書き込み前の確認」を適用する。
+
+PR作成・更新後の完了報告の直前には、`review-output`の`references/output-review.md`「PR作成・更新後の完了報告」に従って指摘の対応状況を確認する。
 
 Git操作を行う前に`apply-git-strategy`の`SKILL.md`を読み、対象repoの許可範囲を確認する。
 
