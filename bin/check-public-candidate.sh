@@ -3,7 +3,7 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-patterns_file="${DOTFILES_PRIVATE_ROOT:?DOTFILES_PRIVATE_ROOT must point to the private configuration repository}/config/public-forbidden-patterns.txt"
+patterns_file="${DOTFILES_FORBIDDEN_PATTERNS_FILE:-$HOME/.config/dotfiles/public-forbidden-patterns.txt}"
 mode="${1:---staged}"
 repository="${2:-.}"
 violations=0
