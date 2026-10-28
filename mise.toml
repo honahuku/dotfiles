@@ -9,10 +9,8 @@ chezmoi = "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- chezmoi --co
 [task_config]
 includes = ["{{ vars.public_root }}/mise-tasks.toml"]
 
-[bootstrap.hooks]
-post-dotfiles = "mise run windows:apply"
-
 [dotfiles]
+"~/.agents/skills" = { source = ".agents/skills", mode = "symlink" }
 "~/.local/bin/tasks" = "bin/tasks"
 "~/.local/share/dotfiles/windows/source/.agents.md" = { source = ".agents/AGENTS.md", mode = "copy" }
 "~/.local/share/dotfiles/windows/source/.terminal.json" = { source = "win/terminal/settings.json", mode = "copy" }
@@ -36,16 +34,6 @@ fi
 "~/.codex/AGENTS.md" = ".agents/AGENTS.md"
 "~/.codex/config.toml" = ".codex/config.toml"
 
-[dotfile_groups.public-skills]
-root = "~/git/honahuku/dotfiles/.agents/skills"
-target = "~/.agents/skills"
-mode = "symlink-each"
-exclude = ["__pycache__", "*.pyc"]
-
-[dotfile_groups.public-agent-docs]
-root = "~/git/honahuku/dotfiles/docs/agents"
-target = "~/.agents/docs/common"
-mode = "symlink-each"
 
 [dotfile_groups.public-agent-hooks]
 root = "~/git/honahuku/dotfiles/.agents/hooks"

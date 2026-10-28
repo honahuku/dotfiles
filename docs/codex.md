@@ -2,13 +2,13 @@
 
 ## 共通指示を配置する
 
-共通指示は[`.agents/AGENTS.md`](../.agents/AGENTS.md)で管理する。Linux / WSLとWindowsへの配置は[miseの配置手順](mise-dotfiles.md)に従う。private併用時はprivate側の共通指示を使う。
+共通指示は[`.agents/AGENTS.md`](../.agents/AGENTS.md)で管理する。Linux / WSLとWindowsへの配置は[miseの配置手順](mise-dotfiles.md)に従う。
 
 `AGENTS.override.md` は共通の `AGENTS.md` より優先されます。共通指示が反映されない場合は、対象ディレクトリにこのファイルがないか確認してください。配置後、新しいCodexセッションを開きます。
 
 ## WSLでスキルを使う
 
-Windows版Codex DesktopでWSLを実行環境に選ぶと、エージェントはWSL内で動きます。Codexは実行環境の `$HOME/.agents/skills` から個人スキルを読み込みます。Linux / WSLではmiseが`.agents/skills/`のファイルをこの場所へリンクする。そのため、Codex CLIとDesktopのWSL実行環境で同じスキルを使えます。
+Windows版Codex DesktopでWSLを実行環境に選ぶと、エージェントはWSL内で動きます。Codexは実行環境の `$HOME/.agents/skills` から個人スキルを読み込みます。miseは実体を含む`.agents/skills/`全体をこの場所へリンクします。配下の`SKILL.md`は通常ファイルにします。Codex CLIとDesktopのWSL実行環境で同じスキルを使えます。
 
 同じスキルをWindows側の `%USERPROFILE%\.codex\skills` にも複製すると、Codexに同名スキルが重複して表示されることがあります。Windows DesktopからWSLで作業する場合も、WSL側でリンクしたスキルを使います。
 

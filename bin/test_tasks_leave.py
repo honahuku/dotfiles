@@ -1,4 +1,4 @@
-"""Tests for paid leave and compensatory leave in the work log."""
+"""勤務記録の有給休暇と代休を検証する。"""
 
 import json
 

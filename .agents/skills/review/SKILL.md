@@ -3,7 +3,7 @@ name: review
 description: 他人のPRレビュー、approve可否の確認、コメント候補の検討で使う。変更対象を図と根拠で説明する。
 ---
 
-環境固有の情報は`~/.agents/docs/work/context.md`の`review`セクションを参照する。対象業務で必要なセクションを取得できない場合、値や権限を推測せず停止する。
+対象repoの指示と、ユーザーが指定したレビュー基準を確認する。
 
 ## 概要
 
@@ -12,6 +12,8 @@ PRの変更対象を理解し、図を使ったワークスルーと観点別の
 ワークスルーは、社内で呼ばれるシステムと、そのシステムが任される役割を中心に組み立てる。ベンダーの製品名や内部の構成要素は、理解に必要な場合だけ補足する。対象システムを初めて知る読み手を前提にする。作図はMermaidを優先し、分かりやすさと作成時間を比較して手段を選ぶ。
 
 ## 実行手順
+
+ローカルのGit操作を行う前に`apply-git-strategy`の`SKILL.md`を読み、読み取り・worktree作成など実行する操作の許可範囲を確認する。
 
 ### 1. 対象PRと最新状態を読む
 
@@ -37,13 +39,19 @@ Renovateによる依存更新PR、Renovate設定の変更PR、Renovateのロー�
 
 コードの主張は`file:path:line`で裏付ける。pathはrepo相対パス、lineは対象HEADの行番号とし、チャットでは同じ位置へのGitHubリンクかローカル絶対パスのリンクを添える。文書は該当ページやセクション、実環境は読み取り結果と対象環境を示す。Webの出典は本文を読んで主張との一致を確かめ、読めなければ根拠にしない。
 
-検証は許可された静的検査とCI結果の読み取りに限る。Terraform・Kubernetes manifestでは`write-safe-code-and-scripts`のインフラ検証手順を読み、`terraform`・`kubectl`をローカル実行しない。必要な禁止CLIの結果を対象headのCIから取得できなければ、別の方法で代替せず判断を仰ぐ。適用・デプロイや、それを起動するmerge・push・CI操作は行わない。
+検証は許可された静的検査とCI結果の読み取りに限る。TerraformではHCP Terraformのrunのplan結果の読み取りも含む。Terraform・Kubernetes manifestでは`write-safe-code-and-scripts`のインフラ検証手順を読み、`terraform`・`kubectl`をローカル実行しない。必要な禁止CLIの結果を対象headのCI（TerraformではHCP Terraformのrunも含む）から取得できなければ、別の方法で代替せず判断を仰ぐ。適用・デプロイや、それを起動するmerge・push・CI操作は行わない。
+
+Terraformの変更を含む場合は、[plan結果の列挙](references/terraform-plan-results.md)を読み、対象環境ごとの全リソースと操作を照合する。
+
+Kubernetes manifestの変更を含む場合は、[Git上のmanifest差分検証](references/manifest-diff-results.md)を読み、生成後のリソースを比較する。Terraformとmanifestの差分一覧は、[共通の表示規則](references/infrastructure-diff-results.md)に従う。
 
 CIで報告済みの整形・lint・型の問題は重複コメントにしない。ただし、未解決の不具合や必須CIの失敗は承認判断に残す。成功した検査のWarningも`write-safe-code-and-scripts`の警告確認手順で評価し、コメントの重複抑制を指摘の確認省略にしない。生成物は生成元との整合性や依存更新の影響を確認し、テスト用の例外は本番へ流入しないことを確かめる。
 
 repoのAGENTS.md、設計要件、運用方針を一般的な推奨より優先する。共通AGENTS.mdの禁止事項は解除しない。次の既存運用も維持する。
 
-対象リポジトリ固有のブランチ運用やレビュー基準は、非公開資料の`review`セクションで確認する。
+ブランチ運用は、実際の反映方法を確認してから評価する。本番ブランチを自動追従する構成では、Helm valuesの`targetRevision: main` / `master`を固定タグへ変えることだけを理由に指摘しない。開発環境で検証ブランチへ切り替える構成では、ApplicationSetの`ignoreApplicationDifferences`で`targetRevision`を無視する設定を許容する。運用目的を確認し、本番・ステージング環境へ同じ例外を広げない。
+
+対象リポジトリ固有のブランチ運用やレビュー基準は、対象repoの指示とユーザーの指定で確認する。
 
 ### 4. 図でワークスルーを組み立てる
 
@@ -85,6 +93,10 @@ repoのAGENTS.md、設計要件、運用方針を一般的な推奨より優先�
 最新HEAD、CI、既存コメントを再取得する。HEADが変わっていれば、影響する箇所の評価、図、approve判断を更新する。解決済みや重複の投稿候補は除く。既存コメントにある未解決の問題は、結論には含める。
 
 最終応答では、変更範囲、ワークスルーの図と説明、変更前後、観点別の評価、approve判断、コメント候補をこの順に示す。観点別の評価は、今回の事実と根拠、評価、必要な修正または確認事項をつなげる。適用されない観点を機械的に埋めず、未検証と問題なしを区別する。
+
+Terraformの変更を含む場合は、既存の出力に加え、変更前後の説明に[plan結果の一覧](references/terraform-plan-results.md)を含める。
+
+Kubernetes manifestの変更を含む場合も、変更前後の説明に[manifest差分の一覧](references/manifest-diff-results.md)を含める。
 
 RenovateのPRでは、[依存更新の出力](references/renovate-review.md#結果に含めること)も変更前後の説明と観点別の評価に含める。
 

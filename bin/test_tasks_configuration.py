@@ -1,9 +1,17 @@
 """設定がない環境や不正な勤務ルールで、実データに触れず失敗することを確認する。"""
 
 import json
+from pathlib import Path
 
 import pytest
 from _test_helpers import _load_tasks_module
+
+
+def test_default_store_uses_shared_data_directory(tmp_path, monkeypatch):
+    monkeypatch.delenv("TASKS_STORE", raising=False)
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    module = _load_tasks_module(configured=False)
+    assert module.STORE == tmp_path / ".local" / "share" / "tasks" / "tasks.json"
 
 
 @pytest.mark.parametrize(
@@ -29,7 +37,7 @@ def test_missing_rules_do_not_change_existing_store(tmp_path, monkeypatch):
     store = tmp_path / "tasks.json"
     original = '{"tasks": [], "work_log": {}, "daily_logs": [], "meta": {}}'
     store.write_text(original, encoding="utf-8")
-    monkeypatch.setenv("CLAUDE_COMPANION_STORE", str(store))
+    monkeypatch.setenv("TASKS_STORE", str(store))
     module = _load_tasks_module(configured=False)
     args = module.build_parser().parse_args(["work", "summary", "--month", "2026-10"])
     with pytest.raises(ValueError, match="daily_norma_hours"):

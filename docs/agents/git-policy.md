@@ -39,15 +39,3 @@
 - hookが動くGit操作（commit・mergeなど）は、1回のツール呼び出しにつき1操作だけ実行する。終了コードに加えてWarningを含む全出力を読み、`write-safe-code-and-scripts`の警告確認手順を完了してから、次のGit書き込みを別の呼び出しで行う。同じ`functions.exec`内で後続のadd・commit・pushを予約しない。TruffleHogのエラー時はAGENTS.mdの停止・報告手順に従う。
 
 - **`git commit`の前に、対象リポジトリでlefthookのpre-commit（TruffleHogによるsecret検知）を必ず実行させる。** メインチェックアウトの`.git/hooks/pre-commit`に`LEFTHOOK_CONFIG`でメインの`lefthook.yml`の絶対パスを固定注入済みの独立リポジトリでは、worktree側に`lefthook.yml`を個別配置しなくても発動する（hooksはworktree間で共有されるがconfigはworktree自身のトップレベルからしか探索されないため、`LEFTHOOK_CONFIG`で固定する対応が必要になる）。まだこの対応をしていない独立リポジトリ（新規clone直後など）では、`lefthook.yml`（`extends: [~/.lefthook-global.yml]`のみ）をトップレベルに作成して`lefthook install`し、生成された`.git/hooks/pre-commit`の`call_lefthook()`定義の直前に`export LEFTHOOK_CONFIG="<トップレベルの絶対パス>/lefthook.yml"`を追記してから`git commit`する。`LEFTHOOK=0`や`--no-verify`でのスキップは絶対禁止のhook迂回に当たるため使わない。
-
-## Git・GitHub CLIの実行
-
-- `git`と`gh`は、読み取り操作を含め初回から毎回サンドボックス外で実行する。必要な実行ツールでは`sandbox_permissions: "require_escalated"`を指定し、承認手続きに従う。
-- この実行方法は許可済みだが、Git操作自体の許可は広げない。リポジトリごとの操作制限を引き続き適用する。
-
-## GitHub Issueの作成・本文更新
-
-- 本文を書く前に、対象リポジトリの作業指示と`.github/ISSUE_TEMPLATE/`を確認し、用途に合うテンプレートを実際に読む。ローカルにない場合はGitHubから取得する。過去のIssueや記憶をテンプレート確認の代わりにしない。
-- テンプレートの見出し・順序・必須項目を使って本文を組み立てる。独自の見出しへ置き換えず、詳細は該当項目の下へ整理する。空欄・省略が許される項目はテンプレートの指示に従う。
-- 投稿直前に、本文を読み取ったテンプレートと照合し、見出し・順序・必須項目の欠落を確認する。CLI・API・プラグイン経由でも省略しない。テンプレートの有無や内容を確認できない場合は投稿せず、その状況を報告する。テンプレートがないと確認できた場合だけ自由形式で作成する。
-- 投稿・本文更新後はIssueを再取得し、意図した本文とテンプレートの構成が反映されていることを確認してから完了を報告する。

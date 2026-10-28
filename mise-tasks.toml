@@ -1,19 +1,70 @@
 [setup]
-description = "設定を初期配置し、Windowsの保存先を初回だけ確認する"
+description = "Linux / WSLの設定とツールを導入し、共通指示・スキルの配置を確認する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
-depends = ["setup:check"]
-confirm = { message = "表示された配置予定を確認しましたか？ 設定を配置し、管理対象ツールを導入します。", default = "no" }
+confirm = { message = "スキルと設定を配置し、管理対象ツールを導入します。", default = "no" }
 run = [
-  "mise dot apply --yes",
+  { task = "setup:files" },
   "mise -C {{ env.HOME | quote }} install",
   "aqua -c {{ vars.public_root | quote }}/aqua.yaml install",
-  '''if test -x {{ vars.powershell | quote }} && test ! -f {{ vars.windows_state | quote }}/chezmoi.toml; then mise run windows:setup; fi''',
-  { task = "windows:apply" },
 ]
+
+["setup:files"]
+description = "スキルを導入し、競合を確認して設定を配置・検査する"
+run = [
+  { task = "skills:install" },
+  { task = "setup:check" },
+  "mise dot apply --yes",
+  { task = "agents:check" },
+]
+
+["skills:install"]
+description = "スキルの取得・配置・検査を行い、再実行で同じ配置に揃える"
+vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
+run = [
+  { task = "skills:restore" },
+  "mise dot status {{ vars.target | quote }}",
+  "mise dot diff {{ vars.target | quote }}",
+  "mise dot apply --dry-run {{ vars.target | quote }}",
+  "mise dot apply --yes {{ vars.target | quote }}",
+  { task = "skills:check" },
+]
+
+["skills:check"]
+description = "スキルの配置先と、直下の実体・リンク切れを確認する"
+vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
+run = [
+  "mise dot status --missing {{ vars.target | quote }}",
+  "test -d {{ vars.target | quote }}",
+  '''test -n "$(find {{ vars.target | quote }}/ -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
+  '''test -z "$(find {{ vars.target | quote }}/ -name SKILL.md -type l -print)"''',
+  '''test -z "$(find {{ vars.target | quote }}/ -xtype l -print)"''',
+]
+
+["skills:restore"]
+description = "lockfileに記録した外部スキルの配布物を復元する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+dir = "{{ vars.public_root }}"
+run = [
+  "git diff --exit-code HEAD -- .agents/skills",
+  '''test -z "$(git ls-files --others --exclude-standard -- .agents/skills)"''',
+  "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- vendir sync --locked",
+]
+
+["windows:sync"]
+description = "WSL側のセットアップ後、Windowsの保存先を確認して設定を同期する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run = [{ task = "windows:setup" }, { task = "windows:apply" }]
 
 ["setup:check"]
 description = "配置予定と競合を確認する"
 run = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
+
+["agents:check"]
+description = "共通資料・スキル・判定処理の欠落とリンク先の相違を検出する"
+run = [
+  { task = "skills:check" },
+  "mise dot status --missing ~/.agents/hooks ~/.agents/prh",
+]
 
 ["docs:tree"]
 description = "README用のディレクトリ構成を表示する"

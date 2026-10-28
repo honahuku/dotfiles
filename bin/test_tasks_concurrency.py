@@ -1,10 +1,10 @@
-"""Concurrency tests: multiple `tasks` CLI processes writing to the same
-store at once must not corrupt the JSON or drop updates.
+"""複数の`tasks` CLIプロセスが同じ保存先へ同時に書き込んでも、
+JSONの破損や更新の欠落が起きないことを検証する。
 
-Real-world incident (2026-08-07): ten `tasks reorder <id> --tail` processes
-launched in parallel via shell `&` corrupted tasks.json (a stray trailing
-`}`) and silently dropped 8 of the 10 updates. `load()`/`save()` had no
-mutual exclusion, so concurrent read-modify-write cycles raced.
+2026-08-07に発生した事象では、シェルの`&`で10個の
+`tasks reorder <id> --tail`を並列実行すると、tasks.jsonに余分な末尾の`}`が
+混入し、10件中8件の更新が通知なく失われた。load()/save()に排他制御がなく、
+読み取り・変更・保存の処理が競合していた。
 """
 
 import json
@@ -16,7 +16,7 @@ TASKS_SCRIPT = Path(__file__).parent / "tasks"
 
 
 def _env(store):
-    return {"CLAUDE_COMPANION_STORE": str(store), "PATH": "/usr/bin:/bin"}
+    return {"TASKS_STORE": str(store), "PATH": "/usr/bin:/bin"}
 
 
 def _run_cli(store, *argv):
@@ -55,14 +55,14 @@ def test_parallel_reorder_tail_does_not_corrupt_or_drop_updates(tmp_path):
         _out, err = p.communicate(timeout=30)
         assert p.returncode == 0, err
 
-    # The store must still parse as JSON — a corrupted file (e.g. a stray
-    # trailing brace from an interleaved write) raises here.
+    # 保存ファイルをJSONとして解析できることを確認する。書き込みの競合で
+    # 閉じ括弧が余分に残るなど、破損していればここで例外になる。
     data = json.loads(store.read_text())
 
     updated = {t["id"]: t["queue_pos"] for t in data["tasks"]}
     assert len(updated) == 10
-    # Every id must still be present and every queue_pos distinct — a lost
-    # update (overwritten by a racing process) would collapse two ids onto
-    # the same queue_pos or silently drop an id's move to the tail.
+    # すべてのIDが残り、queue_posが重複しないことを確認する。
+    # 競合するプロセスに更新を上書きされると、二つのIDが同じ
+    # queue_posになったり、末尾へ移動した操作が失われたりする。
     assert set(updated) == set(ids)
     assert len(set(updated.values())) == 10

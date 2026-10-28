@@ -311,11 +311,6 @@ for kubectx_completion in \
 done
 unset kubectx_completion
 
-if [[ -n "${DOTFILES_PRIVATE_ROOT:-}" && -f "$DOTFILES_PRIVATE_ROOT/shell/bashrc.sh" ]]; then
-  # ShellCheckではprivate repoを含めず、private側で個別に検査する。
-  # shellcheck source=/dev/null
-  . "$DOTFILES_PRIVATE_ROOT/shell/bashrc.sh"
-fi
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate bash)"
 fi
