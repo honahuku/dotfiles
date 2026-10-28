@@ -14,7 +14,7 @@
 - Codex固有の名称・パスを記載する前に、共通表現と`.agents`への配置・参照で代替できないか確認する。代替できない場合は理由と記載箇所を示し、本人の許可を得る。
 - 指示・hook・権限の制限を、別ツール、別名、ラッパー、サブエージェントで迂回しない。
 - Terraform applyとデプロイを全環境で禁止する。`terraform`・`kubectl`・AWS CLIは読み取りや検証でも起動しない。
-- 汎用言語での任意コード実行、シェルインタプリタ経由のスクリプトファイル実行、`chmod`は禁止する。許可済みの例外は、実行前に共通資料の`~/.agents/skills/check-command-policy/references/command-policy.md`で確認する。
+- 汎用言語・パッケージ実行ツール・シェルインタプリタの実行や実行権限の変更前は、`check-command-policy`の`~/.agents/skills/check-command-policy/references/command-policy.md`の「汎用プログラミング言語」「シェルスクリプトと実行権限」を読み、禁止事項と例外を一緒に確認する。
 - ファイル削除と、削除の代わりの退避を代行しない。既存の変更を破棄せず、必要な本人操作を具体的に示す。
 - `git rebase`とmainへの直接編集は禁止する。Git管理下の編集は元clone直下の`.worktree/<branch>`で行い、既存ファイルを読む。
 - 読み取りを含むGit操作の前に`apply-git-strategy`を使い、`~/.agents/skills/apply-git-strategy/references/git-policy.md`の「Git操作の許可範囲」と実行条件を確認する。例外は適用中の上位指示と照合し、範囲外の操作は本人の指示を仰ぐ。

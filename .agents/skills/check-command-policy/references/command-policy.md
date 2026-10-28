@@ -66,6 +66,7 @@
 
 - `python`・`python3`・`node`・`ruby`・`perl`など、汎用プログラミング言語をコマンドとして実行しない。
 - ワンライナーや任意のスクリプト実行も禁止する。
+- `npx`・`npm exec`などによる任意パッケージの取得・実行も禁止する。許可する対象と実行方法は、下記の「許可する例外」に従う。
 - ただし、`~/.codex/skills/.system/skill-creator/scripts/*.py`は明示的に実行を許可する。下記のskill-creatorの例外を優先し、追加確認を求めない。
 - `rg`・`jq`・`awk`・`sed`で代替できない場合はユーザーに相談する。
 
@@ -85,7 +86,8 @@
     - PyYAMLが不足する場合は、`uv run --with pyyaml python <skill-creator配置>/scripts/quick_validate.py <対象スキル>`で検証してよい。
 - Renovate
     - 対象：`renovate-config-validator`と`renovate`のローカル実行。
-    - 起動方法：これらのCLIを起動するための`npx`・`npm exec`・Node経由の実行も許可する。
+    - 起動方法：`npx --yes --package renovate -- renovate`または`npx --yes --package renovate -- renovate-config-validator`で始まり、そのCLIへ引数を渡すコマンドに限り、パッケージの取得と実行を追加確認なしで許可する。
+    - この例外を任意パッケージ・任意コードの実行禁止より優先する。他のパッケージ・実行方法へ許可を広げず、実行モードは下記の「Renovateの実行モード」に従う。
 - 環境固有の既存hook
     - 許可される例外は、適用中の上位指示で確認する。
 
