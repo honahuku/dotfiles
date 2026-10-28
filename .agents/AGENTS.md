@@ -50,6 +50,7 @@
 | コード・設定・スクリプトの作成や修正 | `write-safe-code-and-scripts`、`~/.agents/skills/write-safe-code-and-scripts/references/editing-policy.md` |
 | スキル・共通指示・dotfiles・個人ツールの改善に着手 | `~/.agents/skills/write-agent-instructions/references/context-policy.md`。継続時も作業前に現在日時を確認する |
 | AGENTS.md・スキル・Coding Agents向けhookの作成・編集、肥大化・重複・起動条件・配置の見直し | 編集前と完了前に`write-agent-instructions` |
+| 公開スキルのmain取り込み後、本人からのmerge完了報告後 | `write-agent-instructions`の端末への反映確認に従い、同期と常用版の確認まで行う |
 | 計画作成・修正、計画から実装への移行 | `write-plan` |
 | 応答・成果物の推敲、長文・外部文書の送信前 | `review-output`。名前・文体・書式の詳細は`~/.agents/skills/review-output/references/output-policy.md`の該当セクション |
 | 日本語の推敲 | `yomiyasu` |

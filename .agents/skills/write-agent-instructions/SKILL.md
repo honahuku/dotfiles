@@ -1,6 +1,6 @@
 ---
 name: write-agent-instructions
-description: AGENTS.md・スキル・Coding Agents向けhookを作成・編集するとき、指示の肥大化・重複・起動条件・配置を見直すときに使う。
+description: AGENTS.md・スキル・Coding Agents向けhookの作成・編集・構成の見直しと、公開スキルのmain取り込み後の同期・反映確認に使う。
 ---
 
 # エージェントの指示と起動条件
@@ -57,6 +57,8 @@ Codex固有の名称・パスを記載する前に、次の順で確認する。
 外部スキルの追加・更新では、`docs/mise-dotfiles.md`の「外部スキルの取得範囲」を読み、取得元の公式インストール手順と配布ファイル一式を照合する。
 
 自作スキルの命名・仕様検査、変更したファイルのLefthookでの検査、mainへの反映後に行うリンク更新は`apply-git-strategy`に従う。リンク更新でファイルの削除や置換が必要なら、共通の本人操作手順を先に適用する。
+
+公開スキルのmain取り込み後は、本人からのmerge完了報告で再開した場合も、`references/context-policy.md`「端末への反映確認」に従って同期と常用版の確認を終えてから完了を報告する。
 
 ## hookの作成と確認
 
