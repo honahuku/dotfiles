@@ -1,15 +1,17 @@
 ---
 name: apply-git-strategy
-description: Git操作の許可範囲と作業場所を確認する。Git管理ファイルの編集、ブランチ・タスク命名、PR操作、miseやdotfilesのファイル配置にも使う。
+description: Git操作の許可範囲と、既存ブランチ・PR・worktreeを使う作業場所を確認する。リポジトリでの実装・修正・PRレビュー・ローカル検証の着手や再開、ブランチ作成・切替、worktree準備、ステージ・commit・push・mergeの前に使う。命名やmise・dotfilesの配置も対象。
 ---
 
 # Gitと作業場所のルール
 
 読み取りを含むGit操作とGit管理ファイルの編集の前に、`references/git-policy.md`の「Git操作の許可範囲」と実行条件を読む。既定とリポジトリ別の例外は同資料で管理する。それ以外は必要な場面の資料だけを読む。
 
+実装・修正・PRレビュー・ローカル検証に着手・再開するときは、編集の有無にかかわらず、作業場所を選ぶ前に`references/worktree.md`の「作業開始」を読む。ブランチ作成・切替やworktree準備の前も同様とする。既存ブランチ・open PRの再利用と別ブランチへ分離する際の許可条件は、同資料で管理する。
+
 | 場面                                            | 資料                                                         |
 | ----------------------------------------------- | ------------------------------------------------------------ |
-| 編集開始・worktreeの準備・再利用・整理候補・成果物の保存  | `references/worktree.md`                                     |
+| 編集開始・ブランチ作成前・既存PRへの対応・worktreeの準備と再利用・整理候補・成果物の保存 | `references/worktree.md` |
 | ブランチ・コミット・タスク・スキルの命名        | `references/naming.md`                                       |
 | commit・merge・push、個人設定の反映、操作の委譲 | `references/git-policy.md`、`references/commit.md` |
 | PR作成・本文更新・Ready化の案内                 | `prepare-pr-for-review`、`references/pr-workflow.md`         |

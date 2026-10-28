@@ -12,7 +12,7 @@
 
 - 既存の変更を勝手に破棄しない。stash・強制push・削除・履歴変更は対象と影響を確認してから行う
 
-- `main`ブランチは元clone直下の作業ツリーに置き、`main`用worktreeは作らない。`main`への直接編集は禁止し、変更規模を問わず`main`から作成した専用ブランチのworktreeで作業する。
+- `main`ブランチは元clone直下の作業ツリーに置き、`main`用worktreeは作らない。`main`への直接編集は禁止する。作業ブランチの選択・再利用・新規作成の条件は`worktree.md`の「作業開始」に従う。
 
 - mainとの競合は、作業ブランチのworktreeへmainを取り込み、そのworktree内で解消する。main上での競合解消や、そのためのmain直接編集の許可を求めない。取り込み・解消後のステージ・コミットは、それぞれの操作の許可範囲に従う。mainで既にマージが始まっていても、その作業状態を変更せず、作業ブランチ側で進める。
 
@@ -27,7 +27,7 @@
 | 操作 | 許可条件 |
 | --- | --- |
 | 状態を変更しない読み取り | 追加確認なしで実行できる |
-| worktreeの準備 | `git worktree add`、それに伴う`-b`でのブランチ作成、clone専用の`info/exclude`への`/.worktree/`追記を追加確認なしで実行できる。既存worktreeの再利用確認などは`apply-git-strategy/references/worktree.md`に従う |
+| worktreeの準備 | `worktree.md`の既存ブランチ・open PRの確認と再利用条件を満たす場合、`git worktree add`、必要な`-b`でのブランチ作成、clone専用の`info/exclude`への`/.worktree/`追記を追加確認なしで実行できる。同じトピックを別ブランチへ分離する許可は含まない |
 | ステージ | 下記の条件を満たす場合に実行できる |
 | commit・push・merge・pull・fetchなど上記以外の書き込み | 本人の明示指示またはリポジトリごとの恒常的な例外が必要 |
 
