@@ -9,9 +9,9 @@ description: コード・シェル・nvim設定・hook・Dockerfile・インフ�
 
 | 場面 | 資料 |
 | --- | --- |
-| 新規スクリプトの作成、コマンド・ラッパーの実行 | `references/execution-constraints.md`、共通の`command-policy.md` |
-| テキストファイルの編集 | 共通の`editing-policy.md` |
+| 新規スクリプトの作成、コマンド・ラッパーの実行 | `references/execution-constraints.md`、共通の`~/.agents/skills/check-command-policy/references/command-policy.md` |
+| テキストファイルの編集 | 共通の`~/.agents/skills/write-safe-code-and-scripts/references/editing-policy.md` |
 | 編集後のlint・fmt・スタイル確認、警告の判断 | `references/code-validation.md`、`references/languages.md`の該当言語 |
 | Terraform・Kubernetes manifestの編集やmerge | `references/infrastructure.md` |
 
-共通資料は`~/.agents/docs/common/`にある。インフラの検証では、禁止CLIの結果を対象SHAのCIで確認する条件を優先する。エラーや警告を隠さず、検査結果を確認してから成果物を提示する。
+コマンド実行の条件は`check-command-policy`を使う。インフラの検証では、禁止CLIの結果を対象SHAのCIで確認する条件を優先する。エラーや警告を隠さず、検査結果を確認してから成果物を提示する。

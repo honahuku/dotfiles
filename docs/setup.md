@@ -40,7 +40,7 @@ mise --version
 
 既存環境では、先に[管理元の移行](#既存環境の管理元を揃える)と設定の競合を確認する。`mise run setup:check`もタスク起動に必要なツールを自動導入する場合があるため、OS管理版の調査を先に済ませる。
 
-private設定を併用する場合は、公開側を適用する前にprivate側のセットアップ手順を使う。公開設定だけを使う場合は、次を実行する。
+このrepoを取得し、次を実行する。
 
 ```sh
 git clone https://github.com/honahuku/dotfiles.git ~/git/honahuku/dotfiles
@@ -91,19 +91,13 @@ CLIは`aqua.yaml`、言語環境とaqua本体は`.config/mise/config.toml`に従
 
 設定配置前には`mise run setup:check`で差分を確認する。旧方式の`~/.bashrc`・`~/.profile`リンクがある場合は、リンク先と内容を保存したうえで実ファイルへの移行方法を決める。管理ブロックの追加によってリポジトリのリンク元を直接書き換えないようにする。ユーザー固有の設定を失う置換は行わない。
 
-`~/.agents/skills`全体がリポジトリへのリンクの場合も、入口のリンクだけを移行し、リンク先のファイルを削除しない。既存ファイルの置換とバックアップ先は本人に確認する。競合に対して一括で`--force`・`--prune`を使わない。
-
-Codex設定は[必要なキーだけをmiseでマージ](https://mise.jdx.dev/dotfiles/edits.html#merge)し、端末固有のプロジェクト信頼設定などを保持する。
-
 ## WindowsのCodex
 
 DesktopではWSLを実行環境に選ぶ。[共通指示とスキル](codex.md)の配置には上記セットアップを使う。
 
 ## Windows Terminal
 
-初回セットアップで保存先を確認する。設定編集を終えてから適用する。
-
-Windowsの実行ファイルが見えていても、WSLの相互運用が無効な環境ではPowerShellを実行できない。セットアップはWindows連携をスキップする。その場合は、相互運用が有効なWSL端末で`mise run windows:setup`を実行して保存先を確認し、`mise run windows:diff`で既存設定との差分を確認してから`mise run windows:apply`を実行する。Debian・Archの通常のLinux環境ではWindows連携は不要である。
+WSL側のセットアップ後、`mise run windows:sync`で保存先を確認して同期する。設定編集を終えてから適用する。
 
 既定プロファイルは各PCのデフォルトWSLを使う。必要ならWindows側で`wsl --set-default <ディストリビューション名>`を実行する。[WSLの公式手順](https://learn.microsoft.com/windows/wsl/reference)を参照する。
 

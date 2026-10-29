@@ -20,3 +20,16 @@ miseのタスクからも`aqua exec`で`aqua.yaml`のバージョンを使う。
 uv本体とPython本体のバージョンは別である。uvは[Pythonの取得・選択もできる](https://docs.astral.sh/uv/concepts/python-versions/)ため、処理が使うPythonはプロジェクトや実行時の指定で確認する。npxも、実行対象のnpmパッケージのバージョンとNode.jsのバージョンを別々に扱う。
 
 実際の導入は[セットアップ](setup.md)、設定の更新と競合への対応は[配置手順](mise-dotfiles.md)を参照する。
+
+## Google Cloud CLI
+
+gcloudはaqua管理の例外として、[miseのHTTPバックエンド](https://mise.jdx.dev/dev-tools/backends/http.html)で管理する。[設定](../.config/mise/config.toml)でバージョンを固定し、Google公式の`dl.google.com`からアーカイブを取得して展開する。LinuxとmacOSに対応する。
+
+```sh
+mise install http:gcloud
+mise exec -- gcloud version
+```
+
+バージョン情報もGoogle公式の`components-2.json`から取得する。この情報は最新バージョンのみを返す。`mise latest http:gcloud`で更新先を確認し、設定の`version`を更新する。既存のaqua向けRenovate設定による自動更新の対象には含めない。
+
+PATHはmiseが管理するため、Googleの`install.sh`によるシェル設定変更は行わない。初回の認証・プロジェクト設定が必要なときは`gcloud init`を実行する。miseの固定バージョンと実体を一致させるため、更新には`gcloud components update`を使わない。

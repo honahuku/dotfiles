@@ -1,5 +1,37 @@
 [
   {
+    "name": "exec-command-compound",
+    "input": {
+      "tool_name": "exec_command",
+      "tool_input": {"cmd": "pwd && pwd"}
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "exec-command-single",
+    "input": {
+      "tool_name": "exec_command",
+      "tool_input": {"cmd": "pwd"}
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "namespaced-exec-command-compound",
+    "input": {
+      "tool_name": "functions.exec_command",
+      "tool_input": {"cmd": "pwd && pwd"}
+    },
+    "expected": "deny"
+  },
+  {
+    "name": "namespaced-exec-command-single",
+    "input": {
+      "tool_name": "functions.exec_command",
+      "tool_input": {"cmd": "pwd"}
+    },
+    "expected": "allow"
+  },
+  {
     "name": "write-other-owner-main-checkout",
     "input": {
       "tool_name": "Write",

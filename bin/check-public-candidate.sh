@@ -3,39 +3,31 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-private_root="${DOTFILES_PRIVATE_ROOT:-}"
-# GUIからのcommitでも検査できるよう、シェルの初期化には依存しない。
-if [[ -z "$private_root" ]]; then
-  for private_candidate in "$HOME"/git/*/dotfiles-private; do
-    [[ -d "$private_candidate" ]] || continue
-    if [[ -n "$private_root" ]]; then
-      echo "multiple private configuration repositories; set DOTFILES_PRIVATE_ROOT" >&2
-      exit 2
-    fi
-    private_root="$private_candidate"
-  done
+public_patterns_file="$script_dir/../config/public-forbidden-patterns.txt"
+if [[ ! -s "$public_patterns_file" ]]; then
+  echo "missing or empty patterns file: $public_patterns_file" >&2
+  exit 2
 fi
-patterns_file=""
-if [[ -n "$private_root" ]]; then
-  patterns_file="$private_root/config/public-forbidden-patterns.txt"
-  if [[ ! -s "$patterns_file" ]]; then
-    echo "missing or empty patterns file: $patterns_file" >&2
+pattern_args=(--file "$public_patterns_file")
+extra_patterns_file="${DOTFILES_FORBIDDEN_PATTERNS_FILE:-$HOME/.config/dotfiles/public-forbidden-patterns.txt}"
+# 公開設定だけの環境でも基本定義を検査し、指定済みの追加定義は欠落を許さない。
+if [[ -n "${DOTFILES_FORBIDDEN_PATTERNS_FILE:-}" || -e "$extra_patterns_file" || -L "$extra_patterns_file" ]]; then
+  if [[ ! -s "$extra_patterns_file" ]]; then
+    echo "missing or empty patterns file: $extra_patterns_file" >&2
     exit 2
   fi
-else
-  echo "private configuration repository not found; skipping private forbidden-pattern check" >&2
+  pattern_args+=(--file "$extra_patterns_file")
 fi
 mode="${1:---staged}"
 repository="${2:-.}"
 violations=0
 
 check_text() {
-  [[ -n "$patterns_file" ]] || return 0
   local label="$1"
   local content="$2"
   local result=0
   local matches
-  matches="$(rg --line-number --only-matching --text --ignore-case --file "$patterns_file" <<<"$content")" || result=$?
+  matches="$(rg --line-number --only-matching --text --ignore-case "${pattern_args[@]}" <<<"$content")" || result=$?
   if [[ "$result" == 0 ]]; then
     printf 'forbidden content: %s\n' "$label" >&2
     printf '%s\n' "$matches" >&2
@@ -60,8 +52,18 @@ if [[ "$mode" != "--staged" && "$mode" != "--worktree" && "$mode" != "--all" ]];
   exit 2
 fi
 repository="$(git -C "$repository" rev-parse --show-toplevel)"
-# worktree直下の.gitは管理用ファイルのため、配下の.gitだけを別リポジトリの混入として検出する。
-nested_git_paths="$(find "$repository" -mindepth 2 -name .git -print)"
+# ディレクトリ名だけで除外すると未登録repoを見逃すため、登録済みの.gitだけを除く。
+registered_git_paths="$(
+  git -C "$repository" worktree list --porcelain -z |
+    jq -Rs 'split("\u0000") | map(select(startswith("worktree ")) |
+      ltrimstr("worktree ") + "/.git")'
+)"
+nested_git_paths="$(
+  find "$repository" -name .git -prune -print0 |
+    jq -Rrs --argjson registered "$registered_git_paths" '
+      split("\u0000")[] | select(length > 0) |
+      . as $path | select($registered | index($path) | not)'
+)"
 if [[ -n "$nested_git_paths" ]]; then
   echo "public candidate contains nested Git repositories:" >&2
   echo "$nested_git_paths" >&2

@@ -10,7 +10,7 @@
 - PR本文の確認項目は、`write-technical-docs`の`references/pr-writing.md`に従う。
 - 投稿直前の最新状態の取得と二重投稿の確認は、`prepare-pr-for-review`の「PR / Issue への書き込み前の確認」に従う。
 - **コメント投稿（新規コメント・レビュー返信を含む）は、文面を提示しユーザーがその場で投稿してよいと言うまで実行しない（共通のcommand-policy.md参照）。** 「直して」「反映して」はコード修正・コミット・pushまでの指示で、投稿の許可を含まない。
-- レビューコメント・返信の文体は、共通資料`docs/agents/output-policy.md`の「レビュー返信コメント（Reviewee）」に従う。
+- レビューコメント・返信の文体は、共通資料`~/.agents/skills/review-output/references/output-policy.md`の「レビュー返信コメント（Reviewee）」に従う。
 - draft解除を案内する前に `prepare-pr-for-review` スキルを使う。
 - 他人のPRをレビューするときは `review` スキルを使う。
-- PRの署名など本名表記が必要になる場面では `use-personal-context` スキルの `~/.agents/docs/personal/context.md`の`global/user-real-name.md`セクションを確認する。本名はこの場面でのみ使う。
+- PRの署名など本名表記が必要な場合は、ユーザーに表記と公開可否を確認する。本名は許可された場面だけで使う。

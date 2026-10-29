@@ -1,15 +1,53 @@
 [setup]
-description = "設定を初期配置し、Windowsの保存先を初回だけ確認する"
+description = "Linux / WSLの設定とツールを導入し、共通指示・スキルの配置を確認する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
-depends = ["setup:check"]
-confirm = { message = "表示された配置予定を確認しましたか？ 設定を配置し、管理対象ツールを導入します。", default = "no" }
+confirm = { message = "スキルと設定を配置し、管理対象ツールを導入します。", default = "no" }
 run = [
-  "mise dot apply --yes",
+  { task = "setup:files" },
   "mise -C {{ env.HOME | quote }} install",
   "aqua -c {{ vars.public_root | quote }}/aqua.yaml install",
-  '''if test -x {{ vars.powershell | quote }} && test ! -f {{ vars.windows_state | quote }}/chezmoi.toml; then if {{ vars.powershell | quote }} -NoProfile -NonInteractive -Command 'exit 0'; then mise run windows:setup; else printf '%s\n' 'Windows連携をスキップ: PowerShellを起動できません。WSLの相互運用が有効な端末で mise run windows:setup を実行してください。'; fi; fi''',
-  { task = "windows:apply" },
 ]
+
+["setup:files"]
+description = "スキルを導入し、競合を確認して設定を配置・検査する"
+run = [
+  { task = "skills:install" },
+  { task = "setup:check" },
+  "mise dot apply --yes",
+  { task = "agents:check" },
+]
+
+["skills:install"]
+description = "スキルの取得・配置・検査を行い、再実行で同じ配置に揃える"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+dir = "{{ vars.public_root }}"
+vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
+run = [
+  "git diff --exit-code HEAD -- .agents/skills",
+  '''test -z "$(git ls-files --others --exclude-standard -- .agents/skills)"''',
+  "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- vendir sync --locked",
+  "mise dot status {{ vars.target | quote }}",
+  "mise dot diff {{ vars.target | quote }}",
+  "mise dot apply --dry-run {{ vars.target | quote }}",
+  "mise dot apply --yes {{ vars.target | quote }}",
+  { task = "skills:check" },
+]
+
+["skills:check"]
+description = "スキルの配置先と、直下の実体・リンク切れを確認する"
+vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
+run = [
+  "mise dot status --missing {{ vars.target | quote }}",
+  "test -d {{ vars.target | quote }}",
+  '''test -n "$(find {{ vars.target | quote }}/ -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
+  '''test -z "$(find {{ vars.target | quote }}/ -name SKILL.md -type l -print)"''',
+  '''test -z "$(find {{ vars.target | quote }}/ -xtype l -print)"''',
+]
+
+["windows:sync"]
+description = "WSL側のセットアップ後、Windowsの保存先を確認して設定を同期する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run = [{ task = "windows:setup" }, { task = "windows:apply" }]
 
 ["setup:check"]
 description = "配置予定と競合を確認する"
@@ -17,7 +55,19 @@ run = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
 
 ["agents:check"]
 description = "共通資料・スキル・判定処理の欠落とリンク先の相違を検出する"
-run = "mise dot status --missing ~/.agents/docs/common ~/.agents/docs/work/context.md ~/.agents/docs/personal/context.md ~/.agents/skills ~/.agents/hooks ~/.agents/prh"
+run = [
+  { task = "skills:check" },
+  { task = "hooks:check" },
+  "mise dot status --missing ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json",
+]
+
+["hooks:check"]
+description = "共通hookの登録漏れと拒否・通過の判定を検証する"
+dir = "{{ vars.public_root }}"
+run = [
+  '''jq -e '.hooks.PreToolUse as $groups | all(["Bash", "exec_command", "functions.exec_command", "apply_patch"][]; . as $tool | any($groups[]; .matcher as $pattern | $tool | test($pattern)))' .codex/hooks.json''',
+  '''jq -e -L .agents/hooks 'include "command-policy"; include "hook-settings-policy"; all(.[]; . as $case | ([ $case.input | (deny_sensitive_commands, deny_hook_settings) ] | first | .hookSpecificOutput.permissionDecision // "allow") == $case.expected)' .agents/hooks/tests/policy-cases.json''',
+]
 
 ["docs:tree"]
 description = "README用のディレクトリ構成を表示する"
