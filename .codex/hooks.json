@@ -1,0 +1,27 @@
+{
+  "description": "共通のコマンド実行とパッチ適用を検査する",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(Bash|exec_command|functions\\.exec_command)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c -L \"$HOME/.agents/hooks\" -f \"$HOME/.agents/hooks/guard.jq\"",
+            "statusMessage": "危険なコマンドを確認しています"
+          }
+        ]
+      },
+      {
+        "matcher": "^apply_patch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -c -L \"$HOME/.agents/hooks\" -f \"$HOME/.agents/hooks/guard.jq\"",
+            "statusMessage": "ファイル削除パッチを確認しています"
+          }
+        ]
+      }
+    ]
+  }
+}

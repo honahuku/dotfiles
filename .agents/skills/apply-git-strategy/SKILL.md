@@ -1,6 +1,6 @@
 ---
 name: apply-git-strategy
-description: Git操作の許可範囲と、既存ブランチ・PR・worktreeを使う作業場所を確認する。リポジトリでの実装・修正・PRレビュー・ローカル検証の着手や再開、ブランチ作成・切替、worktree準備、ステージ・commit・push・mergeの前に使う。命名やmise・dotfilesの配置も対象。
+description: Git操作の許可範囲と、既存ブランチ・PR・worktreeを使う作業場所を確認する。リポジトリでの実装・修正・PRレビュー・ローカル検証の着手や再開、ブランチ作成・切替、worktree準備、ステージ・commit・push・merge、Git作業の完了報告・引き渡しの前に使う。命名やmise・dotfilesの配置も対象。
 ---
 
 # Gitと作業場所のルール
@@ -14,6 +14,7 @@ description: Git操作の許可範囲と、既存ブランチ・PR・worktreeを
 | 編集開始・ブランチ作成前・既存PRへの対応・worktreeの準備と再利用・整理候補・成果物の保存 | `references/worktree.md` |
 | ブランチ・コミット・タスク・スキルの命名        | `references/naming.md`                                       |
 | commit・merge・push、個人設定の反映、操作の委譲 | `references/git-policy.md`、`references/commit.md` |
+| ステージ後の報告、未コミットの変更を残す完了報告・引き渡し | `references/git-policy.md`の「ステージ後の報告」。操作を依頼しない状態報告にも適用する |
 | PR作成・本文更新・Ready化の案内                 | `prepare-pr-for-review`、`references/pr-workflow.md`         |
 | AGENTS.md・スキル・hookの作成や更新             | `write-agent-instructions`                                   |
 

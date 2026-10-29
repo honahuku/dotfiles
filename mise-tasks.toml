@@ -57,7 +57,16 @@ run = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
 description = "共通資料・スキル・判定処理の欠落とリンク先の相違を検出する"
 run = [
   { task = "skills:check" },
-  "mise dot status --missing ~/.agents/hooks ~/.agents/prh",
+  { task = "hooks:check" },
+  "mise dot status --missing ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json",
+]
+
+["hooks:check"]
+description = "共通hookの登録漏れと拒否・通過の判定を検証する"
+dir = "{{ vars.public_root }}"
+run = [
+  '''jq -e '.hooks.PreToolUse as $groups | all(["Bash", "exec_command", "functions.exec_command", "apply_patch"][]; . as $tool | any($groups[]; .matcher as $pattern | $tool | test($pattern)))' .codex/hooks.json''',
+  '''jq -e -L .agents/hooks 'include "command-policy"; include "hook-settings-policy"; all(.[]; . as $case | ([ $case.input | (deny_sensitive_commands, deny_hook_settings) ] | first | .hookSpecificOutput.permissionDecision // "allow") == $case.expected)' .agents/hooks/tests/policy-cases.json''',
 ]
 
 ["docs:tree"]

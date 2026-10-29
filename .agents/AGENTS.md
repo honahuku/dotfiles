@@ -46,7 +46,7 @@
 | 条件 | 必須のスキル・共通資料 |
 | --- | --- |
 | コマンド実行・hook編集 | `check-command-policy` |
-| Git管理ファイルの編集前後、Git操作、タスク命名 | `apply-git-strategy`、`~/.agents/skills/apply-git-strategy/references/git-policy.md` |
+| Git管理ファイルの編集前後、Git操作、タスク命名、Git作業の完了報告・引き渡し | `apply-git-strategy`、`~/.agents/skills/apply-git-strategy/references/git-policy.md`。引き渡し前は「ステージ後の報告」を確認する |
 | コード・設定・スクリプトの作成や修正 | `write-safe-code-and-scripts`、`~/.agents/skills/write-safe-code-and-scripts/references/editing-policy.md` |
 | スキル・共通指示・dotfiles・個人ツールの改善に着手 | `~/.agents/skills/write-agent-instructions/references/context-policy.md`。継続時も作業前に現在日時を確認する |
 | AGENTS.md・スキル・Coding Agents向けhookの作成・編集、肥大化・重複・起動条件・配置の見直し | 編集前と完了前に`write-agent-instructions` |

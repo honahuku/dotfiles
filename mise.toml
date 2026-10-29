@@ -33,6 +33,7 @@ fi
 "~/.config/nvim" = "nvim"
 "~/.codex/AGENTS.md" = ".agents/AGENTS.md"
 "~/.codex/config.toml" = ".codex/config.toml"
+"~/.codex/hooks.json" = ".codex/hooks.json"
 
 
 [dotfile_groups.public-agent-hooks]

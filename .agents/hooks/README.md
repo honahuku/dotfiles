@@ -8,6 +8,8 @@
 
 ## 配置と登録
 
+Codexの共通登録は`.codex/hooks.json`で管理し、miseで`~/.codex/hooks.json`へ配置する。
+
 miseの`public-agent-hooks`グループで`~/.agents/hooks/`へ配置し、利用環境のPreToolUse登録から次のコマンドを呼ぶ。入力は既存の`tool_name`・`tool_input`形式を使う。ツール側のイベント・入力形式が違う場合は、登録側で対応を確認する。
 
 ```sh
@@ -22,6 +24,5 @@ jq -c -L "$HOME/.agents/hooks" -f "$HOME/.agents/hooks/guard.jq"
 危険なコマンドを実行せず、入力文字列として期待する判定と照合する。
 
 ```sh
-# 拒否される入力と許可される検索・読み取りを同じ条件で比較する。
-jq -e -L .agents/hooks 'include "command-policy"; include "hook-settings-policy"; all(.[]; . as $case | ([ $case.input | (deny_sensitive_commands, deny_hook_settings) ] | first | .hookSpecificOutput.permissionDecision // "allow") == $case.expected)' .agents/hooks/tests/policy-cases.json
+mise run hooks:check
 ```
