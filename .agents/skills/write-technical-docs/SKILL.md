@@ -16,6 +16,7 @@ description: 技術文書・仕様書・実験レポート・PRやIssueの技術
 | 対象 | 資料 |
 | --- | --- |
 | 本文の構成・変更理由・コードコメントとの書き分け | `references/technical-writing.md` |
+| 仕組み・概念・手順・比較・変更を説明する | `explain-with-visuals`。説明を組み立てる前に読む |
 | PR説明・PR本文の確認項目 | `references/pr-writing.md`、`prepare-pr-for-review` |
 | 実験・検証レポートの構成と図表 | `references/experiment-reports.md` |
 | 複数レイヤーの設定の関係を説明する | `references/layered-settings.md` |

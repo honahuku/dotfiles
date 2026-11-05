@@ -59,6 +59,7 @@
 | PRの作成・本文更新・レビュー準備 | `prepare-pr-for-review` |
 | 自分のPRに届いたコメントの確認・対応可否の判断・返信案の作成 | `review-output`のPRコメント確認手順を、調査の着手前に読む |
 | 他人のPRのレビュー | `review` |
+| 解説・説明・仕組み・概念・手順・比較・変更の理解を求められたとき。技術分野以外も含む | `explain-with-visuals`。説明を組み立てる前に読む |
 | MCPの利用、Notion操作 | `check-mcp-policy`。Notionは明示依頼時だけ使う |
 | 実行制限・hook拒否・環境の不具合、削除等の本人操作 | `troubleshoot-environment`、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md` |
 | メモリの作成・追記・共有、保存先の判断 | `check-memory-placement`、`~/.agents/skills/write-agent-instructions/references/context-policy.md` |
