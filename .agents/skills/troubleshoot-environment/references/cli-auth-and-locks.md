@@ -8,4 +8,4 @@ CLIは`uv`・`gh`など通常のコマンド名で実行・提示する。aqua�
 
 `gh`の認証は、サンドボックス外で`gh auth status`を実行して確認する。`GITHUB_TOKEN`による上書きが疑われる場合は、`env -u GITHUB_TOKEN gh auth status`と`env -u GITHUB_TOKEN gh api --method GET user --jq .login`で、保存済み認証に使われているアカウントを確認する。トークンの値は出力しない。対象リポジトリの代表的な読み取りAPIも確認してから、同期を再開する。アカウントが想定と異なる場合は、書き込みへ進まない。
 
-`aqua`やAqua管理のコマンドでは、キャッシュ・メタデータへの書き込みやダウンロードが必要になる場合がある。権限や通信のエラーが出たら、許可済みの同じ操作をサンドボックス外で再試行する。`command not found`では、下記のPATH確認手順を使う。
+`aqua`やaqua管理のコマンドでは、キャッシュ・メタデータへの書き込みやダウンロードが必要になる場合がある。サンドボックス内でのエラーは、`references/sandbox.md`の条件で本来の処理への影響を確認してから再試行を判断する。`command not found`では、PATHの確認手順を使う。
