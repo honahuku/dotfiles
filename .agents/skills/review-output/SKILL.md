@@ -28,6 +28,7 @@ description: 応答・文書の送信・保存前に、主述・修飾・説明�
 | PR作成・更新後の完了報告 | `references/output-review.md`のPR作成・更新後の完了報告 |
 | 応答の送信前・文書の保存前。短文、見出し、表、箇条書きも含む | `references/output-review.md`の主述・対象・修飾の確認 |
 | 文書・PR・コメント・Notion等の執筆前と送信前 | `references/output-review.md`の説明先をまたぐ重複チェック |
+| 引用元の記載、添付・ローカル資料や会話からの成果物作成 | `references/output-review.md`の参照資料と出力先の自己完結性 |
 | 長文成果物の独立した確認 | `references/adversarial-review.md` |
 | 名前の扱い、投稿先別の文体、確実性や書式の詳細 | `~/.agents/skills/review-output/references/output-policy.md`の該当セクション |
 | 日本語の推敲 | `yomiyasu` |
