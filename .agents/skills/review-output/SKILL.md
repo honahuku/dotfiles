@@ -22,6 +22,7 @@ description: 応答・文書の送信・保存前に、主述・修飾・説明�
 
 | 確認対象 | 資料 |
 | --- | --- |
+| 工数・費用・作業量の見積もり案と、その説明文の作成前 | `references/output-policy.md`の「回答範囲」。未確認の実績と仮見積もりを区別し、先送りを独断で決めない |
 | 本人操作の依頼、検査結果の報告、コミットメッセージ案の提示 | `~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の依頼前の検証提示。依頼文がなくても適用し、対象作業のツール出力と本文を照合する |
 | ステージ後の報告、未コミットの変更を残すGit作業の完了報告・引き渡し | `~/.agents/skills/apply-git-strategy/references/git-policy.md`の「ステージ後の報告」。本文の必須項目を照合してから送信する |
 | 自分のPRのコメント調査・対応可否の判断・返信案の作成前 | `references/output-review.md`のPRコメントの返信状況 |
