@@ -52,8 +52,8 @@ if command -v mise >/dev/null 2>&1; then
 fi
 
 case $- in
-  *i*) ;;
-  *) return ;;
+*i*) ;;
+*) return ;;
 esac
 
 HISTCONTROL=ignoreboth
@@ -72,7 +72,7 @@ if [[ -z "${debian_chroot:-}" && -r /etc/debian_chroot ]]; then
 fi
 
 case "${TERM:-}" in
-  xterm-color | *-256color) color_prompt=yes ;;
+xterm-color | *-256color) color_prompt=yes ;;
 esac
 # 端末名で判定できない場合は、必要に応じて強制的に色を有効にする。
 # force_color_prompt=yes
@@ -117,9 +117,9 @@ fi
 unset color_prompt force_color_prompt
 
 case "${TERM:-}" in
-  xterm* | rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
+xterm* | rxvt*)
+  PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+  ;;
 esac
 
 if [[ -x /usr/bin/dircolors ]]; then
@@ -138,6 +138,7 @@ alias py='python3'
 alias gp='git push -u origin HEAD'
 alias gpf='git push --force-with-lease --force-if-includes'
 alias nrlogin='codex mcp login newrelic'
+alias wizlogin='codex mcp login wiz'
 
 if [[ -f "$HOME/.bash_aliases" ]]; then
   # 個別aliasは、このrepoの解析には含めない。
@@ -177,36 +178,36 @@ trash() {
       continue
     fi
     case "$arg" in
-      --) end_of_opts=1 ;;
-      --force) force=1 ;;
-      --recursive) recursive=1 ;;
-      --dir) dir_mode=1 ;;
-      --verbose) verbose=1 ;;
-      --interactive) interactive=1 ;;
-      --*)
-        echo "trash: unrecognized option '$arg'" >&2
-        echo "Try 'rm --help' for more information." >&2
-        return 1
-        ;;
-      -*)
-        local opts="${arg#-}"
-        while [[ -n "$opts" ]]; do
-          case "${opts:0:1}" in
-            f) force=1 ;;
-            r | R) recursive=1 ;;
-            d) dir_mode=1 ;;
-            v) verbose=1 ;;
-            i) interactive=1 ;;
-            *)
-              echo "trash: invalid option -- '${opts:0:1}'" >&2
-              echo "Try 'rm --help' for more information." >&2
-              return 1
-              ;;
-          esac
-          opts="${opts:1}"
-        done
-        ;;
-      *) files+=("$arg") ;;
+    --) end_of_opts=1 ;;
+    --force) force=1 ;;
+    --recursive) recursive=1 ;;
+    --dir) dir_mode=1 ;;
+    --verbose) verbose=1 ;;
+    --interactive) interactive=1 ;;
+    --*)
+      echo "trash: unrecognized option '$arg'" >&2
+      echo "Try 'rm --help' for more information." >&2
+      return 1
+      ;;
+    -*)
+      local opts="${arg#-}"
+      while [[ -n "$opts" ]]; do
+        case "${opts:0:1}" in
+        f) force=1 ;;
+        r | R) recursive=1 ;;
+        d) dir_mode=1 ;;
+        v) verbose=1 ;;
+        i) interactive=1 ;;
+        *)
+          echo "trash: invalid option -- '${opts:0:1}'" >&2
+          echo "Try 'rm --help' for more information." >&2
+          return 1
+          ;;
+        esac
+        opts="${opts:1}"
+      done
+      ;;
+    *) files+=("$arg") ;;
     esac
   done
 
@@ -322,3 +323,4 @@ fi
 # 子シェルの初期化を省略しないよう、.profile用の印はexportしない。
 # shellcheck disable=SC2034
 DOTFILES_SHELL_LOADED=1
+
