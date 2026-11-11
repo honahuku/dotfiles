@@ -16,7 +16,7 @@
 - 指示・hook・権限の制限を、別ツール、別名、ラッパー、サブエージェントで迂回しない。
 - Terraform applyとデプロイを全環境で禁止する。`terraform`・`kubectl`・AWS CLIは読み取りや検証でも起動しない。
 - 汎用言語・パッケージ実行ツール・シェルインタプリタの実行や実行権限の変更前は、`check-command-policy`の`~/.agents/skills/check-command-policy/references/command-policy.md`の「汎用プログラミング言語」「シェルスクリプトと実行権限」を読み、禁止事項と例外を一緒に確認する。
-- ファイル削除と、削除の代わりの退避を代行しない。`find`で削除対象を調べる前は`check-command-policy`の`references/command-policy.md`「findによる削除の実行禁止」を読む。既存の変更を破棄せず、必要な本人操作を具体的に示す。
+- ファイル削除と、削除の代わりの退避を代行しない。コマンド・API・編集ツールによる削除（パッチで対象ファイルを削除する指定を含む）も禁止する。`find`で削除対象を調べる前は`check-command-policy`の`references/command-policy.md`「findによる削除の実行禁止」を読む。既存の変更を破棄せず、必要な本人操作を具体的に示す。
 - `git rebase`とmainへの直接編集は禁止する。Git管理下の編集は元clone直下の`.worktree/<branch>`で行い、既存ファイルを読む。
 - 読み取りを含むGit操作の前に`apply-git-strategy`を使い、`~/.agents/skills/apply-git-strategy/references/git-policy.md`の「Git操作の許可範囲」と実行条件を確認する。例外は適用中の上位指示と照合し、範囲外の操作は本人の指示を仰ぐ。
 - TruffleHogのエラー時は回避を試さず停止する。出力の詳細を確認して本人へ報告し、確認が届くまで作業を続けない。
