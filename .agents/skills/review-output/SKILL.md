@@ -1,6 +1,6 @@
 ---
 name: review-output
-description: 応答・文書の送信・保存前に、主述・修飾・説明の過不足・重複を確認する。自分のPRのコメント調査・対応可否の判断・返信案の作成前にも使う。技術内容の設計や執筆はwrite-technical-docsで行う。
+description: 応答・文書の送信・保存前、実装完了報告、検査結果・ステージ済み・未コミットの報告、worktree・ブランチ・コミットメッセージ案を示すGit作業の引き渡しで、検査結果と必須項目を確認する。自分のPRのコメント調査・返信案にも使う。技術内容の設計や執筆はwrite-technical-docsで行う。
 ---
 
 # 応答と成果物の確認
@@ -23,7 +23,7 @@ description: 応答・文書の送信・保存前に、主述・修飾・説明�
 | 確認対象 | 資料 |
 | --- | --- |
 | 本人操作の依頼、検査結果の報告、コミットメッセージ案の提示 | `~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の依頼前の検証提示。依頼文がなくても適用し、対象作業のツール出力と本文を照合する |
-| ステージ後の報告、未コミットの変更を残すGit作業の完了報告・引き渡し | `~/.agents/skills/apply-git-strategy/references/git-policy.md`の「ステージ後の報告」。本文の必須項目を照合してから送信する |
+| ステージ後の報告、未コミットの変更を残すGit作業の完了報告・引き渡し。「検査成功」「ステージ済み」「commit・main反映・同期は未実施」とだけ伝える短文も含む | `~/.agents/skills/apply-git-strategy/references/git-policy.md`の「ステージ後の報告」。完成した応答本文を必須項目と一つずつ照合し、不足があれば本文を補ってから送信する。短文化を理由にこの確認を省略しない |
 | 自分のPRのコメント調査・対応可否の判断・返信案の作成前 | `references/output-review.md`のPRコメントの返信状況 |
 | PR作成・更新後の完了報告 | `references/output-review.md`のPR作成・更新後の完了報告 |
 | 応答の送信前・文書の保存前。短文、見出し、表、箇条書きも含む | `references/output-review.md`の主述・対象・修飾の確認 |
