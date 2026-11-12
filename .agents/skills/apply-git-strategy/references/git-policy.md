@@ -20,7 +20,13 @@ worktreeパスの表示形式は、`review-output`の`references/output-policy.m
 
 - Git管理下の変更と関連ファイルは、所有者や組織を問わず元のclone直下の`.worktree/<branch>`に置く。表示のためにチャットの`work/`・`outputs/`などへ複製しない。外部保存はユーザーが対象と保存先を明示した場合だけ行う。保存前と提示前は`apply-git-strategy`に従い、反映は許可範囲内のmergeで行う。既存ファイルを`cp`で直接置き換えない。Obsidianは既定の例外に従う
 
-- **ファイル削除（実験ログ・作業結果・スクラッチ出力など、Git管理下でないものも含む）は絶対に実行しない。削除は必ずユーザー自身が行う。** `rm`・`rmdir`・`git rm`・`find -delete`はもちろん、上書きで実質消える操作も対象。`git merge`・`switch`・`checkout`・`reset`・`restore`などで作業ツリー上の既存ファイルが削除・上書きされる場合も実行しない。merge前は`git diff --name-status HEAD..<target>`で削除対象を確認する。`D`があれば、その対象・内容・参照先と削除理由を調べ、削除の必要性を判断する。削除が必要なら、許可された事前確認・準備はCoding Agentsが実行し、実行済みコマンドと実際の結果をコードブロックで示す。本人に必要な削除だけを未実行と明記して別のコードブロックで依頼し、完了報告後の確認もCoding Agentsが行う。片付け・置換・移行も同じ手順とする。**削除の代替として、Coding Agentsが独自に`mv`・trash・アーカイブ・退避ディレクトリを選んで既存物を移動し、先へ進めてはならない。** 削除手順を提示する前に管理元と標準の削除・アンインストール方法を確認し、直接削除との違いと推奨方法・理由を示す。管理ツールの削除機能も本人操作として案内できる。直接ファイル・ディレクトリを削除する場合は`rm`で示し、本人の`rm`→`trash` aliasを保持する。`/usr/bin/rm`・`/bin/rm`などの絶対パス、`rmdir`、`command rm`・`env rm`・`\rm`・`sudo rm`などaliasを迂回する指定を提示しない。ユーザーが明示的に依頼した移動・改名はこの代替禁止の対象外。共通hookの`~/.agents/hooks/command-policy.jq`で削除コマンドを拒否する。
+- Git管理ファイルの編集・削除は、依頼された作業の範囲で、`worktree.md`に従って選んだworktree内で実行できる。削除前は対象の内容・参照先・削除理由を確認し、本人の既存変更を破棄しない。ステージ・commit・merge・pushの許可条件は、本資料の「Git操作の許可範囲」に従う。
+
+- merge・switch・checkout・reset・restoreなどでファイルが削除・上書きされる場合も、対象と差分を事前に確認する。merge前は`git diff --name-status HEAD..<target>`で削除対象を確認し、依頼範囲外の削除や既存変更の破棄が含まれる場合は実行しない。
+
+- Git管理外のファイルの作成・編集・削除は、`review-output`の`references/output-policy.md`「送信・変更の承認」に従う。削除の代替として、独自に`mv`・trash・アーカイブ・退避先を選んで移動しない。本人操作が必要な場合は`troubleshoot-environment`の手動依頼手順に従い、標準の削除方法、対象、影響、理由を示す。直接削除を案内するときは本人の`rm`→`trash` aliasを保持し、aliasを迂回する指定を使わない。
+
+- `find -delete`の実行禁止はGit管理の有無を問わず維持する。`find`で削除対象を調べる前は、`check-command-policy`の`references/command-policy.md`「findによる削除の実行禁止」を読む。
 
 ## Git操作の許可範囲
 
@@ -35,7 +41,7 @@ worktreeパスの表示形式は、`review-output`の`references/output-policy.m
 
 worktreeの準備に`--force`や`-B`を使わず、既存状態を強制変更しない。許可した`info/exclude`への追記以外は、index・refs・reflog・Git hookなどへの直接書き込みで制限を迂回しない。
 
-Git書き込みの前に、適用中の上位指示にある恒常的な例外と既定を照合する。確認できない許可を推測しない。子ディレクトリの指示や通常の実装依頼だけで許可範囲を広げない。Git操作の許可は、ファイル削除・hook迂回・apply・デプロイの禁止を解除しない。
+Git書き込みの前に、適用中の上位指示にある恒常的な例外と既定を照合する。確認できない許可を推測しない。子ディレクトリの指示や通常の実装依頼だけで許可範囲を広げない。Git操作の許可は、依頼範囲外のファイル削除・既存変更の破棄・hook迂回・apply・デプロイを許可しない。
 
 ### リポジトリ別の許可
 
@@ -98,6 +104,7 @@ merge・PRのReady化・コメント投稿にはこの例外を適用しない�
 
 - `git`と`gh`は、読み取り操作を含め初回から毎回サンドボックス外で実行する。必要な実行ツールでは`sandbox_permissions: "require_escalated"`を指定し、承認手続きに従う。
 - この実行方法は許可済みだが、Git操作自体の許可は広げない。リポジトリごとの操作制限を引き続き適用する。
+- GitHub連携に依頼された操作を行う機能がない場合は、操作自体が許可されている範囲で`gh`へ切り替える。GitHub CLIの利用と認証選択は、`check-command-policy`の`references/command-policy.md`「GitHub CLIへの切り替えと認証選択」に従う。
 
 ## GitHub Issueの作成・本文更新
 

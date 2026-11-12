@@ -12,7 +12,7 @@ description: 応答・文書の送信・保存前、実装完了報告、検査�
 | 依頼・作業 | 使うスキルと順序 |
 | --- | --- |
 | 会話の回答、進捗報告、一般的な連絡文を確認する | `review-output`。技術文書の執筆手順は追加しない |
-| 仕様書・技術説明・実験レポート・PRやIssueの技術的な本文を作成・修正する | `write-technical-docs`で内容を組み立て、`review-output`で読み手に必要な情報と文章の明確さを確認する |
+| 仕様書・技術説明・実験レポート・PRやIssueの技術的な本文を作成・修正する | `write-technical-docs`で内容を組み立て、`review-output`で読み手に必要な情報と文章の明確さを確認する。共有資料や置き換え資料では独立読者レビューも行う |
 | 技術文書の主述・修飾・重複だけを直す | `review-output`で確認する。仕様・根拠・説明構成も変える必要があれば`write-technical-docs`を使う |
 | 日本語を自然な表現へ整える | `yomiyasu`。技術的な意味や条件は変えない |
 
@@ -22,12 +22,14 @@ description: 応答・文書の送信・保存前、実装完了報告、検査�
 
 | 確認対象 | 資料 |
 | --- | --- |
+| 工数・費用・作業量の見積もり案と、その説明文の作成前 | `references/output-policy.md`の「回答範囲」。未確認の実績と仮見積もりを区別し、先送りを独断で決めない |
 | 本人操作の依頼、検査結果の報告、コミットメッセージ案の提示 | `~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の依頼前の検証提示。依頼文がなくても適用し、対象作業のツール出力と本文を照合する |
 | ステージ後の報告、未コミットの変更を残すGit作業の完了報告・引き渡し。「検査成功」「ステージ済み」「commit・main反映・同期は未実施」とだけ伝える短文も含む | `~/.agents/skills/apply-git-strategy/references/git-policy.md`の「ステージ後の報告」。完成した応答本文を必須項目と一つずつ照合し、不足があれば本文を補ってから送信する。短文化を理由にこの確認を省略しない |
 | 自分のPRのコメント調査・対応可否の判断・返信案の作成前 | `references/output-review.md`のPRコメントの返信状況 |
 | PR作成・更新後の完了報告 | `references/output-review.md`のPR作成・更新後の完了報告 |
 | 応答の送信前・文書の保存前。短文、見出し、表、箇条書きも含む | `references/output-review.md`の主述・対象・修飾の確認 |
 | 文書・PR・コメント・Notion等の執筆前と送信前 | `references/output-review.md`の説明先をまたぐ重複チェック |
+| 引用元の記載、添付・ローカル資料や会話からの成果物作成 | `references/output-review.md`の参照資料と出力先の自己完結性 |
 | 長文成果物の独立した確認 | `references/adversarial-review.md` |
 | 名前の扱い、投稿先別の文体、確実性や書式の詳細 | `~/.agents/skills/review-output/references/output-policy.md`の該当セクション |
 | 日本語の推敲 | `yomiyasu` |

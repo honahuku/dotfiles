@@ -10,7 +10,8 @@ if [[ ! -s "$public_patterns_file" ]]; then
 fi
 pattern_args=(--file "$public_patterns_file")
 extra_patterns_file="${DOTFILES_FORBIDDEN_PATTERNS_FILE:-$HOME/.config/dotfiles/public-forbidden-patterns.txt}"
-if [[ -n "$extra_patterns_file" ]]; then
+# 公開設定だけの環境でも基本定義を検査し、指定済みの追加定義は欠落を許さない。
+if [[ -n "${DOTFILES_FORBIDDEN_PATTERNS_FILE:-}" || -e "$extra_patterns_file" || -L "$extra_patterns_file" ]]; then
   if [[ ! -s "$extra_patterns_file" ]]; then
     echo "missing or empty patterns file: $extra_patterns_file" >&2
     exit 2

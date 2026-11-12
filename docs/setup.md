@@ -38,7 +38,7 @@ mise --version
 
 ## 設定とツールを導入する
 
-既存環境では、先に[管理元の移行](#既存環境の管理元を揃える)と設定の競合を確認する。
+既存環境では、先に[管理元の移行](#既存環境の管理元を揃える)と設定の競合を確認する。`mise run setup:check`もタスク起動に必要なツールを自動導入する場合があるため、OS管理版の調査を先に済ませる。
 
 このrepoを取得し、次を実行する。
 
@@ -49,9 +49,18 @@ cd ~/git/honahuku/dotfiles
 mise run setup
 ```
 
-clone済みの場合は`git clone`を省略する。更新する場合は未コミットの変更を確認し、`git pull --ff-only`を使う。早送りできない場合は停止する。既存設定との競合には[配置手順](mise-dotfiles.md)に従って対応する。
+clone済みの場合は`git clone`を省略する。更新する場合は未コミットの変更を確認し、`git -c pull.rebase=false pull --ff-only`を使う。早送りできない場合や既存変更と競合する場合は停止し、変更を保持して解消する。既存設定との競合には[配置手順](mise-dotfiles.md)に従って対応する。
 
 `~/.bashrc`と`~/.profile`は実ファイルを残し、dotfilesを読み込む管理ブロックを追加する。適用前から開いていたBashには、`source ~/.bashrc`で設定を読み直すか、新しいシェルを開く。
+
+aqua本体もmiseから導入されるため、別途aquaのインストーラーを実行しない。新しい対話Bashで次を実行し、`aqua --version`が`.config/mise/config.toml`の指定版と一致することを確認する。
+
+```sh
+type -a mise aqua
+aqua --version
+```
+
+`~/.bashrc.local`や`~/.bash_aliases`に旧版aquaのPATH追加や旧ランタイム管理ツールの初期化が残っていると、対話シェルだけ別の版を選ぶ場合がある。既存内容を保存して競合する設定を整理し、ログインシェルと対話シェルの両方で確認する。ログインシェルだけでの確認や`mise exec`での成功を、普段の端末でも使えることの確認に代えない。
 
 <details>
 <summary>Arch Linuxのログインシェルで設定を読み込む</summary>

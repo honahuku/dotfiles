@@ -73,7 +73,7 @@ vendirは、その方法で選択したスキルに配布されるファイル�
 
 自作スキルの説明文と参照文書は日本語にする。コード・識別子・正式な出典名は維持する。Lefthookは公開候補のパスと内容全体に対して禁止語を検査し、自作スキルには日本語の検査も行う。`vendir.yml`と`vendir.lock.yml`の両方で定義された取得先は、この二つの検査から除外して上流の原文を保つ。秘密情報の検査は継続する。
 
-禁止語の基本定義は`config/public-forbidden-patterns.txt`を常に読む。追加定義はmiseで配置する`~/.config/dotfiles/public-forbidden-patterns.txt`を読み、別の定義を使う場合だけ`DOTFILES_FORBIDDEN_PATTERNS_FILE`で指定する。基本定義・追加定義の欠落や空ファイルは検査失敗とする。
+禁止語の基本定義は`config/public-forbidden-patterns.txt`を常に読む。追加定義はmiseで配置する`~/.config/dotfiles/public-forbidden-patterns.txt`を読み、別の定義を使う場合だけ`DOTFILES_FORBIDDEN_PATTERNS_FILE`で指定する。基本定義は必須とし、追加定義が未配置なら基本定義だけで検査する。追加定義を明示指定した場合や配置済みの場合は、欠落・空ファイルを検査失敗とする。
 
 手動検査は`./bin/check-public-candidate.sh --all`、変更範囲だけなら`--worktree`を使う。日本語の自動検査は英語だけの説明行を検出する補助であり、翻訳の正確さは原文と照合する。
 

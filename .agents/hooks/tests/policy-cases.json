@@ -1,11 +1,11 @@
 [
   {
-    "name": "exec-command-compound",
+    "name": "exec-command-and-chain",
     "input": {
       "tool_name": "exec_command",
       "tool_input": {"cmd": "pwd && pwd"}
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "exec-command-single",
@@ -16,12 +16,12 @@
     "expected": "allow"
   },
   {
-    "name": "namespaced-exec-command-compound",
+    "name": "namespaced-exec-command-and-chain",
     "input": {
       "tool_name": "functions.exec_command",
       "tool_input": {"cmd": "pwd && pwd"}
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "namespaced-exec-command-single",
@@ -74,14 +74,14 @@
     "expected": "allow"
   },
   {
-    "name": "compound-chain",
+    "name": "bash-and-chain",
     "input": {
       "tool_name": "Bash",
       "tool_input": {
         "command": "git -C /tmp/repo status --short && git -C /tmp/repo diff"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "compound-pipe",

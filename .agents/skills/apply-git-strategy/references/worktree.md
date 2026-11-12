@@ -2,7 +2,7 @@
 
 ## 作業開始
 
-- 個人用のdotfiles・スキル・共通指示の改善依頼では、継続依頼も含め、着手前に日本時間の現在日時を取得し、`~/.agents/skills/write-agent-instructions/references/context-policy.md`の「個人用の改善に着手する時間帯」を参照する。対象作業・現在時刻・例外を照合し、対象時間ならworktree作成や編集へ進まず、Obsidianの`inbox.md`へ未完了タスクだけを記録する。前のターンの時刻や、過去に着手した事実を継続の許可にしない。
+- 個人用のdotfiles・スキル・共通指示の改善依頼では、worktree作成前に`~/.agents/skills/write-agent-instructions/references/context-policy.md`の「個人用の改善に着手する前の確認」と「個人用の改善に着手する時間帯」を適用する。継続依頼でも現在時刻と例外を確認し、実施できない場合のIssue起票も同資料に従う。前のターンの時刻や、過去に着手した事実を継続の許可にしない。
 - 実際のrepoの場所と適用される指示を確認し、`~/.agents/skills/apply-git-strategy/references/git-policy.md`に従ってGit操作の許可範囲を判定する。
 - worktree作成がCoding Agentsに禁止されているリポジトリでは、mainへの直接編集で代替しない。制約を報告するだけで終えず、本人が安全に実行できる場合は、確認済みのブランチ・worktree状態に合わせて必要なGit操作を案内する。本人へのコミット依頼は共通の`~/.agents/skills/apply-git-strategy/references/git-policy.md`のlazygit・依頼分離の規則に従い、worktreeの絶対パスと対象ファイルを自然文で示す。許可された事前・事後確認はCoding Agentsが行い、未コミット差分などで判断できない場合は確認済みの状態と未決事項を伝える。
 - ブランチを作成する前に、既存差分、ローカル・リモートのブランチ、登録済みworktree、同じトピックのopen PRを確認する。同じトピックのブランチやopen PRがあれば、そのブランチを使う。ローカルにない場合も既存のリモートブランチを追跡し、別名の同一トピックブランチを作らない。別ブランチへの分離には本人の明示許可が必要であり、レビュー・検証・修正という作業種別の違いだけを分離理由にしない。
