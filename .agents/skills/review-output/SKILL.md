@@ -23,6 +23,7 @@ description: 応答・文書の送信・保存前、実装完了報告、検査�
 | 確認対象 | 資料 |
 | --- | --- |
 | 工数・費用・作業量の見積もり案と、その説明文の作成前 | `references/output-policy.md`の「回答範囲」。未確認の実績と仮見積もりを区別し、先送りを独断で決めない |
+| 不明な仕様について外部への問い合わせを文案に含める前 | `references/output-review.md`の「外部への仕様確認を文案に含める前」 |
 | 本人操作の依頼、検査結果の報告、コミットメッセージ案の提示 | `~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の依頼前の検証提示。依頼文がなくても適用し、対象作業のツール出力と本文を照合する |
 | ステージ後の報告、未コミットの変更を残すGit作業の完了報告・引き渡し。「検査成功」「ステージ済み」「commit・main反映・同期は未実施」とだけ伝える短文も含む | `~/.agents/skills/apply-git-strategy/references/git-policy.md`の「ステージ後の報告」。完成した応答本文を必須項目と一つずつ照合し、不足があれば本文を補ってから送信する。短文化を理由にこの確認を省略しない |
 | 自分のPRのコメント調査・対応可否の判断・返信案の作成前 | `references/output-review.md`のPRコメントの返信状況 |
@@ -31,7 +32,7 @@ description: 応答・文書の送信・保存前、実装完了報告、検査�
 | 文書・PR・コメント・Notion等の執筆前と送信前 | `references/output-review.md`の説明先をまたぐ重複チェック |
 | 引用元の記載、添付・ローカル資料や会話からの成果物作成 | `references/output-review.md`の参照資料と出力先の自己完結性 |
 | 長文成果物の独立した確認 | `references/adversarial-review.md` |
-| 名前の扱い、投稿先別の文体、確実性や書式の詳細 | `~/.agents/skills/review-output/references/output-policy.md`の該当セクション |
+| 名前・用語の扱い、投稿先別の文体、確実性、全文提示とコードブロックの書式 | `~/.agents/skills/review-output/references/output-policy.md`の該当セクション |
 | 日本語の推敲 | `yomiyasu` |
 
 数行の短い応答には長文用の独立レビューを追加しない。本人向けの文面支援でも質問に直接答え、経緯から書き始めない。
