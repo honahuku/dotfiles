@@ -139,6 +139,8 @@ alias gp='git push -u origin HEAD'
 alias gpf='git push --force-with-lease --force-if-includes'
 alias nrlogin='codex mcp login newrelic'
 alias wizlogin='codex mcp login wiz'
+alias nsanlogin='codex mcp login notion-main'
+alias npologin='codex mcp login notion-helppage'
 
 if [[ -f "$HOME/.bash_aliases" ]]; then
   # 個別aliasは、このrepoの解析には含めない。
