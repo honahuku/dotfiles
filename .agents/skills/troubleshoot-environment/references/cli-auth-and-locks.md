@@ -6,6 +6,10 @@ CLIは`uv`・`gh`など通常のコマンド名で実行・提示する。aqua�
 
 `tasks`は読み取りでもロックを作る。AGENTS.mdの規則どおり、最初からサンドボックス外で実行する。ロックが競合したら、ロックを保持しているプロセスを確認し、ファイルは削除しない。`task`は別のコマンドなので、実体と副作用を確認する。
 
-`gh`の認証は、サンドボックス外で`gh auth status`を実行して確認する。`GITHUB_TOKEN`による上書きが疑われる場合は、`env -u GITHUB_TOKEN gh auth status`と`env -u GITHUB_TOKEN gh api --method GET user --jq .login`で、保存済み認証に使われているアカウントを確認する。トークンの値は出力しない。対象リポジトリの代表的な読み取りAPIも確認してから、同期を再開する。アカウントが想定と異なる場合は、書き込みへ進まない。
+`gh`の認証は、サンドボックス外で`gh auth status`を実行して確認する。`GH_TOKEN`または`GITHUB_TOKEN`が設定されている場合は保存済み認証より優先されるため、保存済みアカウントを選ぶ操作では、対象コマンドだけ`env -u GH_TOKEN -u GITHUB_TOKEN`を付けて実行する。トークンの値は出力しない。
+
+アクティブアカウントが対象リポジトリや操作に合わない場合は、利用可能な保存済みアカウントを確認し、対象に合うアカウントへ切り替える。`gh auth switch --hostname <host> --user <login>`で切り替え、環境変数が認証を上書きしている場合は、その変数を外した同じ`gh`コマンドから実行する。対象リポジトリの代表的な読み取り操作で利用アカウントとアクセスを確認してから、依頼された操作を行う。別の保存済みアカウントが利用可能なら、アカウントの不一致だけで停止しない。適切な認証情報がない場合は停止して報告する。一時的に切り替えた場合は、操作後に元のアカウントへ戻す。
+
+環境変数による認証の優先順位は[GitHub CLIの環境変数](https://cli.github.com/manual/gh_help_environment)、アカウントの確認・切り替え方法は[`gh auth status`](https://cli.github.com/manual/gh_auth_status)と[`gh auth switch`](https://cli.github.com/manual/gh_auth_switch)を参照する。
 
 `aqua`やaqua管理のコマンドでは、キャッシュ・メタデータへの書き込みやダウンロードが必要になる場合がある。サンドボックス内でのエラーは、`references/sandbox.md`の条件で本来の処理への影響を確認してから再試行を判断する。`command not found`では、PATHの確認手順を使う。
