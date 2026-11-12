@@ -96,6 +96,7 @@ merge・PRのReady化・コメント投稿にはこの例外を適用しない�
 
 - `git`と`gh`は、読み取り操作を含め初回から毎回サンドボックス外で実行する。必要な実行ツールでは`sandbox_permissions: "require_escalated"`を指定し、承認手続きに従う。
 - この実行方法は許可済みだが、Git操作自体の許可は広げない。リポジトリごとの操作制限を引き続き適用する。
+- GitHub連携に依頼された操作を行う機能がない場合は、操作自体が許可されている範囲で`gh`へ切り替える。GitHub CLIの利用と認証選択は、`check-command-policy`の`references/command-policy.md`「GitHub CLIへの切り替えと認証選択」に従う。
 
 ## GitHub Issueの作成・本文更新
 
