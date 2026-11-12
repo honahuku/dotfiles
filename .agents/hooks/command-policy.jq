@@ -18,6 +18,7 @@ def has_shell_control_operator:
   ((gsub("'[^']*'"; "") | test("`|\\$\\(")))
   or (
     gsub("'[^']*'|\"(?:\\\\.|[^\"\\\\])*\""; "")
+    | gsub("&&"; "")
     | test("[;&|()\\n]")
   );
 
@@ -56,7 +57,7 @@ def deny_sensitive_commands:
     (.tool_name == "Bash" or .tool_name == "exec_command" or .tool_name == "functions.exec_command")
     and ($command | has_shell_control_operator)
   ) then
-    policy_deny("1回のexec_commandは単一コマンドにする。シェル演算子やコマンド置換を含む複合コマンドは拒否する。独立した処理は別々のツール呼び出しにする。")
+    policy_deny("禁止対象のシェル演算子とコマンド置換は拒否する。独立した処理は別々のツール呼び出しにする。")
   elif (
     (.tool_name == "Bash" or .tool_name == "exec_command" or .tool_name == "functions.exec_command")
     and ($command | ascii_downcase | command_is("aws"))
