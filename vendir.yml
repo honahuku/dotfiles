@@ -690,3 +690,9 @@ directories:
         includePaths:
           - skills/wrangler/**/*
         newRootPath: skills/wrangler
+ - path: .agents/skills/cli/gh-cli
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cli/cli.git
+          ref: v2.71.4
