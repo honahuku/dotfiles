@@ -492,3 +492,201 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+  - path: .agents/skills/agents-sdk
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/agents-sdk/**/*
+        newRootPath: skills/agents-sdk
+  - path: .agents/skills/basin
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/basin/**/*
+        newRootPath: skills/basin
+  - path: .agents/skills/cf-cli
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/cf-cli/**/*
+        newRootPath: skills/cf-cli
+  - path: .agents/skills/cloudflare-app-bootstrap
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/cloudflare-app-bootstrap/**/*
+        newRootPath: skills/cloudflare-app-bootstrap
+  - path: .agents/skills/cloudflare-email-service
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/cloudflare-email-service/**/*
+        newRootPath: skills/cloudflare-email-service
+  - path: .agents/skills/cloudflare-one-migrations
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/cloudflare-one-migrations/**/*
+        newRootPath: skills/cloudflare-one-migrations
+  - path: .agents/skills/cloudflare-one
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/cloudflare-one/**/*
+        newRootPath: skills/cloudflare-one
+  - path: .agents/skills/cloudflare
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/cloudflare/**/*
+        newRootPath: skills/cloudflare
+  - path: .agents/skills/durable-objects
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/durable-objects/**/*
+        newRootPath: skills/durable-objects
+  - path: .agents/skills/frameworks-on-cloudflare
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/frameworks-on-cloudflare/**/*
+        newRootPath: skills/frameworks-on-cloudflare
+  - path: .agents/skills/gateway-workers
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/gateway-workers/**/*
+        newRootPath: skills/gateway-workers
+  - path: .agents/skills/k2
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/k2/**/*
+        newRootPath: skills/k2
+  - path: .agents/skills/nextjs-on-cloudflare
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/nextjs-on-cloudflare/**/*
+        newRootPath: skills/nextjs-on-cloudflare
+  - path: .agents/skills/sandbox-migrate-to-next
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/sandbox-migrate-to-next/**/*
+        newRootPath: skills/sandbox-migrate-to-next
+  - path: .agents/skills/sandbox-next
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/sandbox-next/**/*
+        newRootPath: skills/sandbox-next
+  - path: .agents/skills/sandbox-stable
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/sandbox-stable/**/*
+        newRootPath: skills/sandbox-stable
+  - path: .agents/skills/turnstile-spin
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/turnstile-spin/**/*
+        newRootPath: skills/turnstile-spin
+  - path: .agents/skills/web-perf
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/web-perf/**/*
+        newRootPath: skills/web-perf
+  - path: .agents/skills/workers-best-practices
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/workers-best-practices/**/*
+        newRootPath: skills/workers-best-practices
+  - path: .agents/skills/workers-development
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/workers-development/**/*
+        newRootPath: skills/workers-development
+  - path: .agents/skills/workers-profiling
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/workers-profiling/**/*
+        newRootPath: skills/workers-profiling
+  - path: .agents/skills/wrangler
+    contents:
+      - path: .
+        git:
+          url: https://github.com/cloudflare/skills.git
+          ref: cbf893b954222276bf1af57e5f23379231e0efb9
+        includePaths:
+          - skills/wrangler/**/*
+        newRootPath: skills/wrangler

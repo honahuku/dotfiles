@@ -208,4 +208,136 @@ directories:
       - v1.7.2-2-g13e4063
     path: .
   path: .agents/skills/find-skills
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/agents-sdk
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/basin
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/cf-cli
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/cloudflare-app-bootstrap
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/cloudflare-email-service
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/cloudflare-one-migrations
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/cloudflare-one
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/cloudflare
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/durable-objects
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/frameworks-on-cloudflare
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/gateway-workers
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/k2
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/nextjs-on-cloudflare
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/sandbox-migrate-to-next
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/sandbox-next
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/sandbox-stable
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/turnstile-spin
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/web-perf
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/workers-best-practices
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/workers-development
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/workers-profiling
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
+      sha: cbf893b954222276bf1af57e5f23379231e0efb9
+    path: .
+  path: .agents/skills/wrangler
 kind: LockConfig
