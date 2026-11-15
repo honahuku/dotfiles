@@ -6,7 +6,7 @@
 # 公開repoへ外部repoのcloneを含めない
 /vendor/
 /.gitmodules
-/.worktrees/
+/.worktree/
 
 # LazyVimの初期設定に付属するライセンスは、必要性を確認するまで追跡しない
 /nvim/LICENSE
