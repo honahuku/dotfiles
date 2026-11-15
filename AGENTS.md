@@ -15,3 +15,9 @@
 - 既存のOS管理ツールのアンインストールは、具体的な削除対象についてユーザーの許可を得てから、このリポジトリの手順に従って行う。許可された対象はOS側をアンインストールしてからaqua・mise側を導入し、実行パスとバージョンを確認する。依存関係の強制無視や、未承認の依存・関連パッケージの一括削除は行わない。別パッケージがOS側のツールに依存する場合は削除せず、必要性と扱いをユーザーに確認する。
 - 設定の編集、ツールのインストール、OSパッケージのアンインストールの許可は区別する。ユーザーがインストールを自分で行うと指定している場合は、確認・差分の説明と実行コマンドの提示まで行う。
 - このリポジトリのIssueは、`.github/ISSUE_TEMPLATE/`内の用途に合うテンプレートに従う。作成・本文更新の前にテンプレートを読み、投稿直前の照合と投稿後の再取得確認を行う。
+- 調査・診断・報告では、コード・設定・ログ・一次資料・実行結果を先に観測する。観測できない事項は推測で補わず、未確認として分離する。
+- コード・設定・スクリプトを変更するときは、先に期待する挙動をテストで表現し、テストが失敗することを確認してから実装する。実装後は同じテストと既存検証を実行する。
+- パフォーマンス改善やトラブルシューティングなど、何らかの作業をするときは、Rob Pike's 5 Rules of ProgrammingのRule 1とRule 2を絶対に順守する。
+    - Rule 1: “You can't tell where a program is going to spend its time. Bottlenecks occur in surprising places, so don't try to second guess and put in a speed hack until you've proven that's where the bottleneck is.” 
+    - Rule 2: “Measure. Don't tune for speed until you've measured, and even then don't unless one part of the code overwhelms the rest.” 
+    - つまり、原因・効果・変更箇所を推測して先回りの修正をせず、測定・観測で根拠を確認してから作業する。
