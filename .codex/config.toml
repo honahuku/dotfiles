@@ -31,3 +31,6 @@ status_line_use_colors = true
 notifications = true
 notification_condition = "unfocused"
 notification_method = "auto"
+ 
+[mcp_servers.cloudflare-api]
+url = "https://mcp.cloudflare.com/mcp"
