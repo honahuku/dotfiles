@@ -14,6 +14,7 @@ description: CLI・認証・PATH・alias・関数・シェル初期化・サン�
 | tasks・gh・aquaの実体・ロック・認証 | `references/cli-auth-and-locks.md` |
 | Codexの設定と実際の権限の不一致 | `references/codex.md` |
 | Windows・PowerShellの認証や編集の失敗 | `references/windows.md` |
+| WSL から Android 実機を ADB で扱う、USB 接続・`usbipd-win`・Windows 版 `adb.exe` の確認 | `references/android-adb-wsl.md` |
 | コマンドが見つからない、本人とalias・関数が異なる、.bashrc・.profileの読み込み不備 | `references/shell-initialization-and-cli-paths.md` |
 | Google Cloud project IDが不明 | `references/google-cloud-project-id.md` |
 | allowパターンと引用符の不一致 | `references/bash-allow-quote-variants.md` |
