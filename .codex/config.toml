@@ -34,3 +34,9 @@ notification_method = "auto"
  
 [mcp_servers.cloudflare-api]
 url = "https://mcp.cloudflare.com/mcp"
+
+[hooks.state."/home/honahuku/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:b73ead6106de1a294efeae6843768a1348f59fb41798fcc4a6840083327da2b5"
+
+[hooks.state."/home/honahuku/.codex/hooks.json:pre_tool_use:1:0"]
+trusted_hash = "sha256:373bb15cb3918ceba035132524105c1bbf12c4c8920f08f5ed13a10810839e15"
