@@ -57,8 +57,16 @@ run = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
 description = "共通資料・スキル・判定処理の欠落とリンク先の相違を検出する"
 run = [
   { task = "skills:check" },
+  { task = "opencode:check" },
   { task = "hooks:check" },
-  "mise dot status --missing ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json",
+  "mise dot status --missing ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc",
+]
+
+["opencode:check"]
+description = "OpenCodeのグローバル設定に必要なMCPサーバーとスキーマがあることを確認する"
+dir = "{{ vars.public_root }}"
+run = [
+  """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
 ]
 
 ["hooks:check"]

@@ -29,6 +29,7 @@ fi
 ''' }
 "~/.config/mise/config.toml" = ".config/mise/config.toml"
 "~/.config/lazygit/config.yml" = ".config/lazygit/config.yml"
+"~/.config/opencode/opencode.jsonc" = ".config/opencode/opencode.jsonc"
 "~/.lefthook-global.yml" = ".config/lefthook/global.yml"
 "~/aqua.yaml" = "aqua.yaml"
 "~/.config/nvim" = "nvim"

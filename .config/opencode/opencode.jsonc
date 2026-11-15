@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "shell": "/bin/bash",
+  "mcp": {
+    "servers": {
+      "cloudflare-api": {
+        "type": "remote",
+        "url": "https://mcp.cloudflare.com/mcp"
+      },
+      "openstatus": {
+        "type": "remote",
+        "url": "https://api.openstatus.dev/mcp"
+      }
+    }
+  }
+}
