@@ -5,7 +5,7 @@ confirm = { message = "スキルと設定を配置し、管理対象ツールを
 run = [
   { task = "setup:files" },
   "mise -C {{ env.HOME | quote }} install",
-  "aqua -c {{ vars.public_root | quote }}/aqua.yaml install",
+  "aqua -c {{ config_root | quote }}/aqua.yaml install",
 ]
 
 ["setup:files"]
@@ -20,12 +20,12 @@ run = [
 ["skills:install"]
 description = "スキルの取得・配置・検査を行い、再実行で同じ配置に揃える"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
-dir = "{{ vars.public_root }}"
+dir = "{{ config_root }}"
 vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
 run = [
   "git diff --exit-code HEAD -- .agents/skills",
   '''test -z "$(git ls-files --others --exclude-standard -- .agents/skills)"''',
-  "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- vendir sync --locked",
+  "aqua -c {{ config_root | quote }}/aqua.yaml exec -- vendir sync --locked",
   "mise dot status {{ vars.target | quote }}",
   "mise dot diff {{ vars.target | quote }}",
   "mise dot apply --dry-run {{ vars.target | quote }}",
@@ -59,28 +59,29 @@ run = [
   { task = "skills:check" },
   { task = "opencode:check" },
   { task = "hooks:check" },
-  "mise dot status --missing ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc",
+  "mise dot status --missing ~/.agents/skills ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc ~/.config/opencode/skills",
 ]
 
 ["opencode:check"]
 description = "OpenCodeのグローバル設定に必要なMCPサーバーとスキーマがあることを確認する"
-dir = "{{ vars.public_root }}"
 run = [
   """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
+  """rg --fixed-strings '"~/.agents/skills" = ".agents/skills"' mise.toml""",
+  """rg --fixed-strings '"~/.config/opencode/skills" = ".agents/skills"' mise.toml""",
+  '''test -n "$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
 ]
 
 ["hooks:check"]
 description = "共通hookの登録漏れと拒否・通過の判定を検証する"
-dir = "{{ vars.public_root }}"
 run = [
   '''jq -e '.hooks.PreToolUse as $groups | all(["Bash", "exec_command", "functions.exec_command", "apply_patch"][]; . as $tool | any($groups[]; .matcher as $pattern | $tool | test($pattern)))' .codex/hooks.json''',
-  '''jq -e -L .agents/hooks 'include "command-policy"; include "hook-settings-policy"; all(.[]; . as $case | ([ $case.input | (deny_sensitive_commands, deny_hook_settings) ] | first | .hookSpecificOutput.permissionDecision // "allow") == $case.expected)' .agents/hooks/tests/policy-cases.json''',
+  '''jq -e -L agents/hooks 'include "command-policy"; include "hook-settings-policy"; all(.[]; . as $case | ([ $case.input | (deny_sensitive_commands, deny_hook_settings) ] | first | .hookSpecificOutput.permissionDecision // "allow") == $case.expected)' agents/hooks/tests/policy-cases.json''',
 ]
 
 ["docs:tree"]
 description = "README用のディレクトリ構成を表示する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
-run = "aqua -c {{ vars.public_root | quote }}/aqua.yaml exec -- eza --tree --only-dirs --all --level=1 --git-ignore --ignore-glob=.git --sort=name --color=never --icons=never --hyperlink=never ."
+run = "aqua -c {{ config_root | quote }}/aqua.yaml exec -- eza --tree --only-dirs --all --level=1 --git-ignore --ignore-glob=.git --sort=name --color=never --icons=never --hyperlink=never ."
 
 ["windows:setup"]
 description = "Windows保存先を確認し、端末固有設定を保存する"

@@ -37,13 +37,13 @@ Windowsの対象はCodex共通指示とインストール済みのTerminal設定
 
 汎用手順と自作スキルはこのrepoで管理する。内容を生成してホームにだけ保存せず、リンク元をrepoにコミットする。
 
-| 配置先                              | 管理元                                                                          |
-| ----------------------------------- | ------------------------------------------------------------------------------- |
-| `~/.codex/AGENTS.md`                | 公開側の`.agents/AGENTS.md`                                                     |
-| `~/.agents/skills/` | 自作スキルとvendir取得先を含む`.agents/skills/`全体へのリンク |
-| `~/.agents/hooks/`                  | 公開側の共通判定。登録方法と確認手順は[共通hook](../.agents/hooks/README.md)を参照 |
-| `~/.agents/prh/`                    | 公開側の技術日本語ルール                                                        |
-| `~/.codex/config.toml` | このrepoの汎用設定 |
+| 配置先                         | 管理元                                                                                   |
+| ------------------------------ | ---------------------------------------------------------------------------------------- |
+| `~/.codex/AGENTS.md`           | `agents/AGENTS.md`                                                                       |
+| `~/.agents/skills/`            | 自作スキルとvendir取得先を含む`.agents/skills/`全体へのリンク                            |
+| `~/.config/opencode/skills/`   | OpenCodeのグローバルスキル探索先。同じ`.agents/skills/`へのリンク                       |
+| `~/.agents/hooks/`             | 共通判定。登録方法と確認手順は[共通hook](../agents/hooks/README.md)を参照                |
+| `~/.agents/prh/`               | `agents/prh/`の技術日本語ルール                                                          |
 
 取得スキルと自作版の名前が衝突する場合は、自作版を別名にする。
 
