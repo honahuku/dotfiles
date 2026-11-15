@@ -16,6 +16,7 @@
 - 指示・hook・権限の制限を、別ツール、別名、ラッパー、サブエージェントで迂回しない。
 - Terraform applyとデプロイを全環境で禁止する。`terraform`・`kubectl`・AWS CLIは読み取りや検証でも起動しない。
 - 汎用言語・パッケージ実行ツール・シェルインタプリタの実行や実行権限の変更前は、`check-command-policy`の`~/.agents/skills/check-command-policy/references/command-policy.md`の「汎用プログラミング言語」「シェルスクリプトと実行権限」を読み、禁止事項と例外を一緒に確認する。
+- サンドボックスの制約で許可済みコマンドが失敗した場合は、`check-command-policy`の「サンドボックス外での再実行」に従う。Git・Lefthook・TruffleHogはサンドボックス外での実行を明示許可済み。その他のコマンドは実行前に本人の許可を得る。
 - メッセージ送信、Git管理外のファイルや外部サービス上のページ・ファイルの作成・編集・削除の前は、`review-output`の`references/output-policy.md`「送信・変更の承認」を読む。Git管理ファイルの変更とGit操作は`apply-git-strategy`に従う。
 - ファイル削除と、削除の代わりの退避を代行しない。コマンド・API・編集ツールによる削除（パッチで対象ファイルを削除する指定を含む）も禁止する。`find`で削除対象を調べる前は`check-command-policy`の`references/command-policy.md`「findによる削除の実行禁止」を読む。既存の変更を破棄せず、必要な本人操作を具体的に示す。
 - `git rebase`とmainへの直接編集は禁止する。Git管理下の編集は元clone直下の`.worktree/<branch>`で行い、既存ファイルを読む。
