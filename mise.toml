@@ -4,29 +4,16 @@ min_version = "2026.10.17"
 includes = ["mise-tasks.toml"]
 
 [dotfiles]
-# Common files (same for both Linux and Windows)
 "~/.local/share/dotfiles/agents/skills" = "agents/skills"
 "~/.agents/skills" = ".agents/skills"
-"~/.local/bin/tasks" = "bin/tasks"
 "~/.codex/AGENTS.md" = "agents/AGENTS.md"
 "~/.config/opencode/AGENTS.md" = "agents/AGENTS.md"
 "~/.config/mise/config.toml" = ".config/mise/config.toml"
 "~/.config/lazygit/config.yml" = ".config/lazygit/config.yml"
 "~/.config/opencode/opencode.jsonc" = ".config/opencode/opencode.jsonc"
-"~/.config/opencode/skills" = ".agents/skills"
 "~/.lefthook-global.yml" = ".config/lefthook/global.yml"
 "~/aqua.yaml" = "aqua.yaml"
 "~/.config/nvim" = "nvim"
-
-# Linux shell scripts (WSL)
-"~/.bashrc/dotfiles-shell" = { block = '''
-if [ -n "${BASH_VERSION:-}" ]; then
-  . "$HOME/git/honahuku/dotfiles/linux/bashrc.sh"
-fi
-''' }
-
-# Windows-specific files (only on Windows) - reference directly from windows/ directory
-"C:/Users/$env:USERNAME/.local/share/dotfiles/windows/source/.config.toml.tmpl" = { source = "windows/chezmoi/.config.toml.tmpl", mode = "copy" }
 
 [dotfile_groups.public-agent-hooks]
 root = "~/git/honahuku/dotfiles/agents/hooks"

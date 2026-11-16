@@ -19,7 +19,6 @@ packages:
     - name: derailed/k9s@v0.51.0
     - name: kubernetes/kubernetes/kubectl@v1.37.2
     - name: evilmartians/lefthook@v2.2.2
-    - name: openai/codex@rust-v0.167.1
     - name: carvel-dev/vendir@v0.46.3
     - name: trufflesecurity/trufflehog@v3.99.8
     - name: JohnnyMorganz/StyLua@v2.6.0

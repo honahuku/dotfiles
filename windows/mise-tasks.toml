@@ -1,0 +1,46 @@
+["setup"]
+description = "Windowsの共通設定とTerminal設定を反映し、管理対象ツールを導入する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run_windows = [
+  "mise dot status",
+  "mise dot diff",
+  "mise dot apply --dry-run",
+  "mise dot apply --yes",
+  "mise install",
+  "aqua -c {{ (config_root ~ '/../aqua.yaml') | quote }} install",
+  { task = "skills:install" },
+  { task = "windows:sync" },
+]
+
+["setup:check"]
+description = "Windowsの配置予定と競合を確認する"
+run_windows = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
+
+["skills:install"]
+description = "スキルを取得・配置し、同じ管理元へ繰り返し同期する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run_windows = [
+  "git diff --exit-code HEAD -- .agents/skills",
+  'if (git ls-files --others --exclude-standard -- .agents/skills) { throw "未追跡スキルがあるため同期を停止しました" }',
+  '''aqua -c {{ (config_root ~ "/../aqua.yaml") | quote }} exec -- vendir sync --locked''',
+  "mise dot status ~/.agents/skills",
+  "mise dot diff ~/.agents/skills",
+  "mise dot apply --dry-run ~/.agents/skills",
+  "mise dot apply --yes ~/.agents/skills",
+]
+
+["windows:sync"]
+description = "WindowsのTerminal設定を現在の管理元から繰り返し同期する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run_windows = [
+  "mise dot apply --yes ~/.local/share/dotfiles/windows/source/.chezmoiexternal.toml ~/.local/share/dotfiles/windows/source/.terminal.json",
+  'chezmoi --source "$env:USERPROFILE/.local/share/dotfiles/windows/source" --destination "$env:USERPROFILE" --no-tty --less-interactive --error-on-conflict apply --include files',
+]
+
+["windows:diff"]
+description = "WindowsのTerminal設定に対する適用差分を表示する"
+tools = { "github:aquaproj/aqua" = "2.65.0" }
+run_windows = [
+  'chezmoi --source "$env:USERPROFILE/.local/share/dotfiles/windows/source" --destination "$env:USERPROFILE" --no-tty status --include files',
+  'chezmoi --source "$env:USERPROFILE/.local/share/dotfiles/windows/source" --destination "$env:USERPROFILE" --no-tty diff --include files',
+]

@@ -1,5 +1,5 @@
 # shellcheck shell=sh
-# WSL/Linux profile for honahuku dotfiles
+# Linux profile for honahuku dotfiles
 
 export EDITOR=nvim
 export VISUAL=nvim

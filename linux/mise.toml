@@ -1,0 +1,7 @@
+[dotfiles]
+"~/.local/bin/tasks" = "../bin/tasks"
+"~/.bashrc/dotfiles-shell" = { block = '''
+if [ -n "${BASH_VERSION:-}" ]; then
+  . "$HOME/git/honahuku/dotfiles/linux/bashrc.sh"
+fi
+''' }

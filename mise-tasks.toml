@@ -1,5 +1,5 @@
 [setup]
-description = "Linux / WSLの設定とツールを導入し、共通指示・スキルの配置を確認する"
+description = "Linuxの設定とツールを導入し、共通指示・スキルの配置を確認する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 confirm = { message = "スキルと設定を配置し、管理対象ツールを導入します。", default = "no" }
 run = [
@@ -13,7 +13,7 @@ description = "スキルを導入し、競合を確認して設定を配置・�
 run = [
   { task = "skills:install" },
   { task = "setup:check" },
-  "mise dot apply --yes",
+  "mise -C {{ config_root | quote }}/linux dot apply --yes",
   { task = "agents:check" },
 ]
 
@@ -44,14 +44,20 @@ run = [
   '''test -z "$(find {{ vars.target | quote }}/ -xtype l -print)"''',
 ]
 
-["windows:sync"]
-description = "WSL側のセットアップ後、Windowsの保存先を確認して設定を同期する"
-tools = { "github:aquaproj/aqua" = "2.65.0" }
-run = [{ task = "windows:setup" }, { task = "windows:apply" }]
-
 ["setup:check"]
 description = "配置予定と競合を確認する"
-run = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
+run = [
+  "test -f linux/mise.toml",
+  "test -f windows/mise.toml",
+  "test -f windows/mise-tasks.toml",
+  "rg -q 'run_windows' windows/mise-tasks.toml",
+  "rg -F 'windows/chezmoi/.chezmoiexternal.toml' windows/mise.toml",
+  "! rg -n 'wslp\\x61th|power\\x73hell' mise-tasks.toml",
+  "! rg -n 'openai/codex' aqua.yaml",
+  "mise -C {{ config_root | quote }}/linux dot status",
+  "mise -C {{ config_root | quote }}/linux dot diff",
+  "mise -C {{ config_root | quote }}/linux dot apply --dry-run",
+]
 
 ["agents:check"]
 description = "共通資料・スキル・判定処理の欠落とリンク先の相違を検出する"
@@ -59,16 +65,15 @@ run = [
   { task = "skills:check" },
   { task = "opencode:check" },
   { task = "hooks:check" },
-  "mise dot status --missing ~/.agents/skills ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc ~/.config/opencode/skills",
+  "mise dot status --missing ~/.agents/skills ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc",
 ]
 
 ["opencode:check"]
 description = "OpenCodeのグローバル設定に必要なMCPサーバーとスキーマがあることを確認する"
 run = [
   """grep -F '"~/.config/opencode/AGENTS.md" = "agents/AGENTS.md"' mise.toml""",
-  """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
+  """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .skills == ["~/.agents/skills"] and any(.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and any(.agents.general.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
   """rg --fixed-strings '"~/.agents/skills" = ".agents/skills"' mise.toml""",
-  """rg --fixed-strings '"~/.config/opencode/skills" = ".agents/skills"' mise.toml""",
   '''test -n "$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
 ]
 
@@ -83,41 +88,3 @@ run = [
 description = "README用のディレクトリ構成を表示する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 run = "aqua -c {{ config_root | quote }}/aqua.yaml exec -- eza --tree --only-dirs --all --level=1 --git-ignore --ignore-glob=.git --sort=name --color=never --icons=never --hyperlink=never ."
-
-["windows:setup"]
-description = "Windows保存先を確認し、端末固有設定を保存する"
-tools = { "github:aquaproj/aqua" = "2.65.0" }
-skip_if = "test -f {{ vars.windows_state | quote }}/chezmoi.toml"
-vars.windows_home = '''{% if env.DOTFILES_WINDOWS_HOME is defined %}{{ env.DOTFILES_WINDOWS_HOME }}{% elif vars.powershell | default(value="") is file %}{{ exec(command="wslpath -u \"$(" ~ (vars.powershell | quote) ~ " -NoProfile -NonInteractive -Command '[Console]::Write([Environment]::GetFolderPath(\"UserProfile\"))')\"") }}{% endif %}'''
-vars.windows_appdata = '''{% if env.DOTFILES_WINDOWS_APPDATA is defined %}{{ env.DOTFILES_WINDOWS_APPDATA }}{% elif vars.powershell | default(value="") is file %}{{ exec(command="wslpath -u \"$(" ~ (vars.powershell | quote) ~ " -NoProfile -NonInteractive -Command '[Console]::Write([Environment]::GetFolderPath(\"LocalApplicationData\"))')\"") }}{% endif %}'''
-vars.windows_codex_home = "{{ env.DOTFILES_WINDOWS_CODEX_HOME | default(value=vars.windows_home ~ '/.codex') }}"
-confirm = { message = "Windowsホーム: {{ vars.windows_home }}\nCodex共通指示: {{ vars.windows_codex_home }}/AGENTS.md\nTerminal設定: {{ vars.windows_appdata }} 配下\nこの保存先を同期対象として保存しますか？", default = "no" }
-run = [
-  '''env DOTFILES_WINDOWS_HOME={{ vars.windows_home | quote }} DOTFILES_WINDOWS_APPDATA={{ vars.windows_appdata | quote }} DOTFILES_WINDOWS_CODEX_HOME={{ vars.windows_codex_home | quote }} {{ vars.chezmoi }} execute-template --init --file {{ vars.windows_state | quote }}/source/.config.toml.tmpl --output {{ vars.windows_state | quote }}/chezmoi.toml''',
-  "mkdir -p {{ vars.windows_codex_home | quote }}",
-]
-
-["windows:apply"]
-description = "Windows側の未取り込み変更があれば上書きせず停止する"
-tools = { "github:aquaproj/aqua" = "2.65.0" }
-skip_if = "test ! -f {{ vars.windows_state | quote }}/chezmoi.toml"
-# Windowsの既存ディレクトリの権限は同期対象にしない。
-run = "{{ vars.chezmoi }} --no-tty --less-interactive --error-on-conflict apply --include files"
-
-["windows:diff"]
-description = "Windows側の編集と適用予定の差分を表示する"
-tools = { "github:aquaproj/aqua" = "2.65.0" }
-run = [
-  "test -f {{ vars.windows_state | quote }}/chezmoi.toml",
-  "{{ vars.chezmoi }} --no-tty status --include files",
-  "{{ vars.chezmoi }} --no-tty diff --include files",
-]
-
-["windows:resolve"]
-description = "確認済みのWindows差分を対話的に適用する"
-tools = { "github:aquaproj/aqua" = "2.65.0" }
-raw = true
-run = [
-  "test -f {{ vars.windows_state | quote }}/chezmoi.toml",
-  "{{ vars.chezmoi }} --less-interactive apply --include files",
-]

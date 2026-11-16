@@ -1,6 +1,6 @@
 # セットアップ
 
-Linux / WSLのBash環境で設定を配置し、必要なツールを導入する。Windowsへの配置もWSLから行う。
+LinuxとWindowsで、それぞれの環境にあるmiseを使って設定と管理対象ツールを配置する。各セットアップは変更後も繰り返し実行できる。
 
 ## 初期準備
 
@@ -36,17 +36,17 @@ export PATH="$HOME/.local/bin:$PATH"
 mise --version
 ```
 
-## 設定とツールを導入する
+## Linuxの設定とツールを導入する
 
-既存環境では、先に[管理元の移行](#既存環境の管理元を揃える)と設定の競合を確認する。`mise run setup:check`もタスク起動に必要なツールを自動導入する場合があるため、OS管理版の調査を先に済ませる。
+既存環境では、先に[管理元の移行](#既存環境の管理元を揃える)と設定の競合を確認する。セットアップタスクが必要なツールを自動導入する場合があるため、OS管理版の調査を先に済ませる。
 
 このrepoを取得し、次を実行する。
 
 ```sh
 git clone https://github.com/honahuku/dotfiles.git ~/git/honahuku/dotfiles
 cd ~/git/honahuku/dotfiles
-# 配置予定の確認、設定配置、miseとaquaの管理対象ツール導入をまとめて行う。
-mise run setup
+# 配置予定の確認、Linux設定の配置、miseとaquaの管理対象ツール導入を行う。
+mise -C linux run setup
 ```
 
 clone済みの場合は`git clone`を省略する。更新する場合は未コミットの変更を確認し、`git -c pull.rebase=false pull --ff-only`を使う。早送りできない場合や既存変更と競合する場合は停止し、変更を保持して解消する。既存設定との競合には[配置手順](mise-dotfiles.md)に従って対応する。
@@ -77,27 +77,33 @@ fi
 
 独自の`~/.bash_profile`や`~/.bash_login`を置いている場合も、そこから`~/.profile`が読み込まれることを確認する。
 
-認証情報は復元されない。GitHub・Codex・クラウドなどは利用時にログインする。Neovimの初回起動後は`:Lazy restore`と`:checkhealth`を実行する。[`:Lazy restore`はロックファイルに記録したバージョンへ揃える](https://lazy.folke.io/usage)。Nerd Fontを使う場合は、表示する端末側にも設定する。
+認証情報は復元されない。GitHub・クラウドなどは利用時にログインする。Neovimの初回起動後は`:Lazy restore`と`:checkhealth`を実行する。[`:Lazy restore`はロックファイルに記録したバージョンへ揃える](https://lazy.folke.io/usage)。Nerd Fontを使う場合は、表示する端末側にも設定する。
 
 ## 既存環境の管理元を揃える
 
-CLIは`aqua.yaml`、言語環境とaqua本体は`.config/mise/config.toml`に従って導入する。初期セットアップは`mise run setup`を入口にする。独立したシェル・Pythonスクリプトを追加する前にmiseのサブコマンドとタスクで対応し、対応できない場合だけgo-taskを使う。
+CLIは`aqua.yaml`、言語環境とaqua本体は`.config/mise/config.toml`に従って導入する。Linuxは`mise -C linux run setup`、Windowsは`mise -C windows run setup`を設定配置と管理対象ツール導入の入口にし、変更後も繰り返し実行する。独立したシェル・Pythonスクリプトを追加する前にmiseのサブコマンドとタスクで対応し、対応できない場合だけgo-taskを使う。
 
 1. `type -a gh node go python nvim`などで実行候補を列挙し、シンボリックリンクの実体とパッケージ所有元を確認する。Archでは`pacman -Qo /usr/bin/gh`、Debian / Ubuntuでは`dpkg-query -S /usr/bin/gh`で確認できる。aqua・miseの設定だけに記載され、まだ導入されていない場合もあるため、設定と実行パスの両方を見る。
 2. OS管理版とdotfiles指定版の一覧を作る。アンインストールを予定するパッケージの逆依存、任意依存、削除時に影響するコマンドを確認する。Archでは`pacman -Qi <package>`と`pacman -R --print <package>`、Debian / Ubuntuでは`apt-cache rdepends --installed <package>`と`apt-get --simulate remove <package>`を使う。これらは確認用であり、削除は実行しない。
 3. 具体的な削除対象、導入先とバージョン差分、同時に削除されるパッケージ、利用できなくなる期間をユーザーに示し、アンインストールの許可を得る。許可を得るまで削除しない。OSのPythonなど、他のOSパッケージに必要な実体は残す。依存関係が解決できない場合は強制削除せず、その対象の移行を保留する。
-4. 許可されたOS管理版をアンインストールしてから、`mise run setup`でaqua・mise管理版を導入する。依存・設定の自動削除や未承認パッケージの連鎖削除は行わない。ユーザーがインストールを自分で実行すると指定している場合は、エージェントはコマンドの提示まで行う。
+4. 許可されたOS管理版をアンインストールしてから、Linuxでは`mise -C linux run setup`、Windowsでは`mise -C windows run setup`で管理対象版を導入する。依存・設定の自動削除や未承認パッケージの連鎖削除は行わない。ユーザーがインストールを自分で実行すると指定している場合は、エージェントはコマンドの提示まで行う。
 5. 新しいシェルで`type -a gh node go python nvim`と各コマンドのバージョンを確認する。aqua・mise側が選ばれることと、必要な既存設定・認証情報が残っていることを確認する。nvmなど旧管理元の削除とプロジェクトのバージョン指定変更は、OSパッケージの移行とは別に対象を確認する。
 
-設定配置前には`mise run setup:check`で差分を確認する。旧方式の`~/.bashrc`・`~/.profile`リンクがある場合は、リンク先と内容を保存したうえで実ファイルへの移行方法を決める。管理ブロックの追加によってリポジトリのリンク元を直接書き換えないようにする。ユーザー固有の設定を失う置換は行わない。
+設定配置前にはLinuxで`mise -C linux run setup:check`、Windowsで`mise -C windows run setup:check`を使って差分を確認する。旧方式の`~/.bashrc`・`~/.profile`リンクがある場合は、リンク先と内容を保存したうえで実ファイルへの移行方法を決める。管理ブロックの追加によってリポジトリのリンク元を直接書き換えないようにする。ユーザー固有の設定を失う置換は行わない。
 
-## WindowsのCodex
+## Windowsの設定とツールを導入する
 
-DesktopではWSLを実行環境に選ぶ。[共通指示とスキル](codex.md)の配置には上記セットアップを使う。
+WindowsにmiseとGitを用意し、PowerShellからrepo直下で次を実行する。
+
+```powershell
+mise -C windows run setup
+```
+
+Windows側の設定はWindows用miseタスクとchezmoiから直接同期する。LinuxやWSL経由のパス変換には依存しない。設定変更後も同じコマンドを再実行する。
 
 ## Windows Terminal
 
-WSL側のセットアップ後、`mise run windows:sync`で保存先を確認して同期する。設定編集を終えてから適用する。
+Windows Terminalの設定変更後は、PowerShellから`mise -C windows run windows:sync`を実行する。差分の確認には`mise -C windows run windows:diff`を使う。
 
 既定プロファイルは各PCのデフォルトWSLを使う。必要ならWindows側で`wsl --set-default <ディストリビューション名>`を実行する。[WSLの公式手順](https://learn.microsoft.com/windows/wsl/reference)を参照する。
 
