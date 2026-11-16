@@ -51,7 +51,7 @@ run = [
   "test -f windows/mise.toml",
   "test -f windows/mise-tasks.toml",
   "rg -q 'run_windows' windows/mise-tasks.toml",
-  "rg -F 'windows/chezmoi/.chezmoiexternal.toml' windows/mise.toml",
+  "rg -F 'chezmoi/.chezmoiexternal.toml' windows/mise.toml",
   "! rg -n 'wslp\\x61th|power\\x73hell' mise-tasks.toml",
   "! rg -n 'openai/codex' aqua.yaml",
   "mise -C {{ config_root | quote }}/linux dot status",
