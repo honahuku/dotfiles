@@ -1,3 +1,3 @@
 # Windows設定
 
-設定の配置はWSLから行う。[セットアップ手順](../docs/setup.md#windowsのcodex)を参照する。
+Windowsネイティブのmiseタスクから設定を配置する。[セットアップ手順](../docs/setup.md#windowsの設定とツールを導入する)を参照する。

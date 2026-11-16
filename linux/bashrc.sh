@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# WSL/Linux shell scripts for honahuku dotfiles
+# Linux shell scripts for honahuku dotfiles
 
 . "$HOME/git/honahuku/dotfiles/linux/profile.sh"
 

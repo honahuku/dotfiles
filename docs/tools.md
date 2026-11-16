@@ -8,7 +8,8 @@ OS側には、CA証明書、システムライブラリ、GitやOpenSSHなどの
 | --- | --- | --- |
 | [mise](https://mise.jdx.dev/) | 言語ランタイムとaqua本体の管理、設定配置、複数コマンドの実行 | [言語環境とaqua本体](../.config/mise/config.toml)、[配置設定](../mise.toml)、[タスク](../mise-tasks.toml) |
 | [aqua](https://aquaproj.github.io/) | CLIのバージョン管理と導入 | [aqua.yaml](../aqua.yaml)でeza・chezmoi・uv・Neovim・Lefthookなどを管理 |
-| [chezmoi](https://www.chezmoi.io/what-does-chezmoi-do/) | 設定ファイルの生成・配置と差分管理 | [Windows用テンプレート](../win/chezmoi/)をmiseのタスクから使用 |
+| [OpenCode](https://opencode.ai/) | Coding Agentの導入とバージョン管理 | [.config/mise/config.toml](../.config/mise/config.toml)で管理 |
+| [chezmoi](https://www.chezmoi.io/what-does-chezmoi-do/) | 設定ファイルの配置と差分管理 | [Windows設定](../windows/chezmoi/)をWindows用miseタスクから使用 |
 | [uv](https://docs.astral.sh/uv/guides/scripts/) | Pythonの依存パッケージ管理と実行環境の用意 | `uv run --with pyyaml python3 …`で、PyYAMLが必要なスキル検証を実行 |
 | [npx](https://docs.npmjs.com/cli/v11/commands/npx/) | npmパッケージが提供するコマンドの実行 | `npx --yes --package prh -- prh …`で文書を校正。Node.jsはmiseで管理 |
 | [go-task](https://taskfile.dev/) | 複数コマンドや依存関係をTaskfileで定義して実行 | 本体はaquaで管理。現在のdotfilesセットアップはmiseのタスクを使用 |
