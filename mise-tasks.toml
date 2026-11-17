@@ -11,7 +11,7 @@ depends_post = ["skill-creator:dependencies"]
 
 ["skill-creator:dependencies"]
 description = "skill-creatorの検証用Python環境をロックファイルから準備する"
-dir = "{{ config_root }}"
+dir = "{{ vars.public_root | default(value=config_root) }}"
 run = "uv sync --project .config/skill-creator-validation --locked"
 
 ["setup:files"]
