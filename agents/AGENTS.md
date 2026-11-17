@@ -11,6 +11,7 @@
 ## 常時適用する規則
 
 - dotfiles・個人ツールの変更前は、`~/.agents/skills/write-agent-instructions/references/context-policy.md`に従って情報の公開可否と保存先を判断する。本人固有の許可・判断理由も、秘匿事項がなければ共通の指示へ置く。
+- 複数端末で共有する汎用ツール・依存・設定は、秘匿情報や端末固有の条件がなければ公開dotfilesで管理する。配布先が複数であることをprivate配置の理由にしない。
 - 指示・再発防止策の保存前は`check-memory-placement`を使い、`references/memory-policy.md`に従う。常時読む必要がある規則は、担当スキルへの参照をここに設ける。
 - Codex固有の名称・パスを記載する前に、共通表現と`.agents`への配置・参照で代替できないか確認する。代替できない場合は理由と記載箇所を示し、本人の許可を得る。
 - 指示・hook・権限の制限を、別ツール、別名、ラッパー、サブエージェントで迂回しない。
@@ -37,6 +38,7 @@
 - 事実をコード・設定・ログ・一次資料で確認し、推測と区別する。未確認の情報は明記するか載せない。
 - 本人へ操作を依頼する前と、検査結果・コミットメッセージ案を報告するときは、実行済みの確認コマンドと結果を省略せず本文に示す。提示項目と未実行操作の分離は`~/.agents/skills/troubleshoot-environment/references/manual-operations.md`に従う。
 - 主語・述語・動作の対象を対応させ、修飾語がどの語にかかるかを明確にする。送信・保存前に`review-output`で確認する。
+- 文章を書く・直すときとチャットで応答するときは、読み手に伝える用件を定め、その目的に対して内容と量を整える。具体的な判断手順は`review-output`の`references/reader-purpose.md`を作成・応答前に確認する。
 - 書き手の作業方針を宣言するだけの文、ツール実行の前置き、作業メタ計数を書かない。
 - docsは最小限にし、処理の順序・責務・実行単位は、まず命名と実装構造で表す。独立して実行できる処理はmiseのタスクやサブコマンドに分け、docsには実装から分からない判断理由・制約・利用の入口を残す。
 - 個人情報・社内情報は、検査定義・テスト・ログなどの派生データにも含めて公開可否を判断する。用途や表記の加工だけを理由に公開せず、公開スキルや外部成果物へ転記しない。本人への呼称・チーム内の発言者名の扱いは`~/.agents/skills/review-output/references/output-policy.md`に従う。
@@ -55,7 +57,7 @@
 | AGENTS.md・スキル・Coding Agents向けhookの作成・編集、肥大化・重複・起動条件・配置の見直し | 編集前と完了前に`write-agent-instructions` |
 | 公開スキルのmain取り込み後、本人からのmerge完了報告後 | `write-agent-instructions`の端末への反映確認に従い、同期と常用版の確認まで行う |
 | 計画作成・修正、計画から実装への移行 | `write-plan` |
-| 応答・成果物の推敲、長文・外部文書の送信前 | `review-output`。名前・文体・書式の詳細は`~/.agents/skills/review-output/references/output-policy.md`の該当セクション |
+| 文章の作成・修正、チャット応答の作成、成果物の送信・保存前 | `review-output`。用件と情報量は`references/reader-purpose.md`を作成・応答前に読み、名前・文体・書式は`~/.agents/skills/review-output/references/output-policy.md`の該当セクションを確認する |
 | 日本語の推敲 | `yomiyasu` |
 | 技術文書・PRやIssueの技術的な内容・構成・根拠を作成・変更する | `write-technical-docs`。表現だけを確認・修正する場合は`review-output` |
 | PRの作成・本文更新・レビュー準備 | `prepare-pr-for-review` |

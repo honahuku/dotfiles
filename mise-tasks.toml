@@ -7,6 +7,12 @@ run = [
   "mise -C {{ env.HOME | quote }} install",
   "aqua -c {{ config_root | quote }}/aqua.yaml install",
 ]
+depends_post = ["skill-creator:dependencies"]
+
+["skill-creator:dependencies"]
+description = "skill-creatorの検証用Python環境をロックファイルから準備する"
+dir = "{{ config_root }}"
+run = "uv sync --project .config/skill-creator-validation --locked"
 
 ["setup:files"]
 description = "スキルを導入し、競合を確認して設定を配置・検査する"
