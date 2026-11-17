@@ -51,10 +51,10 @@
 | 条件 | 必須のスキル・共通資料 |
 | --- | --- |
 | コマンド実行・hook編集 | `check-command-policy` |
-| Git管理ファイルの編集前後、Git操作、タスク命名、Git作業の完了報告・引き渡し | `apply-git-strategy`、`~/.agents/skills/apply-git-strategy/references/git-policy.md`。引き渡し前は「ステージ後の報告」を確認する |
+| Git管理ファイルの編集前後、Git操作、タスク命名、Git作業の完了報告・引き渡し | [apply-git-strategy](../.agents/skills/apply-git-strategy/SKILL.md)と[Git操作の許可範囲](../.agents/skills/apply-git-strategy/references/git-policy.md#git操作の許可範囲)。引き渡し前は[Git管理ファイル変更後・ステージ後の報告](../.agents/skills/apply-git-strategy/references/git-policy.md#git管理ファイル変更後ステージ後の報告)の全項目を完成した本文と照合する |
 | コード・設定・スクリプトの作成や修正 | `write-safe-code-and-scripts`、`~/.agents/skills/write-safe-code-and-scripts/references/editing-policy.md` |
 | スキル・共通指示・dotfiles・個人ツールの改善に着手 | `~/.agents/skills/write-agent-instructions/references/context-policy.md`。継続時も作業前に現在日時を確認する |
-| AGENTS.md・スキル・Coding Agents向けhookの作成・編集、肥大化・重複・起動条件・配置の見直し | 編集前と完了前に`write-agent-instructions` |
+| AGENTS.md・スキル・Coding Agents向けhookの作成・編集、肥大化・重複・起動条件・配置の見直し | [write-agent-instructions](../.agents/skills/write-agent-instructions/SKILL.md)の[編集前](../.agents/skills/write-agent-instructions/references/design-principles.md#編集前)と[完了前](../.agents/skills/write-agent-instructions/references/design-principles.md#完了前) |
 | 公開スキルのmain取り込み後、本人からのmerge完了報告後 | `write-agent-instructions`の端末への反映確認に従い、同期と常用版の確認まで行う |
 | 計画作成・修正、計画から実装への移行 | `write-plan` |
 | 文章の作成・修正、チャット応答の作成、成果物の送信・保存前 | `review-output`。用件と情報量は`references/reader-purpose.md`を作成・応答前に読み、名前・文体・書式は`~/.agents/skills/review-output/references/output-policy.md`の該当セクションを確認する |
@@ -74,4 +74,4 @@
 
 ## スキルと資料の管理
 
-AGENTS.md・スキル・Coding Agents向けhookを作成・編集するときは、`write-agent-instructions`に従う。
+AGENTS.md・スキル・Coding Agents向けhookを作成・編集するときは、[write-agent-instructions](../.agents/skills/write-agent-instructions/SKILL.md)の[編集前](../.agents/skills/write-agent-instructions/references/design-principles.md#編集前)と[完了前](../.agents/skills/write-agent-instructions/references/design-principles.md#完了前)に従う。
