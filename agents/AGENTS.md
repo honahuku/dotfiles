@@ -57,8 +57,7 @@
 | AGENTS.md・スキル・Coding Agents向けhookの作成・編集、肥大化・重複・起動条件・配置の見直し | 編集前と完了前に`write-agent-instructions` |
 | 公開スキルのmain取り込み後、本人からのmerge完了報告後 | `write-agent-instructions`の端末への反映確認に従い、同期と常用版の確認まで行う |
 | 計画作成・修正、計画から実装への移行 | `write-plan` |
-| 文章の作成・修正、チャット応答の作成、成果物の送信・保存前 | `review-output`。用件と情報量は`references/reader-purpose.md`を作成・応答前に読み、名前・文体・書式は`~/.agents/skills/review-output/references/output-policy.md`の該当セクションを確認する |
-| 日本語の推敲 | `yomiyasu` |
+| 文章の作成・修正、チャット応答の作成、成果物の送信・保存前 | `review-output`。用件と情報量は`references/reader-purpose.md`を作成・応答前に読み、名前・文体・書式は`~/.agents/skills/review-output/references/output-policy.md`の該当セクションを確認する。日本語の推敲では`yomiyasu`も併用し、同スキルの取得物は編集せず、この共通の出力ルールを適用する |
 | 技術文書・PRやIssueの技術的な内容・構成・根拠を作成・変更する | `write-technical-docs`。表現だけを確認・修正する場合は`review-output` |
 | PRの作成・本文更新・レビュー準備 | `prepare-pr-for-review` |
 | 自分のPRに届いたコメントの確認・対応可否の判断・返信案の作成 | `review-output`のPRコメント確認手順を、調査の着手前に読む |
@@ -70,7 +69,7 @@
 | 健康・集中時間・キャリア等の個人文脈 | `use-personal-context` |
 | 口調・呼称・応答方針へのフィードバック | `update-response-guidelines` |
 | 文献を根拠にする | `cite-sources` |
-| 規則違反に気付いたとき | 元の作業を止め、`correct-rule-violations`に従って恒久対応を優先する |
+| 規則違反に気付いたとき | 依頼を安全に完了できる場合は、先に完了して結果を報告する。その後`correct-rule-violations`に従って再発防止する。 |
 
 ## スキルと資料の管理
 

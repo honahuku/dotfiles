@@ -107,6 +107,10 @@
     - 起動方法：実行に必要な`python`・`python3`・`uv run`も許可する。
     - 実行前に上記ディレクトリに付属する既存スクリプトであることを確認し、絶対パスで指定する。別ディレクトリの同名スクリプトや独自作成したスクリプトへ許可を広げない。汎用言語の実行禁止を理由に、この検証を未許可と扱わない。
     - PyYAMLが不足する場合は、`uv run --with pyyaml python <skill-creator配置>/scripts/quick_validate.py <対象スキル>`で検証してよい。
+- honahuku/dotfilesでのスキル改善テスト
+    - 対象：`honahuku/dotfiles`のスキル改善で必要になる、リポジトリ標準のテストと必須pre-commitが実行するテスト。
+    - 許可：本人の恒常許可により、追加確認なしで実行してよい。
+    - 適用範囲はこのリポジトリのスキル改善に限る。private repoでの実行、任意のテスト・スクリプト・コード実行には広げない。
 - Renovate
     - 対象：`renovate-config-validator`と`renovate`のローカル実行。
     - 起動方法：`npx --yes --package renovate -- renovate`または`npx --yes --package renovate -- renovate-config-validator`で始まり、そのCLIへ引数を渡すコマンドに限り、パッケージの取得と実行を追加確認なしで許可する。
