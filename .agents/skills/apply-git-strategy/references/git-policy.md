@@ -2,7 +2,7 @@
 
 - コミットメッセージの説明と本文は、明示的な指示がなければ日本語にする。Conventional Commitsのtypeやscopeなど、所定の構文は維持する。
 
-- 本人へGit操作を依頼する前に、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の「依頼前の検証提示」を適用し、実行済みの検証コマンドと結果をチャット本文に示す。
+- 本人へGit操作を依頼する前に、`~/agents/skills/troubleshoot-environment/references/manual-operations.md`の「依頼前の検証提示」を適用し、実行済みの検証コマンドと結果をチャット本文に示す。
 
 - **本人へGit操作を依頼するときは、コミット・mergeなどの操作ごとに、対象worktreeの絶対パスを必ず本文に示す。複数のworktreeが対象なら、絶対パスと依頼する操作をそれぞれ列挙する。lazygitで操作するためコマンドを省略する場合も、worktreeの絶対パスは省略しない。「上記のworktree」「残る3つ」などの参照だけで済ませない。**
 
@@ -73,7 +73,7 @@ merge・PRのReady化・コメント投稿にはこの例外を適用しない�
 - 次の項目をworktreeごとに本文へ示す。項目が欠けた報告は送信せず、確認と準備を補う。
   - 対象worktreeの絶対パスとブランチ。
   - ステージ済みファイルの一覧と追加・変更の区別、未ステージ差分の有無。単に「対象ファイル」「変更をステージ済み」と要約しない。
-  - 実行した検証と結果、警告・skip・未確認範囲。提示方法は`~/.agents/skills/troubleshoot-environment/references/manual-operations.md`に従う。
+  - 実行した検証と結果、警告・skip・未確認範囲。提示方法は`~/agents/skills/troubleshoot-environment/references/manual-operations.md`に従う。
   - ステージした差分に基づくConventional Commits形式のコミットメッセージ案を、コピーできるコードブロックで示す。本人へコミットを依頼しない場合も省略しない。すでにコミット済みの変更には既存のSHAと件名を示す。
 
 ## ステージ操作の許可判断

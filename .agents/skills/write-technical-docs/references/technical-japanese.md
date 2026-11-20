@@ -24,7 +24,7 @@ Kubernetes日本語翻訳ガイドを主参照とし、JTF日本語標準スタ�
 技術文書を編集した場合だけ、yomiyasuによる調整後に次のコマンドを明示的に実行する。通常の文章編集、hook、pre-commitでは実行しない。
 
 ```sh
-npx --yes --package prh -- prh --rules ~/.agents/prh/rules-technical-ja.yml <対象ファイル>
+npx --yes --package prh -- prh --rules ~/agents/prh/rules-technical-ja.yml <対象ファイル>
 ```
 
 専用ルールには、明確な表記ゆれ、長音、半角カタカナ、全角と半角、機械的に判定できる句読点だけを置く。文脈が必要な文体、括弧、英日間の空白、コードブロックやURLの解釈はprhで判定しない。検出結果は自動修正せず、対象箇所がコードや固有名詞でないことを確認してから修正する。

@@ -76,7 +76,7 @@ tasks work summary
 
 補正ロジックの詳細（式・配分の考え方）は、`type tasks`で確認した実体の`_pace_correction`・`_flex_carryover`・`_today_plan`にある。仕様を知りたいときはそちらを読む。計算はツールに集約し、スキル側では計算し直さない。
 
-勤務ルールは保存データの`meta`へ明示的に設定する。未設定項目のエラーが出たら、`~/.agents/docs/work/tasks.md`を参照し、既存値を保持して不足分だけ設定する。
+勤務ルールは保存データの`meta`へ明示的に設定する。未設定項目のエラーが出たら、`~/agents/docs/work/tasks.md`を参照し、既存値を保持して不足分だけ設定する。
 
 ### D-3: 出力フォーマット
 

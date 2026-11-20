@@ -20,7 +20,7 @@
 - Coding Agentsは`find`の`-delete`を例外なく実行しない。本人が実行を許可した場合も、この禁止を解除しない。
 - 動作確認・テスト・空ディレクトリを対象にした試行でも起動しない。別名・ラッパー・別ツール・サブエージェント経由の代行も禁止する。
 - 削除を伴わない対象一覧・リンク先・マウント情報の確認は実行できる。削除の実行権限とは分けて判断する。
-- 共通hookの`~/.agents/hooks/command-policy.jq`で拒否する。検証はコマンド文字列を判定器へ入力して行い、削除コマンド自体を起動しない。判定器の結果と実際のhook適用状況は区別して報告する。
+- 共通hookの`~/agents/hooks/command-policy.jq`で拒否する。検証はコマンド文字列を判定器へ入力して行い、削除コマンド自体を起動しない。判定器の結果と実際のhook適用状況は区別して報告する。
 
 ## aqua管理の実行ファイル
 
@@ -80,7 +80,7 @@
     - 検索語・通常の引数・ファイルパスに`aws`が含まれるだけの操作。
     - 利用可能なMCPによる読み取り調査。
 - MCPの利用も、既存のapply・デプロイ・リソース変更の禁止を解除しない。
-- CLIが必要な場合は、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md`の「AWS CLIの手動実行」に従い、ログ保存付きのコマンドを本人へ提示する。
+- CLIが必要な場合は、`~/agents/skills/troubleshoot-environment/references/manual-operations.md`の「AWS CLIの手動実行」に従い、ログ保存付きのコマンドを本人へ提示する。
 
 ## 汎用プログラミング言語
 
@@ -142,7 +142,7 @@
 
 - `chmod`は絶対に実行しない。実行権限の変更は必ずユーザー自身が行う。
 - 実行権限が必要なら、`chmod`コマンドをそのまま提示し、ユーザーに実行してもらう。
-- 共通hookの`~/.agents/hooks/command-policy.jq`で、`chmod`の起動を拒否する。
+- 共通hookの`~/agents/hooks/command-policy.jq`で、`chmod`の起動を拒否する。
 
 ## GitHub APIとコメント投稿
 
@@ -186,14 +186,14 @@
 
 - hookの`command`を、`bash <path>`・`sh <path>`などインタプリタ経由で呼ばない。
 - 実行権限が必要ならユーザーに付与してもらう。本人による実行権限の付与を迂回しない。
-- 共通hookの`~/.agents/hooks/hook-settings-policy.jq`で、設定変更に含まれるインタプリタ経由のhook起動を拒否する。
+- 共通hookの`~/agents/hooks/hook-settings-policy.jq`で、設定変更に含まれるインタプリタ経由のhook起動を拒否する。
 
 ### hookの迂回禁止
 
 - `git -c core.hooksPath=<path>`による差し替え、`--no-verify`による無効化、環境変数による抑止など、統制をその場だけ外す操作を禁止する。
 - commit-msg・pre-commitなど、すべてのhookを対象とする。
 - hookが作業を妨げる場合は迂回せず、hook自体の条件を直す案をユーザーに出す。
-- 共通hookの`~/.agents/hooks/command-policy.jq`で、コマンドに含まれるhook迂回指定を拒否する。
+- 共通hookの`~/agents/hooks/command-policy.jq`で、コマンドに含まれるhook迂回指定を拒否する。
 
 ### TruffleHogエラー時
 
@@ -249,9 +249,9 @@
 
 ### prhの実行条件
 
-- `.agents/prh/*.yml`をルールとして使うprh検査に必要な`npx`の実行を、本人の明示許可として扱う。prhパッケージの取得と起動も許可範囲に含め、追加確認を求めない。`~/.agents/prh/`への配置後も同じ許可を適用する。任意のパッケージやJavaScriptの実行には広げない。
+- `agents/prh/*.yml`をルールとして使うprh検査に必要な`npx`の実行を、本人の明示許可として扱う。prhパッケージの取得と起動も許可範囲に含め、追加確認を求めない。`~/agents/prh/`への配置後も同じ許可を適用する。任意のパッケージやJavaScriptの実行には広げない。
 - 実行を許可する条件
     - `write-technical-docs`が技術文書の表記規約を明示的に検査するときだけ。
     - スキル・共通資料に記載した技術手順の検査も対象とする。
-- 実行コマンド：`npx --yes --package prh -- prh --rules ~/.agents/prh/rules-technical-ja.yml <file>`
+- 実行コマンド：`npx --yes --package prh -- prh --rules ~/agents/prh/rules-technical-ja.yml <file>`
 - 必ずサンドボックス外で実行する。
