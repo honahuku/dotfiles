@@ -71,6 +71,7 @@ run = [
   { task = "skills:check" },
   { task = "opencode:check" },
   { task = "hooks:check" },
+  "test -f ~/.codex/hooks.json",
   "mise dot status --missing ~/.agents/skills ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc",
 ]
 
