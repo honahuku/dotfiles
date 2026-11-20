@@ -2,7 +2,7 @@ apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
 # lockfileが指す過去のcommitも復元できるよう、shallow cloneを使わない。
 directories:
-  - path: agents/skills/grill-me
+  - path: .agents/skills/grill-me
     contents:
       - path: .
         git:
@@ -19,7 +19,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/grilling
+  - path: .agents/skills/grilling
     contents:
       - path: .
         git:
@@ -36,7 +36,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/yomiyasu
+  - path: .agents/skills/yomiyasu
     contents:
       - path: .
         git:
@@ -53,7 +53,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/amazon-bedrock
+  - path: .agents/skills/amazon-bedrock
     contents:
       - path: .
         git:
@@ -70,7 +70,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-ai-ml
+  - path: .agents/skills/aws-ai-ml
     contents:
       - path: .
         git:
@@ -87,7 +87,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-auth
+  - path: .agents/skills/aws-auth
     contents:
       - path: .
         git:
@@ -104,7 +104,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-billing-and-cost-management
+  - path: .agents/skills/aws-billing-and-cost-management
     contents:
       - path: .
         git:
@@ -121,7 +121,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-blocks
+  - path: .agents/skills/aws-blocks
     contents:
       - path: .
         git:
@@ -138,7 +138,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-cdk
+  - path: .agents/skills/aws-cdk
     contents:
       - path: .
         git:
@@ -155,7 +155,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-cloudformation
+  - path: .agents/skills/aws-cloudformation
     contents:
       - path: .
         git:
@@ -172,7 +172,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-compute
+  - path: .agents/skills/aws-compute
     contents:
       - path: .
         git:
@@ -189,7 +189,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-containers
+  - path: .agents/skills/aws-containers
     contents:
       - path: .
         git:
@@ -206,7 +206,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-database
+  - path: .agents/skills/aws-database
     contents:
       - path: .
         git:
@@ -223,7 +223,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-deployment
+  - path: .agents/skills/aws-deployment
     contents:
       - path: .
         git:
@@ -240,7 +240,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-iam
+  - path: .agents/skills/aws-iam
     contents:
       - path: .
         git:
@@ -257,7 +257,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-messaging-and-streaming
+  - path: .agents/skills/aws-messaging-and-streaming
     contents:
       - path: .
         git:
@@ -274,7 +274,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-networking
+  - path: .agents/skills/aws-networking
     contents:
       - path: .
         git:
@@ -291,7 +291,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-observability
+  - path: .agents/skills/aws-observability
     contents:
       - path: .
         git:
@@ -308,7 +308,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-sdk-js-v3-usage
+  - path: .agents/skills/aws-sdk-js-v3-usage
     contents:
       - path: .
         git:
@@ -325,7 +325,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-sdk-python-usage
+  - path: .agents/skills/aws-sdk-python-usage
     contents:
       - path: .
         git:
@@ -342,7 +342,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-sdk-swift-usage
+  - path: .agents/skills/aws-sdk-swift-usage
     contents:
       - path: .
         git:
@@ -359,7 +359,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-security
+  - path: .agents/skills/aws-security
     contents:
       - path: .
         git:
@@ -376,7 +376,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-serverless
+  - path: .agents/skills/aws-serverless
     contents:
       - path: .
         git:
@@ -393,7 +393,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-storage
+  - path: .agents/skills/aws-storage
     contents:
       - path: .
         git:
@@ -410,7 +410,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/aws-well-architected-review
+  - path: .agents/skills/aws-well-architected-review
     contents:
       - path: .
         git:
@@ -427,7 +427,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/launch-with-aws
+  - path: .agents/skills/launch-with-aws
     contents:
       - path: .
         git:
@@ -444,7 +444,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/signing-in-to-aws
+  - path: .agents/skills/signing-in-to-aws
     contents:
       - path: .
         git:
@@ -461,7 +461,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/anatomy
+  - path: .agents/skills/anatomy
     contents:
       - path: .
         git:
@@ -475,7 +475,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/find-skills
+  - path: .agents/skills/find-skills
     contents:
       - path: .
         git:
@@ -492,7 +492,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
-  - path: agents/skills/agents-sdk
+  - path: .agents/skills/agents-sdk
     contents:
       - path: .
         git:
@@ -501,7 +501,7 @@ directories:
         includePaths:
           - skills/agents-sdk/**/*
         newRootPath: skills/agents-sdk
-  - path: agents/skills/basin
+  - path: .agents/skills/basin
     contents:
       - path: .
         git:
@@ -510,7 +510,7 @@ directories:
         includePaths:
           - skills/basin/**/*
         newRootPath: skills/basin
-  - path: agents/skills/cf-cli
+  - path: .agents/skills/cf-cli
     contents:
       - path: .
         git:
@@ -519,7 +519,7 @@ directories:
         includePaths:
           - skills/cf-cli/**/*
         newRootPath: skills/cf-cli
-  - path: agents/skills/cloudflare-app-bootstrap
+  - path: .agents/skills/cloudflare-app-bootstrap
     contents:
       - path: .
         git:
@@ -528,7 +528,7 @@ directories:
         includePaths:
           - skills/cloudflare-app-bootstrap/**/*
         newRootPath: skills/cloudflare-app-bootstrap
-  - path: agents/skills/cloudflare-email-service
+  - path: .agents/skills/cloudflare-email-service
     contents:
       - path: .
         git:
@@ -537,7 +537,7 @@ directories:
         includePaths:
           - skills/cloudflare-email-service/**/*
         newRootPath: skills/cloudflare-email-service
-  - path: agents/skills/cloudflare-one-migrations
+  - path: .agents/skills/cloudflare-one-migrations
     contents:
       - path: .
         git:
@@ -546,7 +546,7 @@ directories:
         includePaths:
           - skills/cloudflare-one-migrations/**/*
         newRootPath: skills/cloudflare-one-migrations
-  - path: agents/skills/cloudflare-one
+  - path: .agents/skills/cloudflare-one
     contents:
       - path: .
         git:
@@ -555,7 +555,7 @@ directories:
         includePaths:
           - skills/cloudflare-one/**/*
         newRootPath: skills/cloudflare-one
-  - path: agents/skills/cloudflare
+  - path: .agents/skills/cloudflare
     contents:
       - path: .
         git:
@@ -564,7 +564,7 @@ directories:
         includePaths:
           - skills/cloudflare/**/*
         newRootPath: skills/cloudflare
-  - path: agents/skills/durable-objects
+  - path: .agents/skills/durable-objects
     contents:
       - path: .
         git:
@@ -573,7 +573,7 @@ directories:
         includePaths:
           - skills/durable-objects/**/*
         newRootPath: skills/durable-objects
-  - path: agents/skills/frameworks-on-cloudflare
+  - path: .agents/skills/frameworks-on-cloudflare
     contents:
       - path: .
         git:
@@ -582,7 +582,7 @@ directories:
         includePaths:
           - skills/frameworks-on-cloudflare/**/*
         newRootPath: skills/frameworks-on-cloudflare
-  - path: agents/skills/gateway-workers
+  - path: .agents/skills/gateway-workers
     contents:
       - path: .
         git:
@@ -591,7 +591,7 @@ directories:
         includePaths:
           - skills/gateway-workers/**/*
         newRootPath: skills/gateway-workers
-  - path: agents/skills/k2
+  - path: .agents/skills/k2
     contents:
       - path: .
         git:
@@ -600,7 +600,7 @@ directories:
         includePaths:
           - skills/k2/**/*
         newRootPath: skills/k2
-  - path: agents/skills/nextjs-on-cloudflare
+  - path: .agents/skills/nextjs-on-cloudflare
     contents:
       - path: .
         git:
@@ -609,7 +609,7 @@ directories:
         includePaths:
           - skills/nextjs-on-cloudflare/**/*
         newRootPath: skills/nextjs-on-cloudflare
-  - path: agents/skills/sandbox-migrate-to-next
+  - path: .agents/skills/sandbox-migrate-to-next
     contents:
       - path: .
         git:
@@ -618,7 +618,7 @@ directories:
         includePaths:
           - skills/sandbox-migrate-to-next/**/*
         newRootPath: skills/sandbox-migrate-to-next
-  - path: agents/skills/sandbox-next
+  - path: .agents/skills/sandbox-next
     contents:
       - path: .
         git:
@@ -627,7 +627,7 @@ directories:
         includePaths:
           - skills/sandbox-next/**/*
         newRootPath: skills/sandbox-next
-  - path: agents/skills/sandbox-stable
+  - path: .agents/skills/sandbox-stable
     contents:
       - path: .
         git:
@@ -636,7 +636,7 @@ directories:
         includePaths:
           - skills/sandbox-stable/**/*
         newRootPath: skills/sandbox-stable
-  - path: agents/skills/turnstile-spin
+  - path: .agents/skills/turnstile-spin
     contents:
       - path: .
         git:
@@ -645,7 +645,7 @@ directories:
         includePaths:
           - skills/turnstile-spin/**/*
         newRootPath: skills/turnstile-spin
-  - path: agents/skills/web-perf
+  - path: .agents/skills/web-perf
     contents:
       - path: .
         git:
@@ -654,7 +654,7 @@ directories:
         includePaths:
           - skills/web-perf/**/*
         newRootPath: skills/web-perf
-  - path: agents/skills/workers-best-practices
+  - path: .agents/skills/workers-best-practices
     contents:
       - path: .
         git:
@@ -663,7 +663,7 @@ directories:
         includePaths:
           - skills/workers-best-practices/**/*
         newRootPath: skills/workers-best-practices
-  - path: agents/skills/workers-development
+  - path: .agents/skills/workers-development
     contents:
       - path: .
         git:
@@ -672,7 +672,7 @@ directories:
         includePaths:
           - skills/workers-development/**/*
         newRootPath: skills/workers-development
-  - path: agents/skills/workers-profiling
+  - path: .agents/skills/workers-profiling
     contents:
       - path: .
         git:
@@ -681,7 +681,7 @@ directories:
         includePaths:
           - skills/workers-profiling/**/*
         newRootPath: skills/workers-profiling
-  - path: agents/skills/wrangler
+  - path: .agents/skills/wrangler
     contents:
       - path: .
         git:

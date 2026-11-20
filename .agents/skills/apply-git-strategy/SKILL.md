@@ -18,8 +18,8 @@ description: Git操作の許可範囲と、既存ブランチ・PR・worktreeを
 | PR作成・本文更新・Ready化の案内                 | `prepare-pr-for-review`、`references/pr-workflow.md`         |
 | AGENTS.md・スキル・hookの作成や更新             | `write-agent-instructions`                                   |
 
-dotfiles・個人ツールの変更では、着手前に`~/agents/skills/write-agent-instructions/references/context-policy.md`の配置判断と時間帯を確認する。
+dotfiles・個人ツールの変更では、着手前に`~/.agents/skills/write-agent-instructions/references/context-policy.md`の配置判断と時間帯を確認する。
 
-編集後は変更先と差分を確認する。設定移行の反映確認には`~/agents/skills/write-agent-instructions/references/context-policy.md`の「端末への反映確認」を使う。
+編集後は変更先と差分を確認する。設定移行の反映確認には`~/.agents/skills/write-agent-instructions/references/context-policy.md`の「端末への反映確認」を使う。
 
 miseやdotfilesのファイル配置を変更する前にも、同資料の「端末への反映確認」を読み、配置定義と冪等性の条件を確認する。

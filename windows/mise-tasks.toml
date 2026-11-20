@@ -20,13 +20,13 @@ run_windows = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
 description = "スキルを取得・配置し、同じ管理元へ繰り返し同期する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 run_windows = [
-  "git diff --exit-code HEAD -- agents/skills",
-  'if (git ls-files --others --exclude-standard -- agents/skills) { throw "未追跡スキルがあるため同期を停止しました" }',
+  "git diff --exit-code HEAD -- .agents/skills",
+  'if (git ls-files --others --exclude-standard -- .agents/skills) { throw "未追跡スキルがあるため同期を停止しました" }',
   '''aqua -c {{ (config_root ~ "/../aqua.yaml") | quote }} exec -- vendir sync --locked''',
-  "mise dot status ~/agents/skills",
-  "mise dot diff ~/agents/skills",
-  "mise dot apply --dry-run ~/agents/skills",
-  "mise dot apply --yes ~/agents/skills",
+  "mise dot status ~/.agents/skills",
+  "mise dot diff ~/.agents/skills",
+  "mise dot apply --dry-run ~/.agents/skills",
+  "mise dot apply --yes ~/.agents/skills",
 ]
 
 ["windows:sync"]

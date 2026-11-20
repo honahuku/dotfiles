@@ -34,7 +34,7 @@ ln -s "$PWD" ~/.config/opencode/skills/anatomy
 ```
 
 ```sh
-ln -s "$PWD" ~/agents/skills/anatomy
+ln -s "$PWD" ~/.agents/skills/anatomy
 ```
 
 ## Building the examples

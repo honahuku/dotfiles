@@ -16,11 +16,11 @@
 
 - 全作業に必要な短い規則だけをAGENTS.mdへ置く。特定作業の手順はスキルへ置く
 - 公開可能な過去情報は対応スキルの`references/`へ置く。社内・個人の記録は公開しない。
-- 指示・再発防止策とメモリの保存先は、`~/agents/skills/check-memory-placement/references/memory-policy.md`に従う。スキルの資料と、必要な操作より前に読む入口を対応させる。
+- 指示・再発防止策とメモリの保存先は、`~/.agents/skills/check-memory-placement/references/memory-policy.md`に従う。スキルの資料と、必要な操作より前に読む入口を対応させる。
 - ツールが自動生成するディレクトリは、実環境で確認した構造を保つ。独自のサブディレクトリを追加したり、未生成のプロジェクト用パスを命名規則から推測して作ったりしない
 - メッセージ送信などの下書きをテキストファイルに書き出すよう依頼された場合でも、具体的なコードや再利用する成果物でない書き捨てのテキストは、対象タスクの詳細に書き込む。ファイル作成は、タスク詳細では扱えないコードや単独で参照・編集する成果物などに限る
 ## 個人用の改善に着手する前の確認
-- 個人用の運用やツールを改善するときは、下記の時間帯規則と適用中の指示・関連資料の例外を確認する。指示違反の是正・再発防止は、先に`~/agents/skills/correct-rule-violations/references/self-correction.md`を読み、時間帯制限との優先関係を確認する。継続依頼でも作業前に日本時間の現在日時を確認する。
+- 個人用の運用やツールを改善するときは、下記の時間帯規則と適用中の指示・関連資料の例外を確認する。指示違反の是正・再発防止は、先に`~/.agents/skills/correct-rule-violations/references/self-correction.md`を読み、時間帯制限との優先関係を確認する。継続依頼でも作業前に日本時間の現在日時を確認する。
 - 環境固有の編集・バックアップは、本人の指定と適用中の上位指示に従う。
 
 ## 端末への反映確認
@@ -33,11 +33,11 @@ miseの配置定義とタスクは原則として冪等にする。同じ入力�
 
 `skills:sync`・`skills:install`によるvendir管理下の取得物の置換は、このスキル同期に限って許可する。実行前に対象が同期定義とlockfileの管理範囲であり、取得物に本人の編集がないことを確認する。旧ホーム配置の削除・退避、管理範囲外の削除、他のvendir同期へ許可を広げない。初回移行でホームの既存ディレクトリが競合する場合は本人操作を依頼する。
 
-dotfilesをCoding Agentsが更新した場合は、mainへの取り込みを確認した後、配置を管理するmainのcloneから`mise dot apply`を追加確認なしで実行する。本人によるmerge後に再開した場合も、適用済みか確認する。Git操作の許可範囲は`~/agents/skills/apply-git-strategy/references/git-policy.md`に従い、ホームへの適用許可をcommit・merge・pushの許可に広げない。
+dotfilesをCoding Agentsが更新した場合は、mainへの取り込みを確認した後、配置を管理するmainのcloneから`mise dot apply`を追加確認なしで実行する。本人によるmerge後に再開した場合も、適用済みか確認する。Git操作の許可範囲は`~/.agents/skills/apply-git-strategy/references/git-policy.md`に従い、ホームへの適用許可をcommit・merge・pushの許可に広げない。
 
 dotfilesのコードを端末のあるべき状態として扱う。miseによる設定反映は影響が本人の環境に限られるため、Coding Agentsによる実行を恒常的に許可する。Terraform apply・デプロイは適用対象と影響範囲が異なり、それらの禁止は解除しない。
 
-適用前に`mise dot status`・`mise dot diff`・`mise dot apply --dry-run`で配置先、変更内容、起動されるhookを確認する。新規配置と、mainの変更に対応する管理対象の更新を適用する。ホームへの書き込みはサンドボックス外で実行する。削除・管理対象外の既存ファイルの置換・ユーザー編集との競合・適用エラーがあれば、`--force`や`--prune`を使わず停止し、`~/agents/skills/troubleshoot-environment/references/manual-operations.md`に従う。
+適用前に`mise dot status`・`mise dot diff`・`mise dot apply --dry-run`で配置先、変更内容、起動されるhookを確認する。新規配置と、mainの変更に対応する管理対象の更新を適用する。ホームへの書き込みはサンドボックス外で実行する。削除・管理対象外の既存ファイルの置換・ユーザー編集との競合・適用エラーがあれば、`--force`や`--prune`を使わず停止し、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md`に従う。
 
 適用後は`mise dot status`と`mise run agents:check`を実行し、共通資料・スキル・判定処理の欠落、配置定義と異なるリンク先、旧リンクの残存を確認する。ツール固有の入口は、配置定義と実際の参照先を別途照合する。mainへの取り込み、dry-runの成功、検査成功だけで適用済みと報告しない。
 
@@ -45,7 +45,7 @@ dotfilesのコードを端末のあるべき状態として扱う。miseによ�
 - 通常モード・`local`モードを含む`todo`スキルの実行と、それに伴うタスク操作、勤怠保存、外部情報の同期、計画、日次ノート更新は定常フローとして対象外とする。チーム作業、業務用のバックログに関連する業務、業務上必要な勤怠ペースの確認・打刻取得も対象外とする。
 - 対象は、個人用の運用やツールの改善・整備（`todo`スキル、個人用スキル、AGENTS.md、dotfiles、`tasks`コマンド本体など）とする。
 - 禁止時間帯は日本時間の平日10:00以上12:00未満、および13:00以上17:00未満とする。この時間帯は個人用改善に着手してはならない。平日12:00以上13:00未満、平日17:00以降・10:00より前、土日祝日はこの時間帯制限の対象外とし、個人用改善に着手してよい。
-- 例外に該当しない依頼が禁止時間帯に来た場合は着手せず、GitHub Issueに記録する。起票先は`~/agents/skills/apply-git-strategy/references/git-policy.md`のIssue作成条件と、同スキルの関連資料で指定された保存先を確認する。指定がなければ対象リポジトリを使い、Issueテンプレートに従う。作成後はURLを伝え、業務への集中を促す。起票に失敗した場合は失敗を伝え、別の保存先へ変更したり作業を始めたりしない。
+- 例外に該当しない依頼が禁止時間帯に来た場合は着手せず、GitHub Issueに記録する。起票先は`~/.agents/skills/apply-git-strategy/references/git-policy.md`のIssue作成条件と、同スキルの関連資料で指定された保存先を確認する。指定がなければ対象リポジトリを使い、Issueテンプレートに従う。作成後はURLを伝え、業務への集中を促す。起票に失敗した場合は失敗を伝え、別の保存先へ変更したり作業を始めたりしない。
 - `write-plan`スキルに沿った業務用plan fileの作成・修正と、指定された保存先へのコミット・PRは、業務上必要なplanフローとして禁止時間帯の制限対象外とする。
 - `.codex/config.toml`の未コミット差分がモデル設定だけの場合は、禁止時間帯にかかわらずただちにコミットしてよい。ほかの設定変更を含む場合はこの例外を適用しない。
 - 共通指示・スキル・hookの呼称と配置は、`write-agent-instructions`の判断手順に従う。

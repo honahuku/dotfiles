@@ -10,7 +10,7 @@ description: コード・シェル・nvim設定・hook・Dockerfile・インフ�
 | 場面 | 資料 |
 | --- | --- |
 | 新規スクリプトの作成、コマンド・ラッパーの実行 | [シェルスクリプトとシェルコマンド](references/execution-constraints.md#シェルスクリプトとシェルコマンド)、[check-command-policy](../check-command-policy/SKILL.md)に従って操作条件を定める見出しを参照 |
-| テキストファイルの編集 | 共通の`~/agents/skills/write-safe-code-and-scripts/references/editing-policy.md` |
+| テキストファイルの編集 | 共通の`~/.agents/skills/write-safe-code-and-scripts/references/editing-policy.md` |
 | 編集後のlint・fmt・スタイル確認、警告の判断 | `references/code-validation.md`、`references/languages.md`の該当言語 |
 | Terraform・Kubernetes manifestの編集やmerge | `references/infrastructure.md` |
 

@@ -27,10 +27,10 @@ run = [
 description = "スキルの取得・配置・検査を行い、再実行で同じ配置に揃える"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 dir = "{{ config_root }}"
-vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/agents/skills') }}"
+vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
 run = [
-  "git diff --exit-code HEAD -- agents/skills",
-  '''test -z "$(git ls-files --others --exclude-standard -- agents/skills)"''',
+  "git diff --exit-code HEAD -- .agents/skills",
+  '''test -z "$(git ls-files --others --exclude-standard -- .agents/skills)"''',
   "aqua -c {{ config_root | quote }}/aqua.yaml exec -- vendir sync --locked",
   "mise dot status {{ vars.target | quote }}",
   "mise dot diff {{ vars.target | quote }}",
@@ -41,7 +41,7 @@ run = [
 
 ["skills:check"]
 description = "スキルの配置先と、直下の実体・リンク切れを確認する"
-vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/agents/skills') }}"
+vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
 run = [
   "mise dot status --missing {{ vars.target | quote }}",
   "test -d {{ vars.target | quote }}",
@@ -71,16 +71,16 @@ run = [
   { task = "skills:check" },
   { task = "opencode:check" },
   { task = "hooks:check" },
-  "mise dot status --missing ~/agents/skills ~/agents/hooks ~/agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc",
+  "mise dot status --missing ~/.agents/skills ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc",
 ]
 
 ["opencode:check"]
 description = "OpenCodeのグローバル設定に必要なMCPサーバーとスキーマがあることを確認する"
 run = [
   """grep -F '"~/.config/opencode/AGENTS.md" = "agents/AGENTS.md"' mise.toml""",
-  """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .skills == ["~/agents/skills"] and any(.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and any(.agents.general.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
-  """rg --fixed-strings '"~/agents/skills" = "agents/skills"' mise.toml""",
-  '''test -n "$(find agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
+  """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .skills == ["~/.agents/skills"] and any(.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and any(.agents.general.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
+  """rg --fixed-strings '"~/.agents/skills" = ".agents/skills"' mise.toml""",
+  '''test -n "$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
 ]
 
 ["hooks:check"]

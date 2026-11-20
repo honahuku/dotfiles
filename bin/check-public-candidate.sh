@@ -99,7 +99,7 @@ for path in "${paths[@]}"; do
   seen["$path"]=1
   imported=false
   while IFS= read -r root; do
-    [[ "$root" == agents/skills/* ]] || continue
+    [[ "$root" == .agents/skills/* ]] || continue
     if [[ "$path" == "$root/"* ]] &&
       rg --quiet --fixed-strings --line-regexp -- "$root" <<<"$locked_roots"; then
       imported=true
@@ -122,7 +122,7 @@ for path in "${paths[@]}"; do
     content="$(cat -- "$repository/$path")"
   fi
   check_text "file: $path" "$content"
-  if [[ "$path" == agents/skills/*.md || "$path" == agents/skills/*/agents/openai.yaml ]]; then
+  if [[ "$path" == .agents/skills/*.md || "$path" == .agents/skills/*/agents/openai.yaml ]]; then
     if ! jq --raw-input --slurp --from-file "$script_dir/../config/check-skill-language.jq" <<<"$content"; then
       echo "skill language check failed: $path" >&2
       violations=1

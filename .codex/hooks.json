@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -c -L \"$HOME/agents/hooks\" -f \"$HOME/agents/hooks/guard.jq\"",
+            "command": "jq -c -L \"$HOME/.agents/hooks\" -f \"$HOME/.agents/hooks/guard.jq\"",
             "statusMessage": "危険なコマンドを確認しています"
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -c -L \"$HOME/agents/hooks\" -f \"$HOME/agents/hooks/guard.jq\"",
+            "command": "jq -c -L \"$HOME/.agents/hooks\" -f \"$HOME/.agents/hooks/guard.jq\"",
             "statusMessage": "ファイル削除パッチを確認しています"
           }
         ]
