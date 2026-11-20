@@ -5,7 +5,7 @@ includes = ["mise-tasks.toml"]
 
 [dotfiles]
 "~/.local/share/dotfiles/agents/skills" = "agents/skills"
-"~/.agents/skills" = ".agents/skills"
+"~/agents/skills" = "agents/skills"
 "~/.codex/AGENTS.md" = "agents/AGENTS.md"
 "~/.config/opencode/AGENTS.md" = "agents/AGENTS.md"
 "~/.config/mise/config.toml" = ".config/mise/config.toml"
@@ -17,10 +17,10 @@ includes = ["mise-tasks.toml"]
 
 [dotfile_groups.public-agent-hooks]
 root = "~/git/honahuku/dotfiles/agents/hooks"
-target = "~/.agents/hooks"
+target = "~/agents/hooks"
 mode = "symlink-each"
 
 [dotfile_groups.public-agent-prh]
 root = "~/git/honahuku/dotfiles/agents/prh"
-target = "~/.agents/prh"
+target = "~/agents/prh"
 mode = "symlink-each"

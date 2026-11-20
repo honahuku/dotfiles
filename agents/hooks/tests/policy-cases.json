@@ -138,7 +138,7 @@
     "input": {
       "tool_name": "Write",
       "tool_input": {
-        "file_path": "/home/example/git/honahuku/dotfiles/.agents/hooks/command-policy.jq",
+        "file_path": "/home/example/git/honahuku/dotfiles/agents/hooks/command-policy.jq",
         "content": "example"
       }
     },
@@ -149,7 +149,7 @@
     "input": {
       "tool_name": "Write",
       "tool_input": {
-        "file_path": "/home/example/git/honahuku/dotfiles/.worktree/fix-example/.agents/hooks/command-policy.jq",
+        "file_path": "/home/example/git/honahuku/dotfiles/.worktree/fix-example/agents/hooks/command-policy.jq",
         "content": "example"
       }
     },
@@ -160,7 +160,7 @@
     "input": {
       "tool_name": "apply_patch",
       "tool_input": {
-        "command": "*** Begin Patch\n*** Update File: /home/example/git/honahuku/dotfiles/.agents/AGENTS.md\n*** End Patch"
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/honahuku/dotfiles/agents/AGENTS.md\n*** End Patch"
       }
     },
     "expected": "deny"
@@ -170,7 +170,7 @@
     "input": {
       "tool_name": "apply_patch",
       "tool_input": {
-        "command": "*** Begin Patch\n*** Update File: /home/example/git/honahuku/dotfiles/.worktree/fix-example/.agents/AGENTS.md\n*** End Patch"
+        "command": "*** Begin Patch\n*** Update File: /home/example/git/honahuku/dotfiles/.worktree/fix-example/agents/AGENTS.md\n*** End Patch"
       }
     },
     "expected": "allow"

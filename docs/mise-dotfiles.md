@@ -44,9 +44,9 @@ Windows側は共通指示と、インストール済みWindows Terminalの設定
 | ------------------------------ | ---------------------------------------------------------------------------------------- |
 | `~/.codex/AGENTS.md`           | `agents/AGENTS.md`                                                                       |
 | `~/.config/opencode/AGENTS.md` | `agents/AGENTS.md`                                                                       |
-| `~/.agents/skills/`            | 自作スキルとvendir取得先を含む`.agents/skills/`全体へのリンク                            |
-| `~/.agents/hooks/`             | 共通判定。登録方法と確認手順は[共通hook](../agents/hooks/README.md)を参照                |
-| `~/.agents/prh/`               | `agents/prh/`の技術日本語ルール                                                          |
+| `~/agents/skills/`            | 自作スキルとvendir取得先を含む`agents/skills/`全体へのリンク                            |
+| `~/agents/hooks/`             | 共通判定。登録方法と確認手順は[共通hook](../agents/hooks/README.md)を参照                |
+| `~/agents/prh/`               | `agents/prh/`の技術日本語ルール                                                          |
 
 取得スキルと自作版の名前が衝突する場合は、自作版を別名にする。
 
@@ -54,7 +54,7 @@ OpenCodeの共通指示・スキル配置方針は[対応方針](agent-support.m
 
 ## スキルの配置と更新
 
-スキルの編集元は`.agents/skills/`とする。`~/.agents/skills`はディレクトリ全体へのリンクとし、配下の`SKILL.md`は通常ファイルにする。取得物の更新はvendir定義とlockfileを一緒に反映する。初回の配置でホームの既存ディレクトリと競合した場合は、[競合で停止したとき](#競合で停止したとき)に従う。
+スキルの編集元は`agents/skills/`とする。`~/agents/skills`はディレクトリ全体へのリンクとし、配下の`SKILL.md`は通常ファイルにする。取得物の更新はvendir定義とlockfileを一緒に反映する。初回の配置でホームの既存ディレクトリと競合した場合は、[競合で停止したとき](#競合で停止したとき)に従う。
 
 ## 外部スキルの取得範囲
 
@@ -82,4 +82,4 @@ vendirは、その方法で選択したスキルに配布されるファイル�
 
 手動検査は`./bin/check-public-candidate.sh --all`、変更範囲だけなら`--worktree`を使う。日本語の自動検査は英語だけの説明行を検出する補助であり、翻訳の正確さは原文と照合する。
 
-共通資料・スキルは`.agents`へ集約し、OpenCodeは`~/.agents/skills`から読み込む。OpenCodeのグローバル権限設定は[設定ファイル](../.config/opencode/opencode.jsonc)で管理する。
+共通資料・スキルは`.agents`へ集約し、OpenCodeは`~/agents/skills`から読み込む。OpenCodeのグローバル権限設定は[設定ファイル](../.config/opencode/opencode.jsonc)で管理する。
