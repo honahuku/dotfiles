@@ -20,6 +20,13 @@
       "minimumReleaseAgeBehaviour": "timestamp-required"
     },
     {
+      "description": "Node.js は LTS 到達済みのリリースのみ更新対象にする",
+      "matchPackageNames": [
+        "node"
+      ],
+      "versioning": "node"
+    },
+    {
       "description": "minor と patch 更新を自動マージする",
       "matchUpdateTypes": [
         "minor",
