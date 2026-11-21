@@ -20,19 +20,23 @@
       "minimumReleaseAgeBehaviour": "timestamp-required"
     },
     {
-      "description": "CI 成功後に aqua の minor / patch 更新を自動マージする",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchFileNames": [
-        "aqua.yaml"
-      ],
+      "description": "patch と minor 更新を自動マージする",
       "matchUpdateTypes": [
         "minor",
         "patch"
       ],
-      "automerge": true,
-      "platformAutomerge": false
+      "automerge": true
+    },
+    {
+      "description": "Merge Confidence が low の minor 更新は自動マージしない",
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "matchConfidence": [
+        "low",
+        "neutral"
+      ],
+      "automerge": false
     },
     {
       "description": "vendir で取り込むスキルの更新は自動マージしない",
