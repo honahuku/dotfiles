@@ -9,14 +9,6 @@
   },
   "packageRules": [
     {
-      "description": "mise の更新を一つのPRにまとめる",
-      "matchPackageNames": [
-        "github:jdx/mise",
-        "jdx/mise"
-      ],
-      "groupName": "mise"
-    },
-    {
       "description": "GitHub Actions の更新をまとめる",
       "matchManagers": [
         "github-actions"
@@ -39,6 +31,14 @@
         "vendir"
       ],
       "groupName": "vendir skills"
+    },
+    {
+      "description": "mise の更新を一つのPRにまとめる",
+      "matchPackageNames": [
+        "github:jdx/mise",
+        "jdx/mise"
+      ],
+      "groupName": "mise"
     },
     {
       "description": "aqua の更新はリリースから14日以上経過してから行う",
