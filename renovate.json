@@ -22,7 +22,8 @@
     }
   ],
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": true,
+    "groupName": "lock file maintenance"
   },
   "packageRules": [
     {
