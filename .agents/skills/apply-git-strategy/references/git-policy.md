@@ -38,6 +38,7 @@ worktreeパスの表示形式は、`review-output`の`references/output-policy.m
 | worktreeの準備 | `worktree.md`の既存ブランチ・open PRの確認と再利用条件を満たす場合、`git worktree add`、必要な`-b`でのブランチ作成、clone専用の`info/exclude`への`/.worktree/`追記を追加確認なしで実行できる。同じトピックを別ブランチへ分離する許可は含まない |
 | ステージ | 下記の条件を満たす場合に実行できる |
 | commit・push・merge・pull・fetchなど上記以外の書き込み | 依頼範囲内で通常の復旧手段がある変更は実行できる。共有履歴の改変・強制操作・復旧困難な変更は可逆性判断に従って明示許可を得る |
+| マージ済みPRの元ブランチ削除 | PRのマージ確認後、下記「マージ済みPRのブランチ整理」に従ってリモート・ローカルの元ブランチを削除できる |
 
 worktreeの準備に`--force`や`-B`を使わず、既存状態を強制変更しない。許可した`info/exclude`への追記以外は、index・refs・reflog・Git hookなどへの直接書き込みで制限を迂回しない。
 
@@ -50,6 +51,12 @@ Git書き込みの前に、適用中の上位指示と依頼範囲を照合す�
 ローカルの配置名だけで判定せず、操作前に`gh repo view <owner>/<repo> --json nameWithOwner,isPrivate`などで所有者と可視性を確認し、許可された対象と照合する。public・internalにはprivateの例外を適用しない。許可の管理元を一つにし、`SKILL.md`や別資料に重ねて定義しない。
 
 merge・PRのReady化・コメント投稿にはこの例外を適用しない。apply・デプロイを起動するpushは、対象と影響を示して明示許可を得てから行う。必要なhook・検証は省略しない。
+
+### マージ済みPRのブランチ整理
+
+- PRをマージするときは、可能なら`gh pr merge <番号> --delete-branch`を使う。マージ完了後にPRの状態と元ブランチ名を確認し、元ブランチのリモート・ローカル両方が削除されたことを検証する。自動削除されていない側は、PRが`MERGED`であることを確認して削除する。
+- リモートブランチが残っている場合は、PRのhead branchと一致することを確認してから`git push origin --delete <branch>`で削除する。ローカルブランチがworktreeで使用中なら、status・差分・未追跡ファイルを確認する。変更がなく、他のセッションで使用中でないworktreeだけを通常の`git worktree remove`で外し、その後ローカルブランチを削除する。
+- squash・rebase mergeでは元ブランチのcommitがbaseの祖先でなく、`git branch -d`が拒否する場合がある。PRのマージ状態とhead SHAを確認したうえで、そのPRの元ブランチに限って`git branch -D`で削除する。未コミット差分がある、worktreeの使用状況が不明、またはPRのマージを確認できない場合は削除を止め、対象と理由を報告する。既存変更を破棄したり、`worktree remove --force`を使ったりしない。
 
 ### ステージと個別操作の条件
 

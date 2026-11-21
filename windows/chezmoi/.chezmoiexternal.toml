@@ -6,8 +6,8 @@
 }}
 {{ $directory := joinPath (env "LOCALAPPDATA") $channel }}
 {{ if stat $directory }}
-[{{ printf "%s/settings.json" $directory | quote }}]
+[{{ printf "AppData/Local/%s/settings.json" $channel | quote }}]
 type = "file"
-url = {{ printf "file://%s/.terminal.json" $.chezmoi.sourceDir | quote }}
+url = {{ printf "file://%s/.terminal.json" (replace "\\" "/" $.chezmoi.sourceDir) | quote }}
 {{ end }}
 {{ end }}

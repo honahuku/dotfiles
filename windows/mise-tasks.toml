@@ -2,10 +2,11 @@
 description = "Windowsの共通設定とTerminal設定を反映し、管理対象ツールを導入する"
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 run_windows = [
-  "mise dot status",
-  "mise dot diff",
-  "mise dot apply --dry-run",
-  "mise dot apply --yes",
+  "mise dot status ~/.agents/skills ~/.config/opencode/AGENTS.md ~/.config/opencode/opencode.jsonc ~/.config/mise/config.toml",
+  "mise dot diff ~/.agents/skills ~/.config/opencode/AGENTS.md ~/.config/opencode/opencode.jsonc ~/.config/mise/config.toml",
+  "mise dot apply --dry-run ~/.agents/skills ~/.config/opencode/AGENTS.md ~/.config/opencode/opencode.jsonc ~/.config/mise/config.toml",
+  "mise dot apply --yes ~/.agents/skills ~/.config/opencode/AGENTS.md ~/.config/opencode/opencode.jsonc ~/.config/mise/config.toml",
+  'mise trust "$env:USERPROFILE/.config/mise/config.toml"',
   "mise install",
   "aqua -c {{ (config_root ~ '/../aqua.yaml') | quote }} install",
   { task = "skills:install" },
@@ -14,19 +15,24 @@ run_windows = [
 
 ["setup:check"]
 description = "Windowsの配置予定と競合を確認する"
-run_windows = ["mise dot status", "mise dot diff", "mise dot apply --dry-run"]
+run_windows = [
+  "mise dot status ~/.agents/skills ~/.config/opencode/AGENTS.md ~/.config/opencode/opencode.jsonc ~/.config/mise/config.toml",
+  "mise dot diff ~/.agents/skills ~/.config/opencode/AGENTS.md ~/.config/opencode/opencode.jsonc ~/.config/mise/config.toml",
+  "mise dot apply --dry-run ~/.agents/skills ~/.config/opencode/AGENTS.md ~/.config/opencode/opencode.jsonc ~/.config/mise/config.toml",
+]
 
 ["skills:install"]
 description = "スキルを取得・配置し、同じ管理元へ繰り返し同期する"
+dir = "{{ config_root }}/.."
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 run_windows = [
   "git diff --exit-code HEAD -- .agents/skills",
   'if (git ls-files --others --exclude-standard -- .agents/skills) { throw "未追跡スキルがあるため同期を停止しました" }',
-  '''aqua -c {{ (config_root ~ "/../aqua.yaml") | quote }} exec -- vendir sync --locked''',
-  "mise dot status ~/.agents/skills",
-  "mise dot diff ~/.agents/skills",
-  "mise dot apply --dry-run ~/.agents/skills",
-  "mise dot apply --yes ~/.agents/skills",
+  "pwsh -NoProfile -File {{ (config_root ~ '/sync-skills.ps1') | quote }}",
+  "mise -C {{ config_root | quote }} dot status ~/.agents/skills",
+  "mise -C {{ config_root | quote }} dot diff ~/.agents/skills",
+  "mise -C {{ config_root | quote }} dot apply --dry-run ~/.agents/skills",
+  "mise -C {{ config_root | quote }} dot apply --yes ~/.agents/skills",
 ]
 
 ["windows:sync"]

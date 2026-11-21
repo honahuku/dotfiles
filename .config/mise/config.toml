@@ -2,7 +2,7 @@
 "github:aquaproj/aqua" = "2.65.0"
 "github:jdx/mise" = "2026.11.11"
 node = "24.22.3"
-bun = "1.4.4"
+bun = "1.4.5"
 go = "1.27.4"
 python = "3.13.17"
 "npm:vscode-langservers-extracted" = "4.10.0"
@@ -13,6 +13,7 @@ opencode = { version = "2.3.0", allow_builds = ["@opencode/cli"] }
 # Google公式の配布物とバージョン情報だけを使用する。
 [tools."http:gcloud"]
 version = "590.0.1"
+os = ["linux", "macos"]
 url = 'https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-{{ version }}-{{ os(macos="darwin") }}-{{ arch(x64="x86_64", arm64="arm") }}.tar.gz'
 strip_components = 1
 bin_path = "bin"
