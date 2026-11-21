@@ -19,204 +19,205 @@ directories:
     path: .
   path: .agents/skills/grilling
 - contents:
-  - configDigest: 25caa7604605060c63c44f880a51235c72dd86b20933b7e183ad8c793b96ec60
+  - configDigest: 67960e0b71d9a5b327a3eaf56ad229d98b27f2ca81900c557426b9c85963dedc
     git:
-      commitTitle: 'feat: yomiyasu v1.1.2で、文の種類を保つ推敲の手順と差分の点検を加える (#17)...'
-      sha: 602a3690dadd5d620bb21524353b8d192914eabb
+      commitTitle: 'fix: yomiyasu v3.2.3で、diff の原文にない保証と再発防止の誓いで同じ言い方かを比べるときに、以外 のあとに
+        も・でも・においても などの範囲を広げる助詞が付いた形を、以外は・を除き と別の種類にする (#67)...'
+      sha: c49d5f1bee91258e33e1febc3569c6c87be7669e
       tags:
-      - v1.1.2
+      - v3.2.3
     path: .
   path: .agents/skills/yomiyasu
 - contents:
-  - configDigest: 392d1a8b112e1d6621cdbb0ace9624ce3e9392dc3d6f9cd0f03b627df33b9e1a
+  - configDigest: 4d9b23b1d3a8f21f2b6100de6a5c52408a25f297b71991dd6172d43153aac1a6
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/amazon-bedrock
 - contents:
-  - configDigest: 70f81965fe14b698c230d97d5f96296f55b46e996ab5c7b2b6bce9abdb8a21d9
+  - configDigest: 85fa11c601c4d0aa2c01a1522cfae7dcb1c871e20da6df18dd03d008998f51b1
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-ai-ml
 - contents:
-  - configDigest: bcfb0f24f75f99b65a98d3d4f07eb5013a7afc4fc449d46f0fc9e7b2c54bdefe
+  - configDigest: fe7f0ca5785c40f327dcfccbe600e74d5bd3385982043dd7f81a2ede25756918
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-auth
 - contents:
-  - configDigest: dccdd90c24e8b3630d1a5ddcd1e24bd60972e1bffe687eb1ebc0bd96754db4ae
+  - configDigest: 9854987ac79bf06372dea7bcb33061d4c84ae1cfcc5b579419f972f62441f5ad
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-billing-and-cost-management
 - contents:
-  - configDigest: 4ed15b238cacbb7d6a1ca2cfc62b28dd33d4d0623c6be9c4f9d41ab71e1b963c
+  - configDigest: e2dead716efb0bc4e762feb202f4cccad16a6490ae32304c8f8cf0408e64b071
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-blocks
 - contents:
-  - configDigest: 9bff8a9b25cddcb9f172ff17df6c4da33e0e5b5ff3ca750d97699f31d7a39801
+  - configDigest: 68d7f459f3abc7cc30466dd37d0dd8ebd33cf48cf69fed61824563eee3ef3681
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-cdk
 - contents:
-  - configDigest: 75287ccd1b5f45a23b41cc1e3eda2f5446b6040c6e11690974abb981bdf36000
+  - configDigest: afde228b1c37a3e804f2e1742d6ba6bac9a0bc0fd9e47fba750275aad9055a2d
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-cloudformation
 - contents:
-  - configDigest: 3dacee2166b9db8283f5baf1c2c48492a5aa97e1df86de59c74f4c71cc6ad353
+  - configDigest: 5197ccc04575d18b63593b0a7dc97b8c3f8441193867afead04c645ea8d3bd64
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-compute
 - contents:
-  - configDigest: c6806a4ee523aff396ff88986da17d479921f96e793de8fad60db17a9bd3877f
+  - configDigest: 32c51b324a3588e6d4704a5150fa7bfa7ba77a554bc888ff5751f9a7b99b4037
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-containers
 - contents:
-  - configDigest: 0ffd86d958dbf3b4c2d03da01466d66393436aeb1e441e3c3483051ff98b1230
+  - configDigest: e28f616930e2cd3dff764a563d2d53b1c5c805da477941f0ddbab2e65378282d
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-database
 - contents:
-  - configDigest: bdbcb5adf9fea263991b5645a12c677c5bd0a1c8c8c9f0b18c42b79b591b846e
+  - configDigest: b3b0923db895b4e398c4c21c05d7d03fb27c2b6655655b36b5f5ed7a4e8ce9a0
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-deployment
 - contents:
-  - configDigest: 4a3c4d3d6b40d77665ec1848be47bbf42ff50fd03a1090a0c8ac11fe057f4070
+  - configDigest: 879486438108fdf8a034bf7cd9cc913598ce535d6ce43ae6180981a1af1816af
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-iam
 - contents:
-  - configDigest: c3b8a95eecc98acdeb6f435ba40980f7585513d155b6e2dbf531e495838284c8
+  - configDigest: e12f3b8062041976ce24a84d4f3d39148bed2b5ddf4e0fd9b3d136d34b5838fb
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-messaging-and-streaming
 - contents:
-  - configDigest: c9565fc718beec68bb6c8c93f12d08e75e664510e0043dc75d5f0ea45400d4ed
+  - configDigest: fcce9e4e729ed3d315009b7aafeb900c0a3d9c1372a7a0fcae192421e44b3aba
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-networking
 - contents:
-  - configDigest: 235e16a10dda721c23c91f27465b1097cc902c872b4827b7d0223a4213dbceee
+  - configDigest: 41cbeae68aced1c817711b78fd1eee42a2c4a6741553c21db17884f7fb00911d
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-observability
 - contents:
-  - configDigest: c12e66b2db23d528de134288e209a342c9d18d03d50831b739998ae02af2a197
+  - configDigest: 73fa422869d5e13ee4b012401cd355a7bb168cada4ed9418f0a5daaeac8c073c
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-sdk-js-v3-usage
 - contents:
-  - configDigest: 1939dd84345c02104b4816e5d4759a30f59de090ed55ce563fdec0b1a6108cdc
+  - configDigest: a3ded9629ffde9663e0981e0c3155abe7fd6eec01a07e35bdb60f2fa1bafdf27
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-sdk-python-usage
 - contents:
-  - configDigest: d9dc632e11e8d51d78e0a37fd56060c1c25c7a1403ab7f462d125c369d5b76a5
+  - configDigest: 60af931b3b387b975995ae9d3eef277a86c2c3443ef2cedcd59805305d8dd2a4
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-sdk-swift-usage
 - contents:
-  - configDigest: 1b7ca1330540e5146024768dbda39a36887fca6da68657a85025c63768aa1c70
+  - configDigest: eea90ea4fbfe82448c20a1931bb25d14021d8170f91d8495ba519929c49a6d51
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-security
 - contents:
-  - configDigest: 2fd086b94d89e53177ff88688c20c4c5043a6e8c013374f8f54ba327dbe29196
+  - configDigest: f1709d0134a802b329909820c7cd74c248236c80eb8218949b02bb0cc8820708
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-serverless
 - contents:
-  - configDigest: 9ed1fb062652241cd056bfd66ef9344a1252262c12516af901c3ce2f7942d318
+  - configDigest: 841bd1e2d166e7a66bc6f44efe9f24e9ad6747b97c3f959b015b11979da00ef0
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-storage
 - contents:
-  - configDigest: 62e7f20d782471d1224d9eb37ca94cb3317a9fb16b07cb1dcde96cb75ada5627
+  - configDigest: cae6b33cf7d7e61c8edabc6d59a1f08d0c96594f42af65964c99706c315a6d40
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-well-architected-review
 - contents:
-  - configDigest: ef8924f520abbc643cd0293e7c22d67052cbf06d87b8cd5e32a7d25594f07711
+  - configDigest: c8246a7cb49aa543a972f9b088852dfdf12b4d2f8e67405a6d4bc3ca01d7d892
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/launch-with-aws
 - contents:
-  - configDigest: 79a99a66e85c3c8ea9616199eb172fe6f4ae77457a7626990388a5212566b540
+  - configDigest: 0786df30a96a99682c324fdbadd320f9bd4f93e981dcb27f7baa74a17fae6695
     git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/signing-in-to-aws
 - contents:
