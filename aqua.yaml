@@ -54,3 +54,4 @@ packages:
     - name: duckdb/duckdb@v2.0.0
     - name: aws/aws-cli@2.40.0
     - name: grafana/mcp-grafana@v2.3.0
+    - name: cloudflare/cloudflared@2026.11.1

@@ -6,3 +6,4 @@ if [ -n "${BASH_VERSION:-}" ]; then
   . "$HOME/git/honahuku/dotfiles/linux/bashrc.sh"
 fi
 ''' }
+"~/.config/systemd/user/cloudflared-tunnel.service" = "systemd/user/cloudflared-tunnel.service"
