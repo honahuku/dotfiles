@@ -43,7 +43,7 @@ directories:
       - path: .
         git:
           url: https://github.com/nanaism/yomiyasu.git
-          ref: v1.1.2
+          ref: v3.2.3
         includePaths:
           - skills/yomiyasu/**/*
         newRootPath: skills/yomiyasu
