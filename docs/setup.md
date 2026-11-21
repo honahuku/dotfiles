@@ -4,7 +4,7 @@ LinuxとWindowsで、それぞれの環境にあるmiseを使って設定と管�
 
 ## 初期準備
 
-インターネット接続と、Bash、Git、OpenSSHクライアント、CA証明書、curl、tar、gzip、unzip、xzを用意する。OSパッケージマネージャーの利用は、ブートストラップとOS統合に必要な最小限に留める。導入済みのものは再導入しない。jqなどのCLIはaquaから導入する。C/C++コンパイラー、make、pkg-configや開発用ライブラリは、ソースからのビルドが必要になった場合に追加する。
+インターネット接続と、Bash、Git、OpenSSHクライアント、CA証明書、curl、tar、gzip、unzip、xz、GIO（`gio`）を用意する。`gio`は[Trash Specification](https://specifications.freedesktop.org/trash/latest/)に沿ったゴミ箱へ`rm`対象を移すために使う。未対応のファイルシステムで移動に失敗した場合は、元ファイルを残す。既存の`~/.trash`は自動移行せず、そのまま残す。OSパッケージマネージャーの利用は、ブートストラップとOS統合に必要な最小限に留める。導入済みのものは再導入しない。jqなどのCLIはaquaから導入する。C/C++コンパイラー、make、pkg-configや開発用ライブラリは、ソースからのビルドが必要になった場合に追加する。
 
 <details>
 <summary>Debian / Ubuntu</summary>
@@ -12,7 +12,7 @@ LinuxとWindowsで、それぞれの環境にあるmiseを使って設定と管�
 ```sh
 sudo apt update
 sudo apt install --no-install-recommends bash git openssh-client ca-certificates \
-  curl tar gzip unzip xz-utils
+  curl tar gzip unzip xz-utils libglib2.0-bin
 ```
 
 </details>
@@ -23,7 +23,7 @@ sudo apt install --no-install-recommends bash git openssh-client ca-certificates
 部分更新を避けるため、システム更新も同時に行う。
 
 ```sh
-sudo pacman -Syu --needed bash git openssh ca-certificates curl tar gzip unzip xz
+sudo pacman -Syu --needed bash git openssh ca-certificates curl tar gzip unzip xz glib2
 ```
 
 </details>
