@@ -14,20 +14,12 @@ vim.opt.mousemoveevent = true
 
 local platform = require("platform")
 
--- WSL上のnvimからWindowsクリップボードへyank/pasteするためwin32yankを使う。
--- Windows nativeではNeovimの標準clipboard providerを使う。
-if platform.is_wsl() and vim.fn.executable("win32yank.exe") == 1 then
-  vim.g.clipboard = {
-    name = "win32yank",
-    copy = {
-      ["+"] = "win32yank.exe -i --crlf",
-      ["*"] = "win32yank.exe -i --crlf",
-    },
-    paste = {
-      ["+"] = "win32yank.exe -o --lf",
-      ["*"] = "win32yank.exe -o --lf",
-    },
-    cache_enabled = 0,
-  }
+-- WSLではwin32yank、Windows nativeでは標準コマンドでクリップボードを扱う。
+local clipboard = require("util.clipboard")
+local provider = clipboard.resolve(platform.is_windows(), platform.is_wsl(), function(command)
+  return vim.fn.executable(command) == 1
+end)
+if provider then
+  vim.g.clipboard = provider
 end
 vim.opt.clipboard = "unnamedplus"
