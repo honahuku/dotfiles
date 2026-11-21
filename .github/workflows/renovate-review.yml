@@ -1,0 +1,169 @@
+name: Renovate PR review
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: renovate-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  analyze:
+    if: >-
+      github.event.pull_request.user.login == 'renovate[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      review: ${{ steps.codex.outputs.final-message }}
+    steps:
+      - name: Check out the pull request
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Check out pull request files as untrusted data
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          persist-credentials: false
+
+      - name: Fetch comparison commits
+        working-directory: pr
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch --no-tags origin "$PR_BASE_SHA" "$PR_HEAD_SHA"
+          git cat-file -e "$PR_BASE_SHA^{commit}"
+          git cat-file -e "$PR_HEAD_SHA^{commit}"
+          {
+            echo "PR_BASE_SHA=$PR_BASE_SHA"
+            echo "PR_HEAD_SHA=$PR_HEAD_SHA"
+          } >> "$GITHUB_ENV"
+
+      - name: Configure read-only public research
+        env:
+          CODEX_HOME: ${{ runner.temp }}/codex-home
+        run: |
+          mkdir -p "$CODEX_HOME"
+          cat > "$CODEX_HOME/config.toml" <<'EOF'
+          default_permissions = "renovate-readonly"
+
+          [features]
+          network_proxy = true
+
+          [permissions.renovate-readonly]
+          extends = ":read-only"
+
+          [permissions.renovate-readonly.network]
+          enabled = true
+
+          [permissions.renovate-readonly.network.domains]
+          "api.github.com" = "allow"
+          "github.com" = "allow"
+          "raw.githubusercontent.com" = "allow"
+          "objects.githubusercontent.com" = "allow"
+          "release-assets.githubusercontent.com" = "allow"
+          "registry.npmjs.org" = "allow"
+          "pypi.org" = "allow"
+          "files.pythonhosted.org" = "allow"
+          "crates.io" = "allow"
+          "static.crates.io" = "allow"
+          "pkg.go.dev" = "allow"
+          "proxy.golang.org" = "allow"
+          "sum.golang.org" = "allow"
+          "rubygems.org" = "allow"
+          "repo.maven.apache.org" = "allow"
+          "central.sonatype.com" = "allow"
+          "registry.terraform.io" = "allow"
+          "releases.hashicorp.com" = "allow"
+          "docs.renovatebot.com" = "allow"
+          EOF
+
+      - name: Analyze the update
+        id: codex
+        uses: openai/codex-action@306c6a196a99dcc6582530c396a19d2672d5e9ec # v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          codex-home: ${{ runner.temp }}/codex-home
+          permission-profile: renovate-readonly
+          safety-strategy: drop-sudo
+          allow-bot-users: renovate[bot]
+          prompt-file: .github/prompts/renovate-review.md
+          working-directory: ${{ github.workspace }}
+          effort: high
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
+  comment:
+    needs: analyze
+    if: >-
+      needs.analyze.result == 'success' &&
+      needs.analyze.outputs.review != '' &&
+      github.event.pull_request.user.login == 'renovate[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Create or update the review comment
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          CODEX_REVIEW: ${{ needs.analyze.outputs.review }}
+          REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        with:
+          script: |
+            const marker = "<!-- renovate-review -->";
+            const issue_number = context.payload.pull_request.number;
+            const { data: pullRequest } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: issue_number,
+            });
+
+            if (pullRequest.head.sha !== process.env.REVIEW_HEAD_SHA) {
+              core.info("Skipping stale analysis because the pull request head changed.");
+              return;
+            }
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              ...context.repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find(
+              (comment) =>
+                comment.user?.login === "github-actions[bot]" &&
+                comment.body?.includes(marker),
+            );
+            const review = process.env.CODEX_REVIEW.slice(0, 60000).trim();
+            const body = `${marker}\n## Renovate更新の自動調査\n\n${review}\n\n確認対象のhead SHA: \`${process.env.REVIEW_HEAD_SHA}\``;
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number,
+                body,
+              });
+            }
