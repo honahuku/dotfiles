@@ -39,7 +39,7 @@ Renovateによる依存更新PR、Renovate設定の変更PR、Renovateのロー�
 
 コードの主張は`file:path:line`で裏付ける。pathはrepo相対パス、lineは対象HEADの行番号とし、チャットでは同じ位置へのGitHubリンクかローカル絶対パスのリンクを添える。文書は該当ページやセクション、実環境は読み取り結果と対象環境を示す。Webの出典は本文を読んで主張との一致を確かめ、読めなければ根拠にしない。
 
-検証は許可された静的検査とCI結果の読み取りに限る。TerraformではHCP Terraformのrunのplan結果の読み取りも含む。Terraform・Kubernetes manifestでは`write-safe-code-and-scripts`のインフラ検証手順を読み、`terraform`・`kubectl`をローカル実行しない。必要な禁止CLIの結果を対象headのCI（TerraformではHCP Terraformのrunも含む）から取得できなければ、別の方法で代替せず判断を仰ぐ。適用・デプロイや、それを起動するmerge・push・CI操作は行わない。
+検証は静的検査とCI結果の読み取りを含む。TerraformではHCP Terraformのrunのplan結果の読み取りも含む。Terraform・Kubernetes manifestでは`write-safe-code-and-scripts`のインフラ検証手順を読み、`terraform`・`kubectl`の読み取り・planを実行できる。リソースを変更する適用・デプロイや、それを起動するmerge・push・CI操作は、対象と影響を示して明示許可を得てから行う。
 
 Terraformの変更を含む場合は、[plan結果の列挙](references/terraform-plan-results.md)を読み、対象環境ごとの全リソースと操作を照合する。
 

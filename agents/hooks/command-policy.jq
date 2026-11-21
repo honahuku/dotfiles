@@ -22,10 +22,6 @@ def has_shell_control_operator:
     | test("[;&|()\\n]")
   );
 
-def targets_git_main_checkout($path):
-  ($path | test("(^|/)git/[^/]+/[^/]+/"))
-  and (($path | test("(^|/)git/[^/]+/[^/]+/\\.worktree/")) | not);
-
 def command_is($name):
   (only_reading_arguments | not)
   and test(
@@ -34,6 +30,15 @@ def command_is($name):
     "(?:[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+[[:space:]]+)*" +
     "(?:[\\\"']?[^[:space:]\\\"';&|]+/)?[\\\"']?" + $name + "[\\\"']?([[:space:]]|$)"
   );
+
+def aws_read_only:
+  test("(^|[[:space:]])aws([[:space:]]+--[^[:space:]]+)*[[:space:]]+[^[:space:]]+[[:space:]]+(?:describe-|list-|get-|head-|search-|lookup-|query|scan|batch-get-|validate-|simulate-|estimate-|preview-|ls(?:[[:space:]]|$))");
+
+def terraform_state_changing:
+  test("(^|[[:space:]])terraform[[:space:]]+(?:apply|destroy|import|state|taint|untaint|force-unlock|workspace[[:space:]]+(?:new|delete))([[:space:]]|$)");
+
+def kubectl_state_changing:
+  test("(^|[[:space:]])kubectl([[:space:]]+--[^[:space:]]+)*[[:space:]]+(?:apply|create|delete|replace|patch|edit|scale|set|drain|cordon|uncordon|taint|label|annotate|rollout[[:space:]]+(?:restart|undo|pause|resume))([[:space:]]|$)");
 
 def policy_deny($reason):
   {hookSpecificOutput: {
@@ -45,15 +50,6 @@ def policy_deny($reason):
 def deny_sensitive_commands:
 (.tool_input.command // .tool_input.cmd // "") as $command
 | if (
-    ((.tool_name == "Write" or .tool_name == "Edit")
-      and ((.tool_input.file_path // "") | targets_git_main_checkout(.)))
-    or (
-      .tool_name == "apply_patch"
-      and ($command | test("(?m)^\\*\\*\\* (?:Add|Update) File: [^\\n]*/git/[^/]+/[^/]+/(?!\\.worktree/)"))
-    )
-  ) then
-    policy_deny("~/git配下のGit管理ファイルはmain checkoutで編集しない。登録済みworktree内のパスを指定する。")
-  elif (
     (.tool_name == "Bash" or .tool_name == "exec_command" or .tool_name == "functions.exec_command")
     and ($command | has_shell_control_operator)
   ) then
@@ -61,30 +57,20 @@ def deny_sensitive_commands:
   elif (
     (.tool_name == "Bash" or .tool_name == "exec_command" or .tool_name == "functions.exec_command")
     and ($command | ascii_downcase | command_is("aws"))
+    and (($command | aws_read_only) | not)
   ) then
     {
       hookSpecificOutput: {
         hookEventName: "PreToolUse",
         permissionDecision: "deny",
-        permissionDecisionReason: "AWS CLIの実行を拒否した。検索語・通常の引数・ファイルパスにAWS CLI名が含まれるだけの読み取り操作は許可する。別名・ラッパー・別ツールでCLIを代行実行しない。CLIが必要なら、実行せず、本人がコピーして実行するコマンドを提示する。AGENTS.mdの「AWS CLIの手動実行」に従い、提示前に試行専用の絶対パスを確保し、標準出力・標準エラー・終了コードと実行条件をファイルへ保存する手順を付ける。ページャーと自動プロンプトを無効にし、--debugは通常付けない。「実行した」の返答後は既知の保存先を読み、結果の貼り付けを求めない。"
-      }
-    }
-  elif (
-    .tool_name == "apply_patch"
-    and ($command | test("(?m)^\\*\\*\\* Delete File:"))
-  ) then
-    {
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        permissionDecision: "deny",
-        permissionDecisionReason: "ファイル削除を含むapply_patch操作は実行しない。許可された確認・準備はCoding Agentsが実行してコマンドと結果を示し、本人操作だけを別のコードブロックで依頼する。削除はファイル・ディレクトリともrmで示し、trash aliasを保持する。rmの絶対パス指定・rmdir・alias迂回は提示しない。完了報告後の確認もCoding Agentsが行う。"
+        permissionDecisionReason: "AWS CLIの状態変更操作は明示許可が必要。対象リソース・差分・影響・復旧方法を示して許可を得る。describe・list・getなどの読み取りは許可される。検索語やファイルパスにawsが含まれるだけの操作は対象外。"
       }
     }
   elif (
     (.tool_name == "Bash" or .tool_name == "exec_command" or .tool_name == "functions.exec_command")
     and (
-      ($command | command_is("terraform"))
-      or ($command | command_is("kubectl"))
+      (($command | command_is("terraform")) and ($command | terraform_state_changing))
+      or (($command | command_is("kubectl")) and ($command | kubectl_state_changing))
       or (
         ($command | command_is("tfcmt"))
         and ($command | test("--[[:space:]]+(?:[^[:space:]]+/)?terraform([[:space:]]|$)"))
@@ -95,18 +81,7 @@ def deny_sensitive_commands:
       hookSpecificOutput: {
         hookEventName: "PreToolUse",
         permissionDecision: "deny",
-        permissionDecisionReason: "terraform・kubectlは読み取り・fmt・validate・plan・dry-runを含め実行禁止。wrapperやhookからも起動しない。必要な結果は対象headのCI実行とログで確認する。CIが未実行・skip・結果取得不可なら他の検査で代替せず停止して判断を仰ぐ。"
-      }
-    }
-  elif (
-    (.tool_name == "Bash" or .tool_name == "exec_command" or .tool_name == "functions.exec_command")
-    and ($command | command_is("rm"))
-  ) then
-    {
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        permissionDecision: "deny",
-        permissionDecisionReason: "ファイル削除は本人操作とする。許可された確認・準備はCoding Agentsが実行して結果を示し、削除だけをrmで依頼する。本人のtrash aliasを保持し、完了報告後の確認もCoding Agentsが行う。"
+        permissionDecisionReason: "terraform・kubectlの状態変更操作は明示許可が必要。対象環境・リソース・差分・影響・復旧方法を示して許可を得る。plan・validate・fmt・get・describe・logsなどの読み取りは許可される。"
       }
     }
   elif (
@@ -114,22 +89,6 @@ def deny_sensitive_commands:
     and ($command | uses_search_preprocessor)
   ) then
     policy_deny("検索の前処理から外部コマンドを起動しない。禁止CLIを別のツールで代行しない。")
-  elif ($command | command_is("chmod")) then
-    policy_deny("chmodは本人操作とする。必要な対象と理由を示し、実行権限の付与を依頼する。")
-  elif ($command | command_is("(?:sh|bash|zsh|dash|ksh|fish|csh|tcsh)")) then
-    policy_deny("シェルインタプリタの起動は禁止。実行権限のあるスクリプトを直接指定する。")
-  elif ($command | command_is("rmdir")) then
-    policy_deny("ディレクトリ削除は本人操作とする。管理元と影響を確認して手順を示す。")
-  elif (
-    ($command | command_is("git"))
-    and ($command | test("(^|[[:space:]])(?:rm|rebase)([[:space:]]|$)"))
-  ) then
-    policy_deny("git rmとgit rebaseは禁止。削除は本人操作、履歴の取り込みは許可範囲内のmergeで行う。")
-  elif (
-    ($command | command_is("find"))
-    and ($command | test("(?:-delete\\b|-exec[[:space:]]+(?:[^[:space:]]+/)?(?:rm|rmdir)(?:[[:space:]]|$))"))
-  ) then
-    policy_deny("find経由の削除も本人操作とする。別の起動方法で代行しない。")
   elif (
     ($command | only_reading_arguments | not)
     and ($command | test("(?:^|[[:space:]])(?:--no-verify(?:[[:space:]]|$)|-c[[:space:]]+core\\.hooksPath=|LEFTHOOK(?:_EXCLUDE)?=|SKIP=)"))

@@ -34,7 +34,7 @@ miseの配置定義とタスクは原則として冪等にする。同じ入力�
 
 dotfilesをCoding Agentsが更新した場合は、mainへの取り込みを確認した後、配置を管理するmainのcloneから`mise dot apply`を追加確認なしで実行する。本人によるmerge後に再開した場合も、適用済みか確認する。Git操作の許可範囲は`~/.agents/skills/apply-git-strategy/references/git-policy.md`に従い、ホームへの適用許可をcommit・merge・pushの許可に広げない。
 
-dotfilesのコードを端末のあるべき状態として扱う。miseによる設定反映は影響が本人の環境に限られるため、Coding Agentsによる実行を恒常的に許可する。Terraform apply・デプロイは適用対象と影響範囲が異なり、それらの禁止は解除しない。
+dotfilesのコードを端末のあるべき状態として扱う。miseによる設定反映は影響が本人の環境に限られるため、Coding Agentsによる実行を恒常的に許可する。Terraform apply・デプロイは適用対象と影響範囲が異なるため、対象ごとに明示許可を得てから実行する。
 
 適用前に`mise dot status`・`mise dot diff`・`mise dot apply --dry-run`で配置先、変更内容、起動されるhookを確認する。新規配置と、mainの変更に対応する管理対象の更新を適用する。ホームへの書き込みはサンドボックス外で実行する。削除・管理対象外の既存ファイルの置換・ユーザー編集との競合・適用エラーがあれば、`--force`や`--prune`を使わず停止し、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md`に従う。
 

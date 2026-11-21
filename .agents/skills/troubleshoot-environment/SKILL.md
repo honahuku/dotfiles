@@ -1,6 +1,6 @@
 ---
 name: troubleshoot-environment
-description: CLI・認証・PATH・alias・関数・シェル初期化・サンドボックスの不具合、セッションへ添付・提示された任意ファイルやWindows・WSL間のファイルの参照不一致、ユーザーと実行環境が異なる場合、hook拒否や、削除・移動などを代行できず本人用コマンドの提示が必要なときに使う。
+description: CLI・認証・PATH・alias・関数・シェル初期化・サンドボックスの不具合、セッションへ添付・提示された任意ファイルやWindows・WSL間のファイルの参照不一致、ユーザーと実行環境が異なる場合、hook拒否や、不可逆な操作の明示許可が必要なときに使う。
 ---
 
 # 環境・CLIの不具合調査
@@ -9,7 +9,7 @@ description: CLI・認証・PATH・alias・関数・シェル初期化・サン�
 
 | 症状・操作 | 資料 |
 | --- | --- |
-| hook拒否・削除や編集など本人の操作が必要 | `references/manual-handoff.md` |
+| hook拒否・不可逆操作の明示許可・手動編集の依頼 | `references/manual-handoff.md` |
 | サンドボックス内の通信・認証・権限エラー | `references/sandbox.md` |
 | tasks・gh・aquaの実体・ロック・認証 | `references/cli-auth-and-locks.md` |
 | Codexの設定と実際の権限の不一致 | `references/codex.md` |

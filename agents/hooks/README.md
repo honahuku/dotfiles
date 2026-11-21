@@ -2,7 +2,7 @@
 
 コマンド実行とhook設定の変更を、ツール固有の登録先から共通のjqフィルターで検査する。
 
-- `command-policy.jq`：AWS CLI・terraform・kubectl、削除、実行権限変更、インタプリタ起動、禁止対象のシェル演算子とコマンド置換、`~/git/<所有者>/<repo>/`直下のmain checkoutへの直接編集、検索の外部前処理、hook迂回、ブランチ名を判定する。
+- `command-policy.jq`：AWS CLI・terraform・kubectlの状態変更操作、禁止対象のシェル演算子とコマンド置換、検索の外部前処理、hook迂回、ブランチ名を判定する。読み取り・planは許可し、削除や実行権限変更はコマンド名だけで拒否しない。
 - `hook-settings-policy.jq`：設定への書き込みやパッチに含まれる、インタプリタ経由のhook起動を判定する。
 - `guard.jq`：両方の拒否結果をまとめる。拒否理由がある場合だけJSONを返し、許可を先に返して後続の拒否判定を隠さない。
 

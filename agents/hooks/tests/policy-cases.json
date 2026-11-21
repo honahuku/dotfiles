@@ -40,7 +40,7 @@
         "content": "example"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "write-other-owner-worktree",
@@ -61,7 +61,7 @@
         "command": "*** Begin Patch\n*** Update File: /home/example/git/example-owner/example-repo/README.md\n*** End Patch"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "patch-other-owner-worktree",
@@ -142,7 +142,7 @@
         "content": "example"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "write-registered-worktree",
@@ -163,7 +163,7 @@
         "command": "*** Begin Patch\n*** Update File: /home/example/git/honahuku/dotfiles/.agents/AGENTS.md\n*** End Patch"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "patch-registered-worktree",
@@ -213,7 +213,7 @@
         "command": "aws sts get-caller-identity"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "cloud-wrapper",
@@ -221,6 +221,16 @@
       "tool_name": "Bash",
       "tool_input": {
         "command": "env AWS_PROFILE=sample aws sts get-caller-identity"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "cloud-write",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "aws s3 cp ./a s3://sample-bucket"
       }
     },
     "expected": "deny"
@@ -233,6 +243,26 @@
         "command": "terraform version"
       }
     },
+    "expected": "allow"
+  },
+  {
+    "name": "terraform-plan",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "terraform plan"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "terraform-apply",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "terraform apply -auto-approve"
+      }
+    },
     "expected": "deny"
   },
   {
@@ -241,6 +271,16 @@
       "tool_name": "Bash",
       "tool_input": {
         "command": "kubectl get pods"
+      }
+    },
+    "expected": "allow"
+  },
+  {
+    "name": "kubernetes-write",
+    "input": {
+      "tool_name": "Bash",
+      "tool_input": {
+        "command": "kubectl delete pod sample"
       }
     },
     "expected": "deny"
@@ -253,7 +293,7 @@
         "command": "chmod +x /tmp/hook.sh"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "shell-file",
@@ -263,7 +303,7 @@
         "command": "bash /tmp/hook.sh"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "shell-absolute",
@@ -273,7 +313,7 @@
         "command": "/bin/sh /tmp/hook.sh"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "remove-file",
@@ -283,7 +323,7 @@
         "command": "rm /tmp/file"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "remove-directory",
@@ -293,7 +333,7 @@
         "command": "rmdir /tmp/dir"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "git-remove",
@@ -303,7 +343,7 @@
         "command": "git -C /tmp/repo rm file"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "find-delete",
@@ -313,7 +353,7 @@
         "command": "find /tmp -name sample -delete"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "find-remove",
@@ -323,7 +363,7 @@
         "command": "find /tmp -exec rm {} +"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "hook-flag",
@@ -363,7 +403,7 @@
         "command": "git rebase main"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "slash-branch",
@@ -403,7 +443,7 @@
         "command": "*** Begin Patch\n*** Delete File: /tmp/file\n*** End Patch"
       }
     },
-    "expected": "deny"
+    "expected": "allow"
   },
   {
     "name": "settings-shell-hook",

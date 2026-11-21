@@ -14,15 +14,15 @@
 - 指示・再発防止策の保存前は`check-memory-placement`を使い、`references/memory-policy.md`に従う。常時読む必要がある規則は、担当スキルへの参照をここに設ける。
 - Codex固有の名称・パスを記載する前に、共通表現と`.agents`への配置・参照で代替できないか確認する。代替できない場合は理由と記載箇所を示し、本人の許可を得る。
 - 指示・hook・権限の制限を、別ツール、別名、ラッパー、サブエージェントで迂回しない。
-- Terraform applyとデプロイを全環境で禁止する。`terraform`・`kubectl`・AWS CLIは読み取りや検証でも起動しない。
-- 汎用言語・パッケージ実行ツール・シェルインタプリタの実行や実行権限の変更前は、`check-command-policy`の`~/.agents/skills/check-command-policy/references/command-policy.md`の「汎用プログラミング言語」「シェルスクリプトと実行権限」を読み、禁止事項と例外を一緒に確認する。
+- 操作の判断は、コマンド名や「破壊的」という分類だけで一律に禁止せず、対象・影響・復旧可能性で行う。履歴改変や復旧手段のない不可逆操作は、対象・影響・復旧方法を示して本人の明示許可を得る。許可済みの操作を、削除・上書きなどの名称だけで拒否しない。具体的な判断基準は`check-command-policy`の「可逆性に基づく操作判断」に従う。
+- `terraform`・`kubectl`・AWS CLIは、読み取り・検証・planを実行できる。リソースや本番状態を変更する操作は、対象・差分・影響・復旧方法を示して明示許可を得てから実行する。
+- 汎用言語・パッケージ実行ツール・シェルインタプリタ・実行権限の変更は、コマンド名だけを理由に禁止しない。実行前に内容・入力・対象・副作用を確認し、`check-command-policy`の「可逆性に基づく操作判断」と「汎用プログラミング言語・スクリプト」に従う。
 - サンドボックスの制約で許可済みコマンドが失敗した場合は、`check-command-policy`の「サンドボックス外での再実行」に従う。Git・Lefthook・TruffleHogはサンドボックス外での実行を明示許可済み。その他のコマンドは実行前に本人の許可を得る。
 - メッセージ送信、Git管理外のファイルや外部サービス上のページ・ファイルの作成・編集・削除の前は、`review-output`の`references/output-policy.md`「送信・変更の承認」を読む。Git管理ファイルの変更とGit操作は`apply-git-strategy`に従う。
-- ファイル削除と、削除の代わりの退避を代行しない。コマンド・API・編集ツールによる削除（パッチで対象ファイルを削除する指定を含む）も禁止する。`find`で削除対象を調べる前は`check-command-policy`の`references/command-policy.md`「findによる削除の実行禁止」を読む。既存の変更を破棄せず、必要な本人操作を具体的に示す。
-- `git rebase`とmainへの直接編集は禁止する。Git管理下の編集は元clone直下の`.worktree/<branch>`で行い、既存ファイルを読む。
-- 読み取りを含むGit操作の前に`apply-git-strategy`を使い、`~/.agents/skills/apply-git-strategy/references/git-policy.md`の「Git操作の許可範囲」と実行条件を確認する。例外は適用中の上位指示と照合し、範囲外の操作は本人の指示を仰ぐ。
+- `git rebase`などの履歴改変は、通常のrevertで戻せないため、対象と方法を示して明示許可を得る。`main`への直接編集は、他のセッションやエージェントの作業と競合するため行わない。急ぎなどで本人が明示的に許可した場合だけmainを直接編集してよい。通常のGit管理下の編集は元clone直下の`.worktree/<branch>`で行う。
+- 読み取りを含むGit操作の前に`apply-git-strategy`を使い、`~/.agents/skills/apply-git-strategy/references/git-policy.md`の「Git操作の許可範囲」と実行条件を確認する。依頼範囲内の追跡変更は実行し、共有履歴の改変・強制操作・依頼範囲外の変更は明示許可を得る。
 - TruffleHogのエラー時は回避を試さず停止する。出力の詳細を確認して本人へ報告し、確認が届くまで作業を続けない。
-- PR・Issueへのコメント投稿は、その場で文面を示し、投稿の明示的な許可を得る。`gh api`は`--method GET`を明示する。通知の既読化・購読解除だけを例外とする。
+- PR・Issueへのコメント投稿は外部へ残る不可逆な操作として扱い、投稿前に文面・対象を示して明示許可を得る。`gh api`は既定で`--method GET`を使い、書き込みは明示許可がある場合だけ行う。通知の既読化・購読解除は取り消せるため、その都度の許可を要さない。
 - MCPで時系列データを問い合わせる期間は直近7日以内とする。延長には、対象事項についてMCP経由の実行と対象期間の両方の明示許可が必要である。
   - `input-kousuu`による工数集計の読み取りは、`~/.agents/skills/check-mcp-policy/references/mcp-policy.md`の「工数集計の恒常例外」に従う。
 - 数値は既存ツールの計算結果を使い、追加計算には`bc -l`を使う。暗算で出さない。
@@ -63,7 +63,7 @@
 | 他人のPRのレビュー | `review` |
 | 解説・説明・仕組み・概念・手順・比較・変更の理解を求められたとき。技術分野以外も含む | `explain-with-visuals`。説明を組み立てる前に読む |
 | MCPの利用、Notion操作 | `check-mcp-policy`。Notionは明示依頼時だけ使う |
-| 実行制限・hook拒否・環境の不具合、削除等の本人操作 | `troubleshoot-environment`、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md` |
+| 実行制限・hook拒否・環境の不具合、不可逆操作の手動依頼 | `troubleshoot-environment`、`~/.agents/skills/troubleshoot-environment/references/manual-operations.md` |
 | メモリの作成・追記・共有、保存先の判断 | `check-memory-placement`、`~/.agents/skills/write-agent-instructions/references/context-policy.md` |
 | 健康・集中時間・キャリア等の個人文脈 | `use-personal-context` |
 | 口調・呼称・応答方針へのフィードバック | `update-response-guidelines` |
