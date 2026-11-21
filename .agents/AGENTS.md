@@ -23,6 +23,7 @@
 - メッセージ送信、Git管理外のファイルや外部サービス上のページ・ファイルの作成・編集・削除の前は、`review-output`の`references/output-policy.md`「送信・変更の承認」を読む。Git管理ファイルの変更とGit操作は`apply-git-strategy`に従う。
 - `git rebase`などの履歴改変は、通常のrevertで戻せないため、対象と方法を示して明示許可を得る。`main`への直接編集は、他のセッションやエージェントの作業と競合するため行わない。急ぎなどで本人が明示的に許可した場合だけmainを直接編集してよい。通常のGit管理下の編集は元clone直下の`.worktree/<branch>`で行う。
 - 読み取りを含むGit操作の前に`apply-git-strategy`を使い、`~/.agents/skills/apply-git-strategy/references/git-policy.md`の「Git操作の許可範囲」と実行条件を確認する。依頼範囲内の追跡変更は実行し、共有履歴の改変・強制操作・依頼範囲外の変更は明示許可を得る。
+- `honahuku/feed-subscriber`のPRを`main`へマージした後は、最新mainからバイナリをビルドして`/usr/local/bin/feed-subscriber`へ配置し、`feed-subscriber.service`を再起動して状態と起動ログを確認する。
 - TruffleHogのエラー時は回避を試さず停止する。出力の詳細を確認して本人へ報告し、確認が届くまで作業を続けない。
 - PR・Issueへのコメント投稿は外部へ残る不可逆な操作として扱い、投稿前に文面・対象を示して明示許可を得る。`gh api`は既定で`--method GET`を使い、書き込みは明示許可がある場合だけ行う。通知の既読化・購読解除は取り消せるため、その都度の許可を要さない。
 - MCPで時系列データを問い合わせる期間は直近7日以内とする。延長には、対象事項についてMCP経由の実行と対象期間の両方の明示許可が必要である。
