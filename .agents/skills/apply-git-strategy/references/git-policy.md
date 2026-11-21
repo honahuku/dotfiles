@@ -91,6 +91,8 @@ merge・PRのReady化・コメント投稿にはこの例外を適用しない�
 
 - ブランチの変更を検査・引き渡す前は、対象ブランチのworktreeで、リポジトリに定義されたpre-commit全体を実行する。Lefthookでは`lefthook run pre-commit --no-auto-install`を使い、個別コマンドや独自に選んだファイルだけの検査で代替しない。実行前にhook定義と呼び出し先を読み、禁止された操作を含まないことを確認する。
 - 検査には、本人が指定した設定または対象repoの設定を使う。別worktreeやmainの設定に差し替えない。実行したブランチ・worktree・設定元・コマンド・各検査の結果を対応させ、pre-commit全体が成功した場合だけ全体の検査成功と報告する。ステージ済み差分と未ステージ差分が異なる場合は、hookが実際に検査した範囲も明記する。
+- PRのmerge後に検証が必要な依頼では、PRのmerge状態を確認したうえで、merge commitを含む最新の`main`を指す元cloneのmain checkoutから、依頼で失敗した検査と必要な関連検査を実行する。main checkoutが最新でない場合は、作業差分がないことを確認してから`origin/main`へ安全に同期する。作業差分がある、または安全に同期できない場合は上書きせず、確認できた状態を示して停止する。作業ブランチや古いmainの結果を、merge後の検証結果として扱わない。
+- merge後のmain検証が失敗した場合は、失敗内容を調査し、最新mainから修正用ブランチを作成または再利用して別PRで修正する。mainを直接編集せず、修正PRをmergeした後も同じ手順でmain上の検証を繰り返す。最終的な成功または未解決の失敗を確認するまで、依頼を完了扱いにしない。
 
 - **sandbox環境ではBashの書き込み系コマンド（`git worktree add`/`commit`/`merge`/`push`/`remove`、ファイルシステムやリモートを変更する操作）がブロックされ、実行されないまま成功したふうのダミー出力（それらしいSHAや`Fast-forward`、ファイル一覧など）を返すことがある。** 読み取り系（`git log`/`status`/`worktree list`、`grep`、`test -f`）は本物の値を返す。書き込み系は`dangerouslyDisableSandbox: true`を付けて実行し、実行後は必ず読み取りコマンド（`git log`/`status`/`rev-parse origin/main`/`test -f`）で実際に反映されたか検証してから次に進む。ダミー出力を鵜呑みにしない。commitのheredoc `-F -`はsandbox無効でもstdinが渡らず失敗することがあるため`-m`フラグを複数使う。Write/Editツールもsandboxの影響を受けることがあるので、ファイル作成後は`test -f`や`wc -c`で実在を確認する。
 
