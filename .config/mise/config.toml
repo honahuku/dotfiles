@@ -1,6 +1,6 @@
 [tools]
 "github:aquaproj/aqua" = "2.65.0"
-"github:jdx/mise" = "2026.11.11"
+"github:jdx/mise" = "2026.11.12"
 node = "24.22.3"
 bun = "1.4.4"
 go = "1.27.4"
