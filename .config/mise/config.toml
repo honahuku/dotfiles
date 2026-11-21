@@ -7,7 +7,7 @@ go = "1.27.4"
 python = "3.13.17"
 "npm:vscode-langservers-extracted" = "4.10.0"
 "npm:yaml-language-server" = "2.0.0"
-"npm:wrangler" = "4.162.0"
+"npm:wrangler" = "4.166.0"
 opencode = { version = "2.3.0", allow_builds = ["@opencode/cli"] }
 
 # Google公式の配布物とバージョン情報だけを使用する。
