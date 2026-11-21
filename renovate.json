@@ -12,6 +12,38 @@
   },
   "packageRules": [
     {
+      "description": "GitHub Actions の更新をまとめる",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "aqua 管理ツールの更新をまとめる",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "aqua.yaml"
+      ],
+      "groupName": "aqua tools"
+    },
+    {
+      "description": "vendir で取り込むスキルの更新をまとめる",
+      "matchManagers": [
+        "vendir"
+      ],
+      "groupName": "vendir skills"
+    },
+    {
+      "description": "mise の更新を一つのPRにまとめる",
+      "matchPackageNames": [
+        "github:jdx/mise",
+        "jdx/mise"
+      ],
+      "groupName": "mise"
+    },
+    {
       "description": "aqua の更新はリリースから7日以上経過してから行う",
       "matchManagers": [
         "custom.regex"
