@@ -7,6 +7,20 @@
   "minimumReleaseAge": "7 days",
   "minimumReleaseAgeBehaviour": "timestamp-required",
   "internalChecksFilter": "strict",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^os-packages\\/nucbox-g3\\/apt-packages\\.txt$/"
+      ],
+      "matchStrings": [
+        "(?m)^(?<depName>[a-z0-9][a-z0-9+.-]*)=(?<currentValue>\\S+)$"
+      ],
+      "datasourceTemplate": "deb",
+      "versioningTemplate": "deb",
+      "depTypeTemplate": "apt"
+    }
+  ],
   "lockFileMaintenance": {
     "enabled": true
   },
@@ -68,6 +82,26 @@
         "patch"
       ],
       "automerge": true
+    },
+    {
+      "description": "NucBox G3 の Debian パッケージ更新を一つのPRにまとめ、自動マージしない",
+      "matchDepTypes": [
+        "apt"
+      ],
+      "matchDatasources": [
+        "deb"
+      ],
+      "matchFileNames": [
+        "os-packages/nucbox-g3/apt-packages.txt"
+      ],
+      "groupName": "NucBox G3 Debian packages",
+      "automerge": false,
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "registryUrls": [
+        "https://deb.debian.org/debian?suite=trixie&components=main,contrib,non-free-firmware&binaryArch=amd64",
+        "https://deb.debian.org/debian?suite=trixie-updates&components=main,contrib,non-free-firmware&binaryArch=amd64",
+        "https://security.debian.org/debian-security?suite=trixie-security&components=main,contrib,non-free-firmware&binaryArch=amd64"
+      ]
     },
     {
       "description": "vendir で取り込むスキルの更新は自動マージしない",
