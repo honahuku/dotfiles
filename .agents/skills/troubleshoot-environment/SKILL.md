@@ -1,6 +1,6 @@
 ---
 name: troubleshoot-environment
-description: CLI・認証・PATH・alias・関数・シェル初期化・サンドボックスの不具合、セッションへ添付・提示された任意ファイルやWindows・WSL間のファイルの参照不一致、ユーザーと実行環境が異なる場合、hook拒否や、不可逆な操作の明示許可が必要なときに使う。
+description: コマンドが見つからない（command not found）、CLI・認証・PATH・alias・関数・シェル初期化・サンドボックスの不具合、セッションへ添付・提示された任意ファイルやWindows・WSL間のファイルの参照不一致、ユーザーと実行環境が異なる場合、hook拒否や、不可逆な操作の明示許可が必要なときに使う。
 ---
 
 # 環境・CLIの不具合調査
