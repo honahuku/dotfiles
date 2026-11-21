@@ -756,6 +756,14 @@ def _next_queue_pos(data: dict) -> int:
 
 
 def cmd_add(args) -> None:
+    if args.title is None:
+        args.title = _prompt_required("タスク名")
+        args.from_ = _prompt_choice("依頼元", args.from_, FROM)
+        args.due = _prompt_optional("期限 (YYYY-MM-DD)", args.due)
+        args.source = _prompt_choice("登録元", args.source, SOURCES)
+        args.source_url = _prompt_optional("登録元URL", args.source_url)
+        args.notes = _prompt_optional("メモ", args.notes)
+
     data = load()
     queue_pos = getattr(args, "queue_pos", None)
     if queue_pos is None:
@@ -796,6 +804,29 @@ def cmd_add(args) -> None:
             warn(f"--blocks target not found: {blocks_id}")
     save(data, action="add", title=task["title"])
     emit(task)
+
+
+def _prompt_required(label: str) -> str:
+    while True:
+        value = input(f"{label}: ").strip()
+        if value:
+            return value
+        print("空欄にはできません。")
+
+
+def _prompt_optional(label: str, default: str | None) -> str | None:
+    shown_default = default if default else "空欄"
+    value = input(f"{label} [{shown_default}]: ").strip()
+    return value or default
+
+
+def _prompt_choice(label: str, default: str, choices: list[str]) -> str:
+    options = "/".join(choices)
+    while True:
+        value = input(f"{label} ({options}) [{default}]: ").strip() or default
+        if value in choices:
+            return value
+        print(f"{choices}から選んでください。")
 
 
 def _count_in_progress(data: dict) -> int:
@@ -2602,8 +2633,10 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     # タスク
-    a = sub.add_parser("add", help="add a task")
-    a.add_argument("title")
+    a = sub.add_parser(
+        "add", help="add a task (interactive when title is omitted)"
+    )
+    a.add_argument("title", nargs="?")
     a.add_argument(
         "--from",
         dest="from_",
