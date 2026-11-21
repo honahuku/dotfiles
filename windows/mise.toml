@@ -1,6 +1,11 @@
 [task_config]
 includes = ["mise-tasks.toml"]
+shell = "pwsh -NoProfile -Command"
 
 [dotfiles]
 "~/.local/share/dotfiles/windows/source/.chezmoiexternal.toml" = { source = "chezmoi/.chezmoiexternal.toml", mode = "copy" }
 "~/.local/share/dotfiles/windows/source/.terminal.json" = { source = "terminal/settings.json", mode = "copy" }
+"~/.agents/skills" = { source = "../.agents/skills", mode = "copy" }
+"~/.config/opencode/AGENTS.md" = { source = "../.agents/AGENTS.md", mode = "copy" }
+"~/.config/opencode/opencode.jsonc" = { source = "../.config/opencode/opencode.jsonc", mode = "copy" }
+"~/.config/mise/config.toml" = { source = "../.config/mise/config.toml", mode = "copy" }

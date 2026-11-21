@@ -56,7 +56,7 @@ repository="$(git -C "$repository" rev-parse --show-toplevel)"
 registered_git_paths="$(
   git -C "$repository" worktree list --porcelain -z |
     jq -Rs 'split("\u0000") | map(select(startswith("worktree ")) |
-      ltrimstr("worktree ") + "/.git")'
+      ltrimstr("worktree ") + "\u002f.git")'
 )"
 nested_git_paths="$(
   find "$repository" -name .git -prune -print0 |
