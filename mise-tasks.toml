@@ -3,16 +3,16 @@ description = "Linuxの設定とツールを導入し、共通指示・スキル
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 confirm = { message = "スキルと設定を配置し、管理対象ツールを導入します。", default = "no" }
 run = [
-  { task = "setup:files" },
   "mise -C {{ env.HOME | quote }} install",
   "aqua -c {{ config_root | quote }}/aqua.yaml install",
+  { task = "setup:files" },
 ]
 depends_post = ["skill-creator:dependencies"]
 
 ["skill-creator:dependencies"]
 description = "skill-creatorの検証用Python環境をロックファイルから準備する"
 dir = "{{ vars.public_root | default(value=config_root) }}"
-run = "uv sync --project .config/skill-creator-validation --locked"
+run = "aqua -c {{ config_root | quote }}/aqua.yaml exec -- uv sync --project .config/skill-creator-validation --locked"
 
 ["setup:files"]
 description = "スキルを導入し、競合を確認して設定を配置・検査する"
@@ -56,10 +56,10 @@ run = [
   "test -f linux/mise.toml",
   "test -f windows/mise.toml",
   "test -f windows/mise-tasks.toml",
-  "rg -q 'run_windows' windows/mise-tasks.toml",
-  "rg -F 'chezmoi/.chezmoiexternal.toml' windows/mise.toml",
-  "! rg -n 'wslp\\x61th|power\\x73hell' mise-tasks.toml",
-  "! rg -n 'openai/codex' aqua.yaml",
+  "aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -q 'run_windows' windows/mise-tasks.toml",
+  "aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -F 'chezmoi/.chezmoiexternal.toml' windows/mise.toml",
+  "! aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -n 'wslp\\x61th|power\\x73hell' mise-tasks.toml",
+  "! aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -n 'openai/codex' aqua.yaml",
   "mise -C {{ config_root | quote }}/linux dot status",
   "mise -C {{ config_root | quote }}/linux dot diff",
   "mise -C {{ config_root | quote }}/linux dot apply --dry-run",
@@ -80,7 +80,7 @@ description = "OpenCodeのグローバル設定に必要なモデル、ポリシ
 run = [
   """grep -F '"~/.config/opencode/AGENTS.md" = "agents/AGENTS.md"' mise.toml""",
   """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .skills == ["~/.agents/skills"] and .model == "openai/gpt-6-luna" and any(.policies[]; .action == "provider.use" and .resource == "opencode" and .effect == "deny") and any(.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and any(.agents.general.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
-  """rg --fixed-strings '"~/.agents/skills" = ".agents/skills"' mise.toml""",
+  """aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg --fixed-strings '"~/.agents/skills" = ".agents/skills"' mise.toml""",
   '''test -n "$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
 ]
 
