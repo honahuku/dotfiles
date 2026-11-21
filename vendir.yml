@@ -7,7 +7,7 @@ directories:
       - path: .
         git:
           url: https://github.com/mattpocock/skills.git
-          ref: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+          ref: v1.3.2
         includePaths:
           - skills/productivity/grill-me/**/*
         newRootPath: skills/productivity/grill-me
@@ -25,7 +25,7 @@ directories:
       - path: .
         git:
           url: https://github.com/mattpocock/skills.git
-          ref: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+          ref: v1.3.2
         includePaths:
           - skills/productivity/grilling/**/*
         newRootPath: skills/productivity/grilling
