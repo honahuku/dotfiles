@@ -68,7 +68,7 @@ vendirは、その方法で選択したスキルに配布されるファイル�
 
 | 取得元 | 選んだ配布方法と範囲 |
 | --- | --- |
-| [mattpocock/skills](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md#installation-30-second-setup) | スキルを選択する`npx skills add`。選択したスキルのディレクトリ一式 |
+| [mattpocock/skills](https://github.com/mattpocock/skills/blob/v1.3.2/README.md#installation-30-second-setup) | スキルを選択する`npx skills add`。選択したスキルのディレクトリ一式 |
 | [nanaism/yomiyasu](https://github.com/nanaism/yomiyasu/blob/v1.1.2/README.md#インストール) | 推奨される`npx skills add`。`skills/yomiyasu/`一式 |
 | [aws/agent-toolkit-for-aws](https://github.com/aws/agent-toolkit-for-aws#skills) | スキル導入用の`npx skills add`。選択したスキルのディレクトリ一式 |
 | [wheresryan22/anatomy](https://github.com/wheresryan22/anatomy/blob/e6600ffc4e8e6620eeb45bf49bcdbd5e4b84163f/README.md#install) | `npx skills add`。examplesを含むリポジトリ一式 |

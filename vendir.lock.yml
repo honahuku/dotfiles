@@ -1,21 +1,21 @@
 apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
-  - configDigest: 2dad905860c9c22de3d9b8fcdddb5e0086e6c436604548dd7b4e929bfbfe198f
+  - configDigest: 5d52c90bacbcd6d3ba74e2c0b424906a1fabbbb650bb33e964ee7eb699e6556d
     git:
-      commitTitle: 'Merge pull request #1120 from mattpocock/release/v1.3...'
-      sha: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+      commitTitle: 'chore: version skills (#1161)...'
+      sha: d1478fcb140db0b93c0c8df17bcfd311844749d0
       tags:
-      - v1.2.3-75-gd81f3a1
+      - v1.3.2
     path: .
   path: .agents/skills/grill-me
 - contents:
-  - configDigest: b5d8c583391bb985b1b46f9b5e1f07c366c5296b20f42408e4c6e8cf2b4405ea
+  - configDigest: 78e7972728a8d33875053c9d0d7e39ae2b23af9a4bec79a263a54a07876f23b5
     git:
-      commitTitle: 'Merge pull request #1120 from mattpocock/release/v1.3...'
-      sha: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+      commitTitle: 'chore: version skills (#1161)...'
+      sha: d1478fcb140db0b93c0c8df17bcfd311844749d0
       tags:
-      - v1.2.3-75-gd81f3a1
+      - v1.3.2
     path: .
   path: .agents/skills/grilling
 - contents:
