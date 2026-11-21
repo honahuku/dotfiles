@@ -43,7 +43,7 @@ run = [
 description = "スキルの配置先と、直下の実体・リンク切れを確認する"
 vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
 run = [
-  "mise dot status --missing {{ vars.target | quote }}",
+  """mise dot status --missing --json {{ vars.target | quote }} | jq -e '(.files | length == 1) and (.files | all(.[]; .state == "applied" or .state == "absent"))'""",
   "test -d {{ vars.target | quote }}",
   '''test -n "$(find {{ vars.target | quote }}/ -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
   '''test -z "$(find {{ vars.target | quote }}/ -name SKILL.md -type l -print)"''',
@@ -84,7 +84,7 @@ run = [
   { task = "hooks:check" },
   "test ! -L ~/.local/share/dotfiles/agents/skills",
   "test -f ~/.codex/hooks.json",
-  "mise dot status --missing ~/.agents/skills ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc",
+  """mise dot status --missing --json ~/.agents/skills ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc | jq -e '(.files | length == 5) and (.files | all(.[]; .state == "applied" or .state == "absent"))'""",
 ]
 
 ["opencode:check"]
