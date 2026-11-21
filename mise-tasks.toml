@@ -56,6 +56,7 @@ run = [
   "test -f linux/mise.toml",
   "test -f windows/mise.toml",
   "test -f windows/mise-tasks.toml",
+  '''aqua -c {{ config_root | quote }}/aqua.yaml exec -- yq -e '[.directories[].contents[] | select(has("git")) | .lazy == true] | all' vendir.yml''',
   "aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -q 'run_windows' windows/mise-tasks.toml",
   "aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -F 'chezmoi/.chezmoiexternal.toml' windows/mise.toml",
   "! aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -n 'wslp\\x61th|power\\x73hell' mise-tasks.toml",

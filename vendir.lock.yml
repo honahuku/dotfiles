@@ -1,7 +1,8 @@
 apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
-  - git:
+  - configDigest: 2dad905860c9c22de3d9b8fcdddb5e0086e6c436604548dd7b4e929bfbfe198f
+    git:
       commitTitle: 'Merge pull request #1120 from mattpocock/release/v1.3...'
       sha: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
       tags:
@@ -9,7 +10,8 @@ directories:
     path: .
   path: .agents/skills/grill-me
 - contents:
-  - git:
+  - configDigest: b5d8c583391bb985b1b46f9b5e1f07c366c5296b20f42408e4c6e8cf2b4405ea
+    git:
       commitTitle: 'Merge pull request #1120 from mattpocock/release/v1.3...'
       sha: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
       tags:
@@ -17,7 +19,8 @@ directories:
     path: .
   path: .agents/skills/grilling
 - contents:
-  - git:
+  - configDigest: 25caa7604605060c63c44f880a51235c72dd86b20933b7e183ad8c793b96ec60
+    git:
       commitTitle: 'feat: yomiyasu v1.1.2で、文の種類を保つ推敲の手順と差分の点検を加える (#17)...'
       sha: 602a3690dadd5d620bb21524353b8d192914eabb
       tags:
@@ -25,175 +28,200 @@ directories:
     path: .
   path: .agents/skills/yomiyasu
 - contents:
-  - git:
+  - configDigest: 392d1a8b112e1d6621cdbb0ace9624ce3e9392dc3d6f9cd0f03b627df33b9e1a
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/amazon-bedrock
 - contents:
-  - git:
+  - configDigest: 70f81965fe14b698c230d97d5f96296f55b46e996ab5c7b2b6bce9abdb8a21d9
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-ai-ml
 - contents:
-  - git:
+  - configDigest: bcfb0f24f75f99b65a98d3d4f07eb5013a7afc4fc449d46f0fc9e7b2c54bdefe
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-auth
 - contents:
-  - git:
+  - configDigest: dccdd90c24e8b3630d1a5ddcd1e24bd60972e1bffe687eb1ebc0bd96754db4ae
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-billing-and-cost-management
 - contents:
-  - git:
+  - configDigest: 4ed15b238cacbb7d6a1ca2cfc62b28dd33d4d0623c6be9c4f9d41ab71e1b963c
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-blocks
 - contents:
-  - git:
+  - configDigest: 9bff8a9b25cddcb9f172ff17df6c4da33e0e5b5ff3ca750d97699f31d7a39801
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-cdk
 - contents:
-  - git:
+  - configDigest: 75287ccd1b5f45a23b41cc1e3eda2f5446b6040c6e11690974abb981bdf36000
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-cloudformation
 - contents:
-  - git:
+  - configDigest: 3dacee2166b9db8283f5baf1c2c48492a5aa97e1df86de59c74f4c71cc6ad353
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-compute
 - contents:
-  - git:
+  - configDigest: c6806a4ee523aff396ff88986da17d479921f96e793de8fad60db17a9bd3877f
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-containers
 - contents:
-  - git:
+  - configDigest: 0ffd86d958dbf3b4c2d03da01466d66393436aeb1e441e3c3483051ff98b1230
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-database
 - contents:
-  - git:
+  - configDigest: bdbcb5adf9fea263991b5645a12c677c5bd0a1c8c8c9f0b18c42b79b591b846e
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-deployment
 - contents:
-  - git:
+  - configDigest: 4a3c4d3d6b40d77665ec1848be47bbf42ff50fd03a1090a0c8ac11fe057f4070
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-iam
 - contents:
-  - git:
+  - configDigest: c3b8a95eecc98acdeb6f435ba40980f7585513d155b6e2dbf531e495838284c8
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-messaging-and-streaming
 - contents:
-  - git:
+  - configDigest: c9565fc718beec68bb6c8c93f12d08e75e664510e0043dc75d5f0ea45400d4ed
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-networking
 - contents:
-  - git:
+  - configDigest: 235e16a10dda721c23c91f27465b1097cc902c872b4827b7d0223a4213dbceee
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-observability
 - contents:
-  - git:
+  - configDigest: c12e66b2db23d528de134288e209a342c9d18d03d50831b739998ae02af2a197
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-sdk-js-v3-usage
 - contents:
-  - git:
+  - configDigest: 1939dd84345c02104b4816e5d4759a30f59de090ed55ce563fdec0b1a6108cdc
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-sdk-python-usage
 - contents:
-  - git:
+  - configDigest: d9dc632e11e8d51d78e0a37fd56060c1c25c7a1403ab7f462d125c369d5b76a5
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-sdk-swift-usage
 - contents:
-  - git:
+  - configDigest: 1b7ca1330540e5146024768dbda39a36887fca6da68657a85025c63768aa1c70
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-security
 - contents:
-  - git:
+  - configDigest: 2fd086b94d89e53177ff88688c20c4c5043a6e8c013374f8f54ba327dbe29196
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-serverless
 - contents:
-  - git:
+  - configDigest: 9ed1fb062652241cd056bfd66ef9344a1252262c12516af901c3ce2f7942d318
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-storage
 - contents:
-  - git:
+  - configDigest: 62e7f20d782471d1224d9eb37ca94cb3317a9fb16b07cb1dcde96cb75ada5627
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/aws-well-architected-review
 - contents:
-  - git:
+  - configDigest: ef8924f520abbc643cd0293e7c22d67052cbf06d87b8cd5e32a7d25594f07711
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/launch-with-aws
 - contents:
-  - git:
+  - configDigest: 79a99a66e85c3c8ea9616199eb172fe6f4ae77457a7626990388a5212566b540
+    git:
       commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
         redshift-guide storage references (#451)...'
       sha: fea6667159ecf09a75310e5f70c1d76908d8abab
     path: .
   path: .agents/skills/signing-in-to-aws
 - contents:
-  - git:
+  - configDigest: 094e4162c1d7d642bf12b3d6a729090e048e37a0dcb44b95c4ba32b22971e28a
+    git:
       commitTitle: 'Merge pull request #60 from wheresryan22/fix/capture-wait-load...'
       sha: e6600ffc4e8e6620eeb45bf49bcdbd5e4b84163f
       tags:
@@ -201,7 +229,8 @@ directories:
     path: .
   path: .agents/skills/anatomy
 - contents:
-  - git:
+  - configDigest: 23fe067209b1a06d5b349ac9d65350c091267081e1ea33ee674424df0811b858
+    git:
       commitTitle: 'Merge pull request #2447 from vercel-labs/qua/fx-universal-skills...'
       sha: 13e4063a1cf913f5606d57d42ab83a86f5001e04
       tags:
@@ -209,133 +238,155 @@ directories:
     path: .
   path: .agents/skills/find-skills
 - contents:
-  - git:
+  - configDigest: a0be648dfaf014abb8e069bae7d908617d7d4331426ca1cfb74b9221d0af0519
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/agents-sdk
 - contents:
-  - git:
+  - configDigest: 6eb50497327609a37c4e9033aed3d6b1bf8cdfe71c280a7ae82f6159ed45b3e1
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/basin
 - contents:
-  - git:
+  - configDigest: 629c084f3415253cd987e3e4e541133b844c261ac77d278227340dfa4bbdf960
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cf-cli
 - contents:
-  - git:
+  - configDigest: d82ed98935ba9ef76445a220e0a34f57b34cd966315c1189fad0469a37b94952
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare-app-bootstrap
 - contents:
-  - git:
+  - configDigest: 2b12081105dec6e621d62963b1605fd3adad72f9a84fb06d45690ae1a57fda96
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare-email-service
 - contents:
-  - git:
+  - configDigest: 3b13d142c4cf5bb94d9c919e1a650dd1ee07179872c3302e9b49cdfadd595192
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare-one-migrations
 - contents:
-  - git:
+  - configDigest: fb7b25b48e97f0a267b8a5af8a39e5cb21dd71c6c62a74fcca32c1100188b756
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare-one
 - contents:
-  - git:
+  - configDigest: 0bfbfa5786fc439b1046173d75e662758778418d9a660b586e481c26be5af45d
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare
 - contents:
-  - git:
+  - configDigest: 8af640d97693f8714cb4469e711877c189635f1a33ca5d1a22e904413e067701
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/durable-objects
 - contents:
-  - git:
+  - configDigest: 14ef46bfdd0d58a0dd0e94a9dc4e3daaaa5de1d57521cfe4a7baa84ac59345f5
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/frameworks-on-cloudflare
 - contents:
-  - git:
+  - configDigest: a2de154fc5a23557f7c63de8b0428fc1bacac8430f83af14e9fbbe8cb0f36128
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/gateway-workers
 - contents:
-  - git:
+  - configDigest: c9b040e62dcaf49455c3047e81c600b3cde4dc57d34f450287bb692bd044c482
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/k2
 - contents:
-  - git:
+  - configDigest: a272db33006d34d5ade06feda172d51c46a365901c4254becd341507cbade856
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/nextjs-on-cloudflare
 - contents:
-  - git:
+  - configDigest: 2aed6977ff385b65cb6b7c7086633fec993c44ad2bd71fc530cae9d49d0589df
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/sandbox-migrate-to-next
 - contents:
-  - git:
+  - configDigest: 610cf232951df071999fdcbec4109baaac6f531a8aa9664506fe1d212d169b5a
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/sandbox-next
 - contents:
-  - git:
+  - configDigest: cea55af7e87c8ff5a587e426e50dff8a5ad0ef75eada1896a4bc7b8e6ef208b6
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/sandbox-stable
 - contents:
-  - git:
+  - configDigest: 494ff0f84c5e3f71b82f0f4214356b6cf6d1c0c9a5c20b2c41e8417f63b0dc73
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/turnstile-spin
 - contents:
-  - git:
+  - configDigest: 9008d1f47da7ec2b05aeb6c4717637f49678790f3d84b26a86250c91f89d0879
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/web-perf
 - contents:
-  - git:
+  - configDigest: 3ac1017e49716c4095e854294489a1fe28f81f17016351cd99016503648f7609
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/workers-best-practices
 - contents:
-  - git:
+  - configDigest: 292dd321379118b071e186be469eefecba67407b1dfe4c1cd57d7235d90adb1e
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/workers-development
 - contents:
-  - git:
+  - configDigest: 0cb8d3d1fd420d5fd01be439e2d2ea0eb4b9a2338c5dfe3d29244354fb4dc566
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/workers-profiling
 - contents:
-  - git:
+  - configDigest: 37f3c034fb6df8c04dc23f2008480013c5bcb523ba6f70bbf2a487af49260ae2
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
