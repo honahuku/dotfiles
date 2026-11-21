@@ -7,6 +7,7 @@ includes = ["mise-tasks.toml"]
 "~/.local/share/dotfiles/agents/skills" = "agents/skills"
 "~/.agents/skills" = ".agents/skills"
 "~/.codex/AGENTS.md" = "agents/AGENTS.md"
+"~/.codex/hooks.json" = ".codex/hooks.json"
 "~/.config/opencode/AGENTS.md" = "agents/AGENTS.md"
 "~/.config/mise/config.toml" = ".config/mise/config.toml"
 "~/.config/lazygit/config.yml" = ".config/lazygit/config.yml"
