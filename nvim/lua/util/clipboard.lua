@@ -1,6 +1,10 @@
 local M = {}
 
-function M.resolve(is_windows, is_wsl, executable)
+function M.resolve(is_windows, is_wsl, is_ssh, executable)
+  if is_ssh then
+    return "osc52"
+  end
+
   if is_wsl and executable("win32yank.exe") then
     return {
       name = "win32yank",
