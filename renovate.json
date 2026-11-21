@@ -4,19 +4,22 @@
     "config:recommended",
     "github>aquaproj/aqua-renovate-config#2.15.0"
   ],
+  "minimumReleaseAge": "7 days",
+  "minimumReleaseAgeBehaviour": "timestamp-required",
+  "internalChecksFilter": "strict",
   "lockFileMaintenance": {
     "enabled": true
   },
   "packageRules": [
     {
-      "description": "aqua の更新はリリースから14日以上経過してから行う",
+      "description": "aqua の更新はリリースから7日以上経過してから行う",
       "matchManagers": [
         "custom.regex"
       ],
       "matchFileNames": [
         "aqua.yaml"
       ],
-      "minimumReleaseAge": "14 days",
+      "minimumReleaseAge": "7 days",
       "minimumReleaseAgeBehaviour": "timestamp-required"
     },
     {
