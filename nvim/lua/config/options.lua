@@ -16,9 +16,14 @@ local platform = require("platform")
 
 -- WSLではwin32yank、Windows nativeでは標準コマンドでクリップボードを扱う。
 local clipboard = require("util.clipboard")
-local provider = clipboard.resolve(platform.is_windows(), platform.is_wsl(), function(command)
-  return vim.fn.executable(command) == 1
-end)
+local provider = clipboard.resolve(
+  platform.is_windows(),
+  platform.is_wsl(),
+  vim.env.SSH_CONNECTION ~= nil or vim.env.SSH_TTY ~= nil or vim.env.SSH_CLIENT ~= nil,
+  function(command)
+    return vim.fn.executable(command) == 1
+  end
+)
 if provider then
   vim.g.clipboard = provider
 end

@@ -2,8 +2,15 @@
 local clipboard = require("util.clipboard")
 
 describe("clipboard", function()
+  it("SSH接続ではホスト端末へ送るOSC 52を使う", function()
+    local provider = clipboard.resolve(false, false, true, function()
+      return false
+    end)
+    assert.are.equal("osc52", provider)
+  end)
+
   it("Windows nativeではclip.exeとPowerShellを使う", function()
-    local provider = clipboard.resolve(true, false, function(command)
+    local provider = clipboard.resolve(true, false, false, function(command)
       return command == "clip.exe" or command == "powershell.exe"
     end)
 
@@ -13,7 +20,7 @@ describe("clipboard", function()
   end)
 
   it("WSLではwin32yank.exeを使う", function()
-    local provider = clipboard.resolve(false, true, function(command)
+    local provider = clipboard.resolve(false, true, false, function(command)
       return command == "win32yank.exe"
     end)
 
@@ -23,7 +30,7 @@ describe("clipboard", function()
   end)
 
   it("必要なコマンドがない場合はNeovim標準のproviderに任せる", function()
-    assert.is_nil(clipboard.resolve(true, false, function()
+    assert.is_nil(clipboard.resolve(true, false, false, function()
       return false
     end))
   end)
