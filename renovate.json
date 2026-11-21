@@ -20,23 +20,12 @@
       "minimumReleaseAgeBehaviour": "timestamp-required"
     },
     {
-      "description": "patch と minor 更新を自動マージする",
+      "description": "minor と patch 更新を自動マージする",
       "matchUpdateTypes": [
         "minor",
         "patch"
       ],
       "automerge": true
-    },
-    {
-      "description": "Merge Confidence が low の minor 更新は自動マージしない",
-      "matchUpdateTypes": [
-        "minor"
-      ],
-      "matchConfidence": [
-        "low",
-        "neutral"
-      ],
-      "automerge": false
     },
     {
       "description": "vendir で取り込むスキルの更新は自動マージしない",
