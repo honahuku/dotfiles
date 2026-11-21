@@ -42,8 +42,8 @@ Windows側は共通指示と、インストール済みWindows Terminalの設定
 
 | 配置先                         | 管理元                                                                                   |
 | ------------------------------ | ---------------------------------------------------------------------------------------- |
-| `~/.codex/AGENTS.md`           | `agents/AGENTS.md`                                                                       |
-| `~/.config/opencode/AGENTS.md` | `agents/AGENTS.md`                                                                       |
+| `~/.codex/AGENTS.md`           | `.agents/AGENTS.md`                                                                      |
+| `~/.config/opencode/AGENTS.md` | `.agents/AGENTS.md`                                                                      |
 | `~/.agents/skills/`            | 自作スキルとvendir取得先を含む`.agents/skills/`全体へのリンク                            |
 | `~/.agents/hooks/`             | 共通判定。登録方法と確認手順は[共通hook](../agents/hooks/README.md)を参照                |
 | `~/.agents/prh/`               | `agents/prh/`の技術日本語ルール                                                          |
