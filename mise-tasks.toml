@@ -69,10 +69,10 @@ run = [
 ]
 
 ["opencode:check"]
-description = "OpenCodeのグローバル設定に必要なMCPサーバーとスキーマがあることを確認する"
+description = "OpenCodeのグローバル設定に必要なモデル、ポリシー、MCPサーバーとスキーマがあることを確認する"
 run = [
   """grep -F '"~/.config/opencode/AGENTS.md" = "agents/AGENTS.md"' mise.toml""",
-  """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .skills == ["~/.agents/skills"] and any(.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and any(.agents.general.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
+  """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .skills == ["~/.agents/skills"] and .model == "openai/gpt-6-luna" and any(.policies[]; .action == "provider.use" and .resource == "opencode" and .effect == "deny") and any(.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and any(.agents.general.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
   """rg --fixed-strings '"~/.agents/skills" = ".agents/skills"' mise.toml""",
   '''test -n "$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
 ]
