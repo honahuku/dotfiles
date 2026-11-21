@@ -115,7 +115,7 @@ Windows Terminalの設定変更後は、PowerShellから`mise -C windows run win
 | ツールの役割と管理元 | [ツールの説明](tools.md) |
 | シェル | [shell/](../shell/) |
 | Neovim設定 | [nvim/](../nvim/) |
-| Windows Terminal設定 | [win/terminal/](../win/terminal/) |
+| Windows Terminal設定 | [Windows Terminal設定](../windows/terminal/) |
 
 ## READMEのtreeを更新する
 
