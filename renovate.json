@@ -20,6 +20,36 @@
       "groupName": "GitHub Actions"
     },
     {
+      "description": "Node.js の更新を管理元をまたいでまとめる",
+      "matchPackageNames": [
+        "node"
+      ],
+      "groupName": "Node.js"
+    },
+    {
+      "description": "Python の更新をまとめる",
+      "matchPackageNames": [
+        "python",
+        "astral-sh/uv",
+        "astral-sh/ruff"
+      ],
+      "groupName": "Python"
+    },
+    {
+      "description": "Python プロジェクトの依存更新をまとめる",
+      "matchManagers": [
+        "pep621"
+      ],
+      "groupName": "Python"
+    },
+    {
+      "description": "Workers 向け JavaScript ツールの更新をまとめる",
+      "matchPackageNames": [
+        "npm:wrangler"
+      ],
+      "groupName": "JavaScript / Workers"
+    },
+    {
       "description": "aqua 管理ツールの更新をまとめる",
       "matchManagers": [
         "custom.regex"
