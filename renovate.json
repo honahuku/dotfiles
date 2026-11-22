@@ -20,6 +20,27 @@
       "groupName": "GitHub Actions"
     },
     {
+      "description": "mise で管理するツールの更新をまとめる",
+      "matchManagers": [
+        "mise"
+      ],
+      "groupName": "mise tools"
+    },
+    {
+      "description": "Python プロジェクトの依存更新をまとめる",
+      "matchManagers": [
+        "pep621"
+      ],
+      "groupName": "Python packages"
+    },
+    {
+      "description": "Node.js の更新を管理元をまたいでまとめる",
+      "matchPackageNames": [
+        "node"
+      ],
+      "groupName": "Node.js"
+    },
+    {
       "description": "aqua 管理ツールの更新をまとめる",
       "matchManagers": [
         "custom.regex"
