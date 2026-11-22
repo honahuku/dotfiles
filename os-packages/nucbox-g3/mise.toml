@@ -1,225 +1,225 @@
 # NucBox G3のホスト用パッケージをmise bootstrapで管理する。
 [bootstrap.packages]
-"apt:adduser" = "3.152" # renovate: datasource=deb versioning=deb depType=apt
-"apt:apt-listchanges" = "4.8" # renovate: datasource=deb versioning=deb depType=apt
-"apt:apt-utils" = "3.0.3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:apt" = "3.0.3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:base-files" = "13.8+deb13u7" # renovate: datasource=deb versioning=deb depType=apt
-"apt:base-passwd" = "3.6.7" # renovate: datasource=deb versioning=deb depType=apt
-"apt:bash-completion" = "1:2.16.0-7" # renovate: datasource=deb versioning=deb depType=apt
-"apt:bash" = "5.2.37-2+b10" # renovate: datasource=deb versioning=deb depType=apt
-"apt:bind9-dnsutils" = "1:9.20.26-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:bind9-host" = "1:9.20.26-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:bsdutils" = "1:2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:busybox" = "1:1.37.0-6+b9" # renovate: datasource=deb versioning=deb depType=apt
-"apt:bzip2" = "1.0.8-6" # renovate: datasource=deb versioning=deb depType=apt
-"apt:ca-certificates" = "20250419" # renovate: datasource=deb versioning=deb depType=apt
-"apt:console-setup" = "1.242~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:coreutils" = "9.7-3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:cpio" = "2.15+dfsg-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:cron-daemon-common" = "3.0pl1-197" # renovate: datasource=deb versioning=deb depType=apt
-"apt:cron" = "3.0pl1-197" # renovate: datasource=deb versioning=deb depType=apt
-"apt:curl" = "8.14.1-2+deb13u7" # renovate: datasource=deb versioning=deb depType=apt
-"apt:dash" = "0.5.12-12" # renovate: datasource=deb versioning=deb depType=apt
-"apt:dbus" = "1.16.2-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:debconf-i18n" = "1.5.91" # renovate: datasource=deb versioning=deb depType=apt
-"apt:debconf" = "1.5.91" # renovate: datasource=deb versioning=deb depType=apt
-"apt:debian-archive-keyring" = "2025.1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:debian-faq" = "12.2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:debianutils" = "5.23.2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:dhcpcd-base" = "1:10.1.0-11+deb13u4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:diffutils" = "1:3.10-4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:dmidecode" = "3.6-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:dnsmasq-base" = "2.91-1+deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:doc-debian" = "11.3+nmu1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:docker.io" = "26.1.5+dfsg1-9+deb13u1+b1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:dpkg" = "1.22.22" # renovate: datasource=deb versioning=deb depType=apt
-"apt:e2fsprogs" = "1.47.2-3+b12" # renovate: datasource=deb versioning=deb depType=apt
-"apt:ethtool" = "1:6.14.2-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:fdisk" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:file" = "1:5.46-5" # renovate: datasource=deb versioning=deb depType=apt
-"apt:findutils" = "4.10.0-3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:firmware-intel-graphics" = "20250410-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:firmware-realtek" = "20250410-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:firmware-sof-signed" = "2025.01-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:gcc-14-base" = "14.2.0-19" # renovate: datasource=deb versioning=deb depType=apt
-"apt:gcc" = "4:14.2.0-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:gettext-base" = "0.23.1-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:git" = "1:2.47.3-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:grep" = "3.11-4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:groff-base" = "1.23.0-9" # renovate: datasource=deb versioning=deb depType=apt
-"apt:grub-common" = "2.12-9+deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:grub-efi-amd64" = "2.12-9+deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:gzip" = "1.13-1+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:hostname" = "3.25" # renovate: datasource=deb versioning=deb depType=apt
-"apt:ifupdown" = "0.8.44+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:inetutils-telnet" = "2:2.6-3+deb13u3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:init-system-helpers" = "1.69~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:init" = "1.69~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:initramfs-tools" = "0.148.4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:installation-report" = "2.97" # renovate: datasource=deb versioning=deb depType=apt
-"apt:intel-microcode" = "3.20251111.1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:iproute2" = "6.15.0-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:iptables" = "1.8.11-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:iputils-ping" = "3:20240905-3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:iw" = "6.9-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:keyboard-configuration" = "1.242~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:kmod" = "34.2-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:krb5-locales" = "1.21.3-5+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:laptop-detect" = "0.16+nmu1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:less" = "668-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libacl1" = "2.3.2-2+b1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libapparmor1" = "4.1.0-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libapt-pkg7.0" = "3.0.3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libattr1" = "1:2.5.2-3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libaudit-common" = "1:4.0.2-2+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libaudit1" = "1:4.0.2-2+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libblkid1" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libbpf1" = "1:1.5.0-3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libbsd0" = "0.12.2-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libbz2-1.0" = "1.0.8-6" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libc-bin" = "2.41-12+deb13u5" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libc6" = "2.41-12+deb13u5" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libcap-ng0" = "0.8.5-4+b1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libcap2-bin" = "1:2.75-10+deb13u1+b3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libcap2" = "1:2.75-10+deb13u1+b3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libcom-err2" = "1.47.2-3+b12" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libcrypt1" = "1:4.4.38-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libdb5.3t64" = "5.3.28+dfsg2-9" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libdebconfclient0" = "0.280" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libedit2" = "3.1-20250104-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libelf1t64" = "0.192-4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libext2fs2t64" = "1.47.2-3+b12" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libfdisk1" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libgcc-s1" = "14.2.0-19" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libgmp10" = "2:6.3.0+dfsg-3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libgssapi-krb5-2" = "1.21.3-5+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libhogweed6t64" = "3.10.1-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libidn2-0" = "2.3.8-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libjansson4" = "2.14-2+b3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libk5crypto3" = "1.21.3-5+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libkeyutils1" = "1.6.3-6" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libkmod2" = "34.2-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libkrb5-3" = "1.21.3-5+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libkrb5support0" = "1.21.3-5+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:liblastlog2-2" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:liblocale-gettext-perl" = "1.07-7+b1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:liblockfile-bin" = "1.17-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:liblz4-1" = "1.10.0-4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:liblzma5" = "5.8.1-1+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libmd0" = "1.1.0-2+b1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libmnl0" = "1.0.5-3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libmount1" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libncursesw6" = "6.5+20250216-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libnettle8t64" = "3.10.1-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libnewt0.52" = "0.52.25-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libnftables1" = "1.1.3-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libnftnl11" = "1.2.9-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libnss-systemd" = "257.13-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libpam-modules-bin" = "1.7.0-5" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libpam-modules" = "1.7.0-5" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libpam-runtime" = "1.7.0-5" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libpam-systemd" = "257.13-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libpam0g" = "1.7.0-5" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libpcre2-8-0" = "10.46-1~deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libpopt0" = "1.19+dfsg-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libproc2-0" = "2:4.0.4-9" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libreadline8t64" = "8.2-6" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libseccomp2" = "2.6.0-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libselinux1" = "3.8.1-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libsemanage-common" = "3.8.1-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libsemanage2" = "3.8.1-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libsepol2" = "3.8.1-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libslang2" = "2.3.3-5+b2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libsmartcols1" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libsqlite3-0" = "3.46.1-7+deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libss2" = "1.47.2-3+b12" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libssl3t64" = "3.5.7-1~deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libstdc++6" = "14.2.0-19" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libsystemd-shared" = "257.13-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libsystemd0" = "257.13-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libtext-charwidth-perl" = "0.04-11+b4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libtext-iconv-perl" = "1.7-8+b4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libtext-wrapi18n-perl" = "0.06-10" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libtinfo6" = "6.5+20250216-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libtirpc-common" = "1.3.6+ds-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libtirpc3t64" = "1.3.6+ds-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libudev1" = "257.13-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libunistring5" = "1.3-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libuuid1" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libxtables12" = "1.8.11-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libxxhash0" = "0.8.3-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:libzstd1" = "1.5.7+dfsg-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:linux-image-amd64" = "6.12.107-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:linux-sysctl-defaults" = "4.12.1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:locales" = "2.41-12+deb13u5" # renovate: datasource=deb versioning=deb depType=apt
-"apt:login.defs" = "1:4.17.4-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:login" = "1:4.16.0-2+really2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:logrotate" = "3.22.0-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:logsave" = "1.47.2-3+b12" # renovate: datasource=deb versioning=deb depType=apt
-"apt:lsof" = "4.99.4+dfsg-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:man-db" = "2.13.1-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:manpages" = "6.9.1-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:mawk" = "1.3.4.20250131-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:media-types" = "13.0.0" # renovate: datasource=deb versioning=deb depType=apt
-"apt:mount" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:mqvpn" = "0.18.0" # renovate: datasource=deb versioning=deb depType=apt
-"apt:nano" = "8.4-1+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:ncurses-base" = "6.5+20250216-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:ncurses-bin" = "6.5+20250216-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:ncurses-term" = "6.5+20250216-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:netbase" = "6.5" # renovate: datasource=deb versioning=deb depType=apt
-"apt:netcat-traditional" = "1.10-50" # renovate: datasource=deb versioning=deb depType=apt
-"apt:nftables" = "1.1.3-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:nmap" = "7.95+dfsg-3" # renovate: datasource=deb versioning=deb depType=apt
-"apt:openssh-client" = "1:10.0p1-7+deb13u4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:openssh-server" = "1:10.0p1-7+deb13u4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:openssl-provider-legacy" = "3.5.7-1~deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:openssl" = "3.5.7-1~deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:os-prober" = "1.83" # renovate: datasource=deb versioning=deb depType=apt
-"apt:passwd" = "1:4.17.4-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:pciutils" = "1:3.13.0-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:perl-base" = "5.40.1-6+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:perl" = "5.40.1-6+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:popularity-contest" = "1.78" # renovate: datasource=deb versioning=deb depType=apt
-"apt:procps" = "2:4.0.4-9" # renovate: datasource=deb versioning=deb depType=apt
-"apt:python3-apt" = "3.0.0" # renovate: datasource=deb versioning=deb depType=apt
-"apt:python3" = "3.13.5-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:readline-common" = "8.2-6" # renovate: datasource=deb versioning=deb depType=apt
-"apt:reportbug" = "13.2.0" # renovate: datasource=deb versioning=deb depType=apt
-"apt:rsync" = "3.5.0+ds1-0+deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:sed" = "4.9-2+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:sensible-utils" = "0.0.25" # renovate: datasource=deb versioning=deb depType=apt
-"apt:shim-signed" = "1.51~1+deb13u1+16.1-2~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:sqv" = "1.3.0-3+b2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:sudo" = "1.9.16p2-3+deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:systemd-sysv" = "257.13-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:systemd-timesyncd" = "257.13-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:systemd" = "257.13-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:sysvinit-utils" = "3.14-4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:tar" = "1.35+dfsg-3.1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:task-desktop" = "3.81" # renovate: datasource=deb versioning=deb depType=apt
-"apt:task-japanese-desktop" = "3.81" # renovate: datasource=deb versioning=deb depType=apt
-"apt:task-japanese" = "3.81" # renovate: datasource=deb versioning=deb depType=apt
-"apt:task-ssh-server" = "3.81" # renovate: datasource=deb versioning=deb depType=apt
-"apt:tasksel" = "3.81" # renovate: datasource=deb versioning=deb depType=apt
-"apt:tcpdump" = "4.99.5-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:traceroute" = "1:2.1.6-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:tzdata" = "2026c-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:ucf" = "3.0052" # renovate: datasource=deb versioning=deb depType=apt
-"apt:udev" = "257.13-1~deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:usbutils" = "1:018-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:util-linux-extra" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:util-linux" = "2.41.5-0+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:vim-common" = "2:9.1.1230-2+deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:vim-tiny" = "2:9.1.1230-2+deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:vim" = "2:9.1.1230-2+deb13u2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:wamerican" = "2020.12.07-4" # renovate: datasource=deb versioning=deb depType=apt
-"apt:wget" = "1.25.0-2" # renovate: datasource=deb versioning=deb depType=apt
-"apt:whiptail" = "0.52.25-1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:wireless-tools" = "30~pre9-18+b1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:wpasupplicant" = "2:2.10-24" # renovate: datasource=deb versioning=deb depType=apt
-"apt:wtmpdb" = "0.73.0-3+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:xz-utils" = "5.8.1-1+deb13u1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:zlib1g" = "1:1.3.dfsg+really1.3.1-1+b1" # renovate: datasource=deb versioning=deb depType=apt
-"apt:zstd" = "1.5.7+dfsg-1" # renovate: datasource=deb versioning=deb depType=apt
+"apt:adduser" = "3.152" # renovate: apt
+"apt:apt-listchanges" = "4.8" # renovate: apt
+"apt:apt-utils" = "3.0.3" # renovate: apt
+"apt:apt" = "3.0.3" # renovate: apt
+"apt:base-files" = "13.8+deb13u7" # renovate: apt
+"apt:base-passwd" = "3.6.7" # renovate: apt
+"apt:bash-completion" = "1:2.16.0-7" # renovate: apt
+"apt:bash" = "5.2.37-2+b10" # renovate: apt
+"apt:bind9-dnsutils" = "1:9.20.26-1~deb13u1" # renovate: apt
+"apt:bind9-host" = "1:9.20.26-1~deb13u1" # renovate: apt
+"apt:bsdutils" = "1:2.41.5-0+deb13u1" # renovate: apt
+"apt:busybox" = "1:1.37.0-6+b9" # renovate: apt
+"apt:bzip2" = "1.0.8-6" # renovate: apt
+"apt:ca-certificates" = "20250419" # renovate: apt
+"apt:console-setup" = "1.242~deb13u1" # renovate: apt
+"apt:coreutils" = "9.7-3" # renovate: apt
+"apt:cpio" = "2.15+dfsg-2" # renovate: apt
+"apt:cron-daemon-common" = "3.0pl1-197" # renovate: apt
+"apt:cron" = "3.0pl1-197" # renovate: apt
+"apt:curl" = "8.14.1-2+deb13u7" # renovate: apt
+"apt:dash" = "0.5.12-12" # renovate: apt
+"apt:dbus" = "1.16.2-2" # renovate: apt
+"apt:debconf-i18n" = "1.5.91" # renovate: apt
+"apt:debconf" = "1.5.91" # renovate: apt
+"apt:debian-archive-keyring" = "2025.1" # renovate: apt
+"apt:debian-faq" = "12.2" # renovate: apt
+"apt:debianutils" = "5.23.2" # renovate: apt
+"apt:dhcpcd-base" = "1:10.1.0-11+deb13u4" # renovate: apt
+"apt:diffutils" = "1:3.10-4" # renovate: apt
+"apt:dmidecode" = "3.6-2" # renovate: apt
+"apt:dnsmasq-base" = "2.91-1+deb13u2" # renovate: apt
+"apt:doc-debian" = "11.3+nmu1" # renovate: apt
+"apt:docker.io" = "26.1.5+dfsg1-9+deb13u1+b1" # renovate: apt
+"apt:dpkg" = "1.22.22" # renovate: apt
+"apt:e2fsprogs" = "1.47.2-3+b12" # renovate: apt
+"apt:ethtool" = "1:6.14.2-1" # renovate: apt
+"apt:fdisk" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:file" = "1:5.46-5" # renovate: apt
+"apt:findutils" = "4.10.0-3" # renovate: apt
+"apt:firmware-intel-graphics" = "20250410-2" # renovate: apt
+"apt:firmware-realtek" = "20250410-2" # renovate: apt
+"apt:firmware-sof-signed" = "2025.01-1" # renovate: apt
+"apt:gcc-14-base" = "14.2.0-19" # renovate: apt
+"apt:gcc" = "4:14.2.0-1" # renovate: apt
+"apt:gettext-base" = "0.23.1-2" # renovate: apt
+"apt:git" = "1:2.47.3-0+deb13u1" # renovate: apt
+"apt:grep" = "3.11-4" # renovate: apt
+"apt:groff-base" = "1.23.0-9" # renovate: apt
+"apt:grub-common" = "2.12-9+deb13u2" # renovate: apt
+"apt:grub-efi-amd64" = "2.12-9+deb13u2" # renovate: apt
+"apt:gzip" = "1.13-1+deb13u1" # renovate: apt
+"apt:hostname" = "3.25" # renovate: apt
+"apt:ifupdown" = "0.8.44+deb13u1" # renovate: apt
+"apt:inetutils-telnet" = "2:2.6-3+deb13u3" # renovate: apt
+"apt:init-system-helpers" = "1.69~deb13u1" # renovate: apt
+"apt:init" = "1.69~deb13u1" # renovate: apt
+"apt:initramfs-tools" = "0.148.4" # renovate: apt
+"apt:installation-report" = "2.97" # renovate: apt
+"apt:intel-microcode" = "3.20251111.1~deb13u1" # renovate: apt
+"apt:iproute2" = "6.15.0-1" # renovate: apt
+"apt:iptables" = "1.8.11-2" # renovate: apt
+"apt:iputils-ping" = "3:20240905-3" # renovate: apt
+"apt:iw" = "6.9-1" # renovate: apt
+"apt:keyboard-configuration" = "1.242~deb13u1" # renovate: apt
+"apt:kmod" = "34.2-2" # renovate: apt
+"apt:krb5-locales" = "1.21.3-5+deb13u1" # renovate: apt
+"apt:laptop-detect" = "0.16+nmu1" # renovate: apt
+"apt:less" = "668-1" # renovate: apt
+"apt:libacl1" = "2.3.2-2+b1" # renovate: apt
+"apt:libapparmor1" = "4.1.0-1" # renovate: apt
+"apt:libapt-pkg7.0" = "3.0.3" # renovate: apt
+"apt:libattr1" = "1:2.5.2-3" # renovate: apt
+"apt:libaudit-common" = "1:4.0.2-2+deb13u1" # renovate: apt
+"apt:libaudit1" = "1:4.0.2-2+deb13u1" # renovate: apt
+"apt:libblkid1" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:libbpf1" = "1:1.5.0-3" # renovate: apt
+"apt:libbsd0" = "0.12.2-2" # renovate: apt
+"apt:libbz2-1.0" = "1.0.8-6" # renovate: apt
+"apt:libc-bin" = "2.41-12+deb13u5" # renovate: apt
+"apt:libc6" = "2.41-12+deb13u5" # renovate: apt
+"apt:libcap-ng0" = "0.8.5-4+b1" # renovate: apt
+"apt:libcap2-bin" = "1:2.75-10+deb13u1+b3" # renovate: apt
+"apt:libcap2" = "1:2.75-10+deb13u1+b3" # renovate: apt
+"apt:libcom-err2" = "1.47.2-3+b12" # renovate: apt
+"apt:libcrypt1" = "1:4.4.38-1" # renovate: apt
+"apt:libdb5.3t64" = "5.3.28+dfsg2-9" # renovate: apt
+"apt:libdebconfclient0" = "0.280" # renovate: apt
+"apt:libedit2" = "3.1-20250104-1" # renovate: apt
+"apt:libelf1t64" = "0.192-4" # renovate: apt
+"apt:libext2fs2t64" = "1.47.2-3+b12" # renovate: apt
+"apt:libfdisk1" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:libgcc-s1" = "14.2.0-19" # renovate: apt
+"apt:libgmp10" = "2:6.3.0+dfsg-3" # renovate: apt
+"apt:libgssapi-krb5-2" = "1.21.3-5+deb13u1" # renovate: apt
+"apt:libhogweed6t64" = "3.10.1-1" # renovate: apt
+"apt:libidn2-0" = "2.3.8-2" # renovate: apt
+"apt:libjansson4" = "2.14-2+b3" # renovate: apt
+"apt:libk5crypto3" = "1.21.3-5+deb13u1" # renovate: apt
+"apt:libkeyutils1" = "1.6.3-6" # renovate: apt
+"apt:libkmod2" = "34.2-2" # renovate: apt
+"apt:libkrb5-3" = "1.21.3-5+deb13u1" # renovate: apt
+"apt:libkrb5support0" = "1.21.3-5+deb13u1" # renovate: apt
+"apt:liblastlog2-2" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:liblocale-gettext-perl" = "1.07-7+b1" # renovate: apt
+"apt:liblockfile-bin" = "1.17-2" # renovate: apt
+"apt:liblz4-1" = "1.10.0-4" # renovate: apt
+"apt:liblzma5" = "5.8.1-1+deb13u1" # renovate: apt
+"apt:libmd0" = "1.1.0-2+b1" # renovate: apt
+"apt:libmnl0" = "1.0.5-3" # renovate: apt
+"apt:libmount1" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:libncursesw6" = "6.5+20250216-2" # renovate: apt
+"apt:libnettle8t64" = "3.10.1-1" # renovate: apt
+"apt:libnewt0.52" = "0.52.25-1" # renovate: apt
+"apt:libnftables1" = "1.1.3-1" # renovate: apt
+"apt:libnftnl11" = "1.2.9-1" # renovate: apt
+"apt:libnss-systemd" = "257.13-1~deb13u1" # renovate: apt
+"apt:libpam-modules-bin" = "1.7.0-5" # renovate: apt
+"apt:libpam-modules" = "1.7.0-5" # renovate: apt
+"apt:libpam-runtime" = "1.7.0-5" # renovate: apt
+"apt:libpam-systemd" = "257.13-1~deb13u1" # renovate: apt
+"apt:libpam0g" = "1.7.0-5" # renovate: apt
+"apt:libpcre2-8-0" = "10.46-1~deb13u2" # renovate: apt
+"apt:libpopt0" = "1.19+dfsg-2" # renovate: apt
+"apt:libproc2-0" = "2:4.0.4-9" # renovate: apt
+"apt:libreadline8t64" = "8.2-6" # renovate: apt
+"apt:libseccomp2" = "2.6.0-2" # renovate: apt
+"apt:libselinux1" = "3.8.1-1" # renovate: apt
+"apt:libsemanage-common" = "3.8.1-1" # renovate: apt
+"apt:libsemanage2" = "3.8.1-1" # renovate: apt
+"apt:libsepol2" = "3.8.1-1" # renovate: apt
+"apt:libslang2" = "2.3.3-5+b2" # renovate: apt
+"apt:libsmartcols1" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:libsqlite3-0" = "3.46.1-7+deb13u2" # renovate: apt
+"apt:libss2" = "1.47.2-3+b12" # renovate: apt
+"apt:libssl3t64" = "3.5.7-1~deb13u2" # renovate: apt
+"apt:libstdc++6" = "14.2.0-19" # renovate: apt
+"apt:libsystemd-shared" = "257.13-1~deb13u1" # renovate: apt
+"apt:libsystemd0" = "257.13-1~deb13u1" # renovate: apt
+"apt:libtext-charwidth-perl" = "0.04-11+b4" # renovate: apt
+"apt:libtext-iconv-perl" = "1.7-8+b4" # renovate: apt
+"apt:libtext-wrapi18n-perl" = "0.06-10" # renovate: apt
+"apt:libtinfo6" = "6.5+20250216-2" # renovate: apt
+"apt:libtirpc-common" = "1.3.6+ds-1" # renovate: apt
+"apt:libtirpc3t64" = "1.3.6+ds-1" # renovate: apt
+"apt:libudev1" = "257.13-1~deb13u1" # renovate: apt
+"apt:libunistring5" = "1.3-2" # renovate: apt
+"apt:libuuid1" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:libxtables12" = "1.8.11-2" # renovate: apt
+"apt:libxxhash0" = "0.8.3-2" # renovate: apt
+"apt:libzstd1" = "1.5.7+dfsg-1" # renovate: apt
+"apt:linux-image-amd64" = "6.12.107-1" # renovate: apt
+"apt:linux-sysctl-defaults" = "4.12.1" # renovate: apt
+"apt:locales" = "2.41-12+deb13u5" # renovate: apt
+"apt:login.defs" = "1:4.17.4-2" # renovate: apt
+"apt:login" = "1:4.16.0-2+really2.41.5-0+deb13u1" # renovate: apt
+"apt:logrotate" = "3.22.0-1" # renovate: apt
+"apt:logsave" = "1.47.2-3+b12" # renovate: apt
+"apt:lsof" = "4.99.4+dfsg-2" # renovate: apt
+"apt:man-db" = "2.13.1-1" # renovate: apt
+"apt:manpages" = "6.9.1-1" # renovate: apt
+"apt:mawk" = "1.3.4.20250131-1" # renovate: apt
+"apt:media-types" = "13.0.0" # renovate: apt
+"apt:mount" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:mqvpn" = "0.18.0" # renovate: apt
+"apt:nano" = "8.4-1+deb13u1" # renovate: apt
+"apt:ncurses-base" = "6.5+20250216-2" # renovate: apt
+"apt:ncurses-bin" = "6.5+20250216-2" # renovate: apt
+"apt:ncurses-term" = "6.5+20250216-2" # renovate: apt
+"apt:netbase" = "6.5" # renovate: apt
+"apt:netcat-traditional" = "1.10-50" # renovate: apt
+"apt:nftables" = "1.1.3-1" # renovate: apt
+"apt:nmap" = "7.95+dfsg-3" # renovate: apt
+"apt:openssh-client" = "1:10.0p1-7+deb13u4" # renovate: apt
+"apt:openssh-server" = "1:10.0p1-7+deb13u4" # renovate: apt
+"apt:openssl-provider-legacy" = "3.5.7-1~deb13u2" # renovate: apt
+"apt:openssl" = "3.5.7-1~deb13u2" # renovate: apt
+"apt:os-prober" = "1.83" # renovate: apt
+"apt:passwd" = "1:4.17.4-2" # renovate: apt
+"apt:pciutils" = "1:3.13.0-2" # renovate: apt
+"apt:perl-base" = "5.40.1-6+deb13u1" # renovate: apt
+"apt:perl" = "5.40.1-6+deb13u1" # renovate: apt
+"apt:popularity-contest" = "1.78" # renovate: apt
+"apt:procps" = "2:4.0.4-9" # renovate: apt
+"apt:python3-apt" = "3.0.0" # renovate: apt
+"apt:python3" = "3.13.5-1" # renovate: apt
+"apt:readline-common" = "8.2-6" # renovate: apt
+"apt:reportbug" = "13.2.0" # renovate: apt
+"apt:rsync" = "3.5.0+ds1-0+deb13u2" # renovate: apt
+"apt:sed" = "4.9-2+deb13u1" # renovate: apt
+"apt:sensible-utils" = "0.0.25" # renovate: apt
+"apt:shim-signed" = "1.51~1+deb13u1+16.1-2~deb13u1" # renovate: apt
+"apt:sqv" = "1.3.0-3+b2" # renovate: apt
+"apt:sudo" = "1.9.16p2-3+deb13u2" # renovate: apt
+"apt:systemd-sysv" = "257.13-1~deb13u1" # renovate: apt
+"apt:systemd-timesyncd" = "257.13-1~deb13u1" # renovate: apt
+"apt:systemd" = "257.13-1~deb13u1" # renovate: apt
+"apt:sysvinit-utils" = "3.14-4" # renovate: apt
+"apt:tar" = "1.35+dfsg-3.1" # renovate: apt
+"apt:task-desktop" = "3.81" # renovate: apt
+"apt:task-japanese-desktop" = "3.81" # renovate: apt
+"apt:task-japanese" = "3.81" # renovate: apt
+"apt:task-ssh-server" = "3.81" # renovate: apt
+"apt:tasksel" = "3.81" # renovate: apt
+"apt:tcpdump" = "4.99.5-2" # renovate: apt
+"apt:traceroute" = "1:2.1.6-1" # renovate: apt
+"apt:tzdata" = "2026c-0+deb13u1" # renovate: apt
+"apt:ucf" = "3.0052" # renovate: apt
+"apt:udev" = "257.13-1~deb13u1" # renovate: apt
+"apt:usbutils" = "1:018-2" # renovate: apt
+"apt:util-linux-extra" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:util-linux" = "2.41.5-0+deb13u1" # renovate: apt
+"apt:vim-common" = "2:9.1.1230-2+deb13u2" # renovate: apt
+"apt:vim-tiny" = "2:9.1.1230-2+deb13u2" # renovate: apt
+"apt:vim" = "2:9.1.1230-2+deb13u2" # renovate: apt
+"apt:wamerican" = "2020.12.07-4" # renovate: apt
+"apt:wget" = "1.25.0-2" # renovate: apt
+"apt:whiptail" = "0.52.25-1" # renovate: apt
+"apt:wireless-tools" = "30~pre9-18+b1" # renovate: apt
+"apt:wpasupplicant" = "2:2.10-24" # renovate: apt
+"apt:wtmpdb" = "0.73.0-3+deb13u1" # renovate: apt
+"apt:xz-utils" = "5.8.1-1+deb13u1" # renovate: apt
+"apt:zlib1g" = "1:1.3.dfsg+really1.3.1-1+b1" # renovate: apt
+"apt:zstd" = "1.5.7+dfsg-1" # renovate: apt

@@ -14,8 +14,11 @@
         "/^os-packages\\/nucbox-g3\\/mise\\.toml$/"
       ],
       "matchStrings": [
-        "(?m)^\"apt:(?<depName>[a-z0-9][a-z0-9+.-]*)\" = \"(?<currentValue>[^\"]+)\" # renovate: datasource=(?<datasource>[^ \\r\\n]+) versioning=(?<versioning>[^ \\r\\n]+) depType=(?<depType>[^ \\r\\n]+)$"
-      ]
+        "(?m)^\"apt:(?<depName>[a-z0-9][a-z0-9+.-]*)\" = \"(?<currentValue>[^\"]+)\" # renovate: apt$"
+      ],
+      "datasourceTemplate": "deb",
+      "versioningTemplate": "deb",
+      "depTypeTemplate": "apt"
     }
   ],
   "lockFileMaintenance": {
