@@ -22,7 +22,8 @@
     {
       "description": "Node.js の更新を管理元をまたいでまとめる",
       "matchPackageNames": [
-        "node"
+        "node",
+        "actions/node-versions"
       ],
       "groupName": "Node.js"
     },
@@ -43,11 +44,11 @@
       "groupName": "Python"
     },
     {
-      "description": "Workers 向け JavaScript ツールの更新をまとめる",
-      "matchPackageNames": [
-        "npm:wrangler"
+      "description": "npm / JavaScript 関連の更新をまとめる",
+      "matchDatasources": [
+        "npm"
       ],
-      "groupName": "JavaScript / Workers"
+      "groupName": "npm / JavaScript"
     },
     {
       "description": "aqua 管理ツールの更新をまとめる",
