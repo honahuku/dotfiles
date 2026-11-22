@@ -20,25 +20,42 @@
       "groupName": "GitHub Actions"
     },
     {
-      "description": "mise で管理するツールの更新をまとめる",
-      "matchManagers": [
-        "mise"
+      "description": "Node.js の更新を管理元をまたいでまとめる",
+      "matchPackageNames": [
+        "node",
+        "actions/node-versions"
       ],
-      "groupName": "mise tools"
+      "groupName": "Node.js"
+    },
+    {
+      "description": "Python の更新をまとめる",
+      "matchPackageNames": [
+        "python",
+        "astral-sh/uv",
+        "astral-sh/ruff"
+      ],
+      "groupName": "Python"
     },
     {
       "description": "Python プロジェクトの依存更新をまとめる",
       "matchManagers": [
         "pep621"
       ],
-      "groupName": "Python packages"
+      "groupName": "Python"
     },
     {
-      "description": "Node.js の更新を管理元をまたいでまとめる",
-      "matchPackageNames": [
-        "node"
+      "description": "npm / JavaScript 関連の更新をまとめる",
+      "matchDatasources": [
+        "npm"
       ],
-      "groupName": "Node.js"
+      "groupName": "npm / JavaScript"
+    },
+    {
+      "description": "mise で管理するツールの更新をまとめる",
+      "matchManagers": [
+        "mise"
+      ],
+      "groupName": "mise tools"
     },
     {
       "description": "aqua 管理ツールの更新をまとめる",
