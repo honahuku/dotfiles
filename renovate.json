@@ -11,14 +11,11 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
-        "/^os-packages\\/nucbox-g3\\/apt-packages\\.txt$/"
+        "/^os-packages\\/nucbox-g3\\/mise\\.toml$/"
       ],
       "matchStrings": [
-        "(?m)^(?<depName>[a-z0-9][a-z0-9+.-]*)=(?<currentValue>\\S+)$"
-      ],
-      "datasourceTemplate": "deb",
-      "versioningTemplate": "deb",
-      "depTypeTemplate": "apt"
+        "(?m)^\"apt:(?<depName>[a-z0-9][a-z0-9+.-]*)\" = \"(?<currentValue>[^\"]+)\" # renovate: datasource=(?<datasource>[^ \\r\\n]+) versioning=(?<versioning>[^ \\r\\n]+) depType=(?<depType>[^ \\r\\n]+)$"
+      ]
     }
   ],
   "lockFileMaintenance": {
@@ -93,7 +90,7 @@
         "deb"
       ],
       "matchFileNames": [
-        "os-packages/nucbox-g3/apt-packages.txt"
+        "os-packages/nucbox-g3/mise.toml"
       ],
       "groupName": "NucBox G3 Debian packages",
       "automerge": false,
