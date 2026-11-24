@@ -22,4 +22,6 @@ dotfiles・個人ツールの変更では、着手前に`~/.agents/skills/write-
 
 編集後は変更先と差分を確認する。設定移行の反映確認には`~/.agents/skills/write-agent-instructions/references/context-policy.md`の「端末への反映確認」を使う。
 
+コミットを作成する前に`references/naming.md`のコミット命名規則を確認し、種別に続く説明を日本語で作る。
+
 miseやdotfilesのファイル配置を変更する前にも、同資料の「端末への反映確認」を読み、配置定義と冪等性の条件を確認する。
