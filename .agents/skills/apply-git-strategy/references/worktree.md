@@ -4,12 +4,11 @@
 
 - 個人用のdotfiles・スキル・共通指示の改善依頼では、worktree作成前に`~/.agents/skills/write-agent-instructions/references/context-policy.md`の「個人用の改善に着手する前の確認」と「個人用の改善に着手してはいけない時間帯」を適用する。継続依頼でも現在日時と例外を確認し、禁止時間帯に当たる場合のIssue起票も同資料に従う。前のターンの時刻や、過去に着手した事実を継続の許可にしない。
 - 対象repoのcloneは想定パス名だけで判断せず、利用可能な作業領域内のGitルートとremote URLを照合して探す。見つからない場合は、`.worktree/`不足を理由に新規cloneせず、本人に既存cloneの場所またはcloneの明示許可を確認する。実際のrepoの場所と適用される指示を確認し、`~/.agents/skills/apply-git-strategy/references/git-policy.md`に従ってGit操作の許可範囲を判定する。
-- worktree作成がCoding Agentsに禁止されているリポジトリでは、mainへの直接編集で代替しない。制約を報告するだけで終えず、本人が安全に実行できる場合は、確認済みのブランチ・worktree状態に合わせて必要なGit操作を案内する。本人へのコミット依頼は共通の`~/.agents/skills/apply-git-strategy/references/git-policy.md`のlazygit・依頼分離の規則に従い、worktreeの絶対パスと対象ファイルを自然文で示す。許可された事前・事後確認はCoding Agentsが行い、未コミット差分などで判断できない場合は確認済みの状態と未決事項を伝える。
+- 原則として既存のcheckoutを作業場所に使う。本人がworktreeを明示的に指定した場合、または別セッションが同じcheckoutを編集していて競合する場合だけworktreeを使う。既存変更を保護し、競合の有無を確認してから編集する。
 - ブランチを作成する前に、既存差分、ローカル・リモートのブランチ、登録済みworktree、同じトピックのopen PRを確認する。同じトピックのブランチやopen PRがあれば、そのブランチを使う。ローカルにない場合も既存のリモートブランチを追跡し、別名の同一トピックブランチを作らない。別ブランチへの分離には本人の明示許可が必要であり、レビュー・検証・修正という作業種別の違いだけを分離理由にしない。
-- 同じセッションで同じrepoに作成済みのworktreeがあれば再利用する。そのworktreeでは目的を達成できず追加作成が必要な場合だけ、既存の状態と再利用できない理由を示して本人の許可を得る。別repoでの最初の作成や、別セッションのworktreeの存在だけを理由に確認を求めない。
-- `main`ブランチは元clone直下の作業ツリーに置き、`main`用worktreeは作らない。他のセッションやエージェントとの競合を避けるため、Git管理下の編集は原則として専用worktreeで行う。急ぎなどで本人がmainの直接編集を明示的に許可した場合は、元clone直下で編集してよい。Obsidian vaultを除く通常の作業では、同じトピックの既存ブランチを再利用し、なければ`main`から専用ブランチを作成する。
+- worktreeを使う条件に当たる場合は、対象作業に対応する既存worktreeを確認し、適切なら再利用する。別セッションのworktreeが存在するだけでは新規worktreeの理由にしない。
 - 新規worktreeは、所有者や組織を問わず、元のclone直下の `<repo>/.worktree/<branch>` に置く。`.worktrees`、`/tmp`、兄弟ディレクトリ、`<repo-name>-worktrees/`には作らない。作業中のworktree内にさらに `.worktree/`を作らず、元のclone直下に並べる。**`<branch>`は`main`以外のブランチ名そのままで、`/`を含めず、省略・改変しない。** 既存worktreeは`git worktree list`で確認し、`main`以外のブランチで目的に合う場合だけ再利用する。既存の`.worktrees`や`/`を含む登録先は自動で移動・削除・改名せず、以後の新規作成では`.worktree`と`/`を含まない名前を使う。
-- リンク経由で編集する場合は、リンク先の実体と所属リポジトリを確認する。保存先を決める前に、依頼の対象ファイルが既存のGitリポジトリに属するか確認する。チャットのcwdがリポジトリ外でも、対象リポジトリ内の登録済みworktreeを使う。worktreeの登録と元のcloneとの対応は、`git -C <repo> worktree list --porcelain`と`git -C <worktree> rev-parse --show-toplevel`で確認する。
+- リンク経由で編集する場合は、リンク先の実体と所属リポジトリを確認する。保存先を決める前に、依頼の対象ファイルが既存のGitリポジトリに属するか確認する。worktreeを使う場合は登録と元のcloneとの対応を確認する。
 - リポジトリの文書・コード・差分・ログ・校正用の複製は、そのworktree内に保存する。表示やリンクのためにチャットの`work/`・`outputs/`や`/tmp`へ複製・書き出ししない。リポジトリを持たない独立した依頼だけ、チャット用の保存先を使う。リポジトリ外への持ち出しは、対象と保存先をユーザーが明示した場合だけ行う。チャット用ディレクトリへの案内やリンク表示の制約だけを、持ち出しの許可と解釈しない。
 - worktree作成前に、`~/.agents/skills/apply-git-strategy/references/git-policy.md`の「Git操作の許可範囲」を確認する。worktree用ディレクトリ`<repo>/.worktree`がなければ`mkdir -p`で作成する。続けて`git -C <repo> rev-parse --path-format=absolute --git-path info/exclude`で除外ファイルを特定する。現在の内容を読み、`/.worktree/`がなければ既存内容を残して追記し、`git -C <repo> check-ignore -v .worktree/<branch>`で適用を確認する。共有の`.gitignore`とglobal ignoreは変更しない。
 - Git操作は対象ディレクトリを実行時の作業ディレクトリに指定し、`git`を実行する。作業ディレクトリを指定できない場合は対象へ移動して実行する。
@@ -25,8 +24,8 @@
 1. `git rev-parse --show-toplevel`と`git worktree list --porcelain`で、現在のcheckout・元のclone・main以外の登録済みworktreeを確認する。旧配置も登録情報から識別し、ディレクトリ名だけでメインworktreeを判定しない。
 2. タスクIDがあれば、ディレクトリ名またはブランチ名に含まれるものを照合する。変更の有無だけで再利用を除外しない。候補が複数なら対象タスクとの対応を確認する。
 3. 着手時に目的の合う作業先が見つかれば再利用する。旧配置でも自動で新規作成・移動せず、再利用するものを整理候補から除く。
-4. 対応するworktreeがなくても、同じトピックの既存ブランチ・open PRがあれば、そのブランチ用のworktreeを準備する。新しいトピックのブランチ作成は「作業開始」と`references/naming.md`の条件を満たす場合だけ行う。`<repo>`は元のcloneとし、配置を指定できない自動作成ツールは使わない。
-5. 準備に失敗した場合は原因を確認し、作業先が確定するまで編集しない。mainでの作業へ切り替えるのは、本人が明示的に許可した場合に限る。
+4. worktreeを使う条件に当たる場合だけ、対応する既存worktreeの再利用や新規作成を検討する。
+5. 準備に失敗した場合は原因を確認し、作業先が確定するまで編集しない。別セッションの変更を上書きしない。
 
 ## 整理候補の確認
 
