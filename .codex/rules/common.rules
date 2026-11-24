@@ -52,3 +52,24 @@ prefix_rule(
     justification = "各コマンドの実行は無条件で許可されているため",
     match = ["mise run test", "lefthook run pre-commit", "cat file.txt", "cp source.txt destination.txt", "date -Iseconds", "nvim --headless -c qa"],
 )
+
+prefix_rule(
+    pattern = [["tasks", "~/.local/bin/tasks"]],
+    decision = "allow",
+    justification = "タスクストアの操作とvaultバックアップを自動実行するため",
+    match = ["tasks list", "tasks vault-backup", "~/.local/bin/tasks list", "~/.local/bin/tasks vault-backup"],
+)
+
+prefix_rule(
+    pattern = [["terraform", "~/.local/share/aquaproj-aqua/bin/terraform", "/usr/bin/terraform", "/usr/local/bin/terraform", "/bin/terraform"]],
+    decision = "forbidden",
+    justification = "Terraformの実行は手動で行うため、Codexから実行しない",
+    match = ["terraform init", "terraform plan", "~/.local/share/aquaproj-aqua/bin/terraform init", "/usr/bin/terraform plan"],
+)
+
+prefix_rule(
+    pattern = [["rm", "/usr/bin/rm", "/bin/rm"]],
+    decision = "forbidden",
+    justification = "Codexからファイルを削除しない",
+    match = ["rm file.txt", "/usr/bin/rm file.txt", "/bin/rm file.txt"],
+)
