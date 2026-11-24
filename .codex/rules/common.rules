@@ -1,0 +1,54 @@
+prefix_rule(
+    pattern = ["git", ["status", "diff", "log", "show", "rev-parse", "ls-files", "check-ignore"]],
+    decision = "allow",
+    justification = "Gitの状態と変更内容を確認するため",
+    match = ["git status --short --branch", "git diff --check", "git log --oneline -3"],
+    not_match = ["git commit -m test", "git push"],
+)
+
+prefix_rule(
+    pattern = ["git", "add"],
+    decision = "allow",
+    justification = "git addは無条件で許可されているため",
+    match = ["git add file", "git add --all", "git add -- .codex/AGENTS.md"],
+    not_match = ["git commit -m test", "git push"],
+)
+
+prefix_rule(
+    pattern = ["git", "branch", "--list"],
+    decision = "allow",
+    justification = "既存ブランチを確認するため",
+    match = ["git branch --list", "git branch --list fix-*"],
+    not_match = ["git branch -D fix-example", "git branch fix-example"],
+)
+
+prefix_rule(
+    pattern = ["git", "worktree", "list"],
+    decision = "allow",
+    justification = "既存worktreeを確認するため",
+    match = ["git worktree list --porcelain"],
+    not_match = ["git worktree add example", "git worktree remove example"],
+)
+
+prefix_rule(
+    pattern = ["gh", ["pr", "issue", "repo"], ["view", "list"]],
+    decision = "allow",
+    justification = "GitHubのPR・Issue・リポジトリを確認するため",
+    match = ["gh pr list --state open", "gh issue view 123", "gh repo view"],
+    not_match = ["gh pr merge 123", "gh issue create", "gh repo delete example"],
+)
+
+prefix_rule(
+    pattern = ["gh", "api", "--method", "GET"],
+    decision = "allow",
+    justification = "GitHubの読み取りAPIを承認待ちにせず実行するため",
+    match = ["gh api --method GET repos/example/project/pulls/123"],
+    not_match = ["gh api repos/example/project/pulls/123", "gh api --method POST repos/example/project/issues/123/comments"],
+)
+
+prefix_rule(
+    pattern = [["mise", "lefthook", "cat", "cp", "date", "nvim"]],
+    decision = "allow",
+    justification = "各コマンドの実行は無条件で許可されているため",
+    match = ["mise run test", "lefthook run pre-commit", "cat file.txt", "cp source.txt destination.txt", "date -Iseconds", "nvim --headless -c qa"],
+)
