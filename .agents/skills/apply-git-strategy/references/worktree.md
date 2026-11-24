@@ -12,7 +12,7 @@
 - リンク経由で編集する場合は、リンク先の実体と所属リポジトリを確認する。保存先を決める前に、依頼の対象ファイルが既存のGitリポジトリに属するか確認する。チャットのcwdがリポジトリ外でも、対象リポジトリ内の登録済みworktreeを使う。worktreeの登録と元のcloneとの対応は、`git -C <repo> worktree list --porcelain`と`git -C <worktree> rev-parse --show-toplevel`で確認する。
 - リポジトリの文書・コード・差分・ログ・校正用の複製は、そのworktree内に保存する。表示やリンクのためにチャットの`work/`・`outputs/`や`/tmp`へ複製・書き出ししない。リポジトリを持たない独立した依頼だけ、チャット用の保存先を使う。リポジトリ外への持ち出しは、対象と保存先をユーザーが明示した場合だけ行う。チャット用ディレクトリへの案内やリンク表示の制約だけを、持ち出しの許可と解釈しない。
 - worktree作成前に、`~/.agents/skills/apply-git-strategy/references/git-policy.md`の「Git操作の許可範囲」を確認する。`git -C <repo> rev-parse --path-format=absolute --git-path info/exclude`で対象を特定する。現在の内容を読み、`/.worktree/`がなければ既存内容を残して追記し、`git -C <repo> check-ignore -v .worktree/<branch>`で適用を確認する。共有の`.gitignore`とglobal ignoreは変更しない。
-- Git操作は可能なら `git -C <path>` 形式で実行する。
+- Git操作は対象ディレクトリを実行時の作業ディレクトリに指定し、`git`を実行する。作業ディレクトリを指定できない場合は対象へ移動して実行する。
 - 削除・置換で本人操作が必要な場合も、許可された確認・準備はCoding Agentsが実行し、実行済みのコマンドと結果を示す。worktreeなど管理対象の削除では、標準の削除機能と直接削除を比較し、推奨方法と理由を示す。直接削除を選ぶ場合は`rm`で示して本人のtrash aliasを保持し、コマンド自体の絶対パス指定・`rmdir`・alias迂回を使わない。本人操作だけを別のコードブロックに分け、報告後の検証もCoding Agentsが行う。詳細は`troubleshoot-environment`の手動依頼手順に従う。
 - `git rebase` は実行しない。ベースブランチの取り込みにはmergeを使う。worktreeとmainの差を手動同期で埋めず、許可されたmergeで反映する。
 - **vendir syncなどのディレクトリ同期コマンドは、実行前に公式仕様またはヘルプで既存ファイルの削除・置換挙動を確認する。** スキルの同期には`~/.agents/skills/write-agent-instructions/references/context-policy.md`の同期条件を適用する。それ以外で管理対象の既存ファイルを削除する可能性がある場合は実行しない。読み取り専用のdiff機能や設定・現物から対象と必要性を判断し、必要な削除・置換は`troubleshoot-environment`に従って手動実行用コマンドを示す。実行できない理由の報告だけで終えない。
