@@ -55,3 +55,4 @@ packages:
     - name: aws/aws-cli@2.40.3
     - name: grafana/mcp-grafana@v2.3.0
     - name: cloudflare/cloudflared@2026.11.1
+    - name: openai/codex@rust-v0.172.0
