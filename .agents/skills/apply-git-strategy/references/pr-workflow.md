@@ -3,7 +3,7 @@
 ## プルリクエスト
 
 - draftを含むPRの新規作成・本文の作成や更新を始める前に、`prepare-pr-for-review`を読み、PR説明と確認項目の作成、セルフレビュー、PR本文の反映前後の確認に適用する。draft解除時まで読み込みを先送りしない。
-- PR作成を依頼された場合はdraftで作る。Ready化はユーザーが行う。無断でReadyにしない。
+- PR作成を依頼された場合はdraftで作る。Ready化の条件は`prepare-pr-for-review`の「draft解除の実行条件」に従う。
 - タイトルはIDがあれば `<type>(<ID>): <日本語説明>`、なければ `<type>: <日本語説明>` とする。
 - テンプレートの探索と本文の構成は、執筆前に`write-technical-docs`の`references/pr-writing.md`「PR説明の構成」を確認する。
 - 本文の執筆前と送信前に`review-output`の「説明先をまたぐ重複チェック」を行い、構成は`write-technical-docs`の「PR説明の構成」に従う。
