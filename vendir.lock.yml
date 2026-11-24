@@ -1,199 +1,228 @@
 apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
-  - git:
-      commitTitle: 'Merge pull request #1120 from mattpocock/release/v1.3...'
-      sha: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+  - configDigest: 5d52c90bacbcd6d3ba74e2c0b424906a1fabbbb650bb33e964ee7eb699e6556d
+    git:
+      commitTitle: 'chore: version skills (#1161)...'
+      sha: d1478fcb140db0b93c0c8df17bcfd311844749d0
       tags:
-      - v1.2.3-75-gd81f3a1
+      - v1.3.2
     path: .
   path: .agents/skills/grill-me
 - contents:
-  - git:
-      commitTitle: 'Merge pull request #1120 from mattpocock/release/v1.3...'
-      sha: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+  - configDigest: 78e7972728a8d33875053c9d0d7e39ae2b23af9a4bec79a263a54a07876f23b5
+    git:
+      commitTitle: 'chore: version skills (#1161)...'
+      sha: d1478fcb140db0b93c0c8df17bcfd311844749d0
       tags:
-      - v1.2.3-75-gd81f3a1
+      - v1.3.2
     path: .
   path: .agents/skills/grilling
 - contents:
-  - git:
-      commitTitle: 'feat: yomiyasu v1.1.2で、文の種類を保つ推敲の手順と差分の点検を加える (#17)...'
-      sha: 602a3690dadd5d620bb21524353b8d192914eabb
+  - configDigest: 67960e0b71d9a5b327a3eaf56ad229d98b27f2ca81900c557426b9c85963dedc
+    git:
+      commitTitle: 'fix: yomiyasu v3.2.3で、diff の原文にない保証と再発防止の誓いで同じ言い方かを比べるときに、以外 のあとに
+        も・でも・においても などの範囲を広げる助詞が付いた形を、以外は・を除き と別の種類にする (#67)...'
+      sha: c49d5f1bee91258e33e1febc3569c6c87be7669e
       tags:
-      - v1.1.2
+      - v3.2.3
     path: .
   path: .agents/skills/yomiyasu
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 4d9b23b1d3a8f21f2b6100de6a5c52408a25f297b71991dd6172d43153aac1a6
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/amazon-bedrock
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 85fa11c601c4d0aa2c01a1522cfae7dcb1c871e20da6df18dd03d008998f51b1
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-ai-ml
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: fe7f0ca5785c40f327dcfccbe600e74d5bd3385982043dd7f81a2ede25756918
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-auth
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 9854987ac79bf06372dea7bcb33061d4c84ae1cfcc5b579419f972f62441f5ad
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-billing-and-cost-management
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: e2dead716efb0bc4e762feb202f4cccad16a6490ae32304c8f8cf0408e64b071
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-blocks
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 68d7f459f3abc7cc30466dd37d0dd8ebd33cf48cf69fed61824563eee3ef3681
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-cdk
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: afde228b1c37a3e804f2e1742d6ba6bac9a0bc0fd9e47fba750275aad9055a2d
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-cloudformation
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 5197ccc04575d18b63593b0a7dc97b8c3f8441193867afead04c645ea8d3bd64
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-compute
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 32c51b324a3588e6d4704a5150fa7bfa7ba77a554bc888ff5751f9a7b99b4037
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-containers
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: e28f616930e2cd3dff764a563d2d53b1c5c805da477941f0ddbab2e65378282d
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-database
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: b3b0923db895b4e398c4c21c05d7d03fb27c2b6655655b36b5f5ed7a4e8ce9a0
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-deployment
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 879486438108fdf8a034bf7cd9cc913598ce535d6ce43ae6180981a1af1816af
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-iam
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: e12f3b8062041976ce24a84d4f3d39148bed2b5ddf4e0fd9b3d136d34b5838fb
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-messaging-and-streaming
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: fcce9e4e729ed3d315009b7aafeb900c0a3d9c1372a7a0fcae192421e44b3aba
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-networking
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 41cbeae68aced1c817711b78fd1eee42a2c4a6741553c21db17884f7fb00911d
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-observability
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 73fa422869d5e13ee4b012401cd355a7bb168cada4ed9418f0a5daaeac8c073c
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-sdk-js-v3-usage
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: a3ded9629ffde9663e0981e0c3155abe7fd6eec01a07e35bdb60f2fa1bafdf27
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-sdk-python-usage
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 60af931b3b387b975995ae9d3eef277a86c2c3443ef2cedcd59805305d8dd2a4
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-sdk-swift-usage
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: eea90ea4fbfe82448c20a1931bb25d14021d8170f91d8495ba519929c49a6d51
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-security
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: f1709d0134a802b329909820c7cd74c248236c80eb8218949b02bb0cc8820708
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-serverless
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 841bd1e2d166e7a66bc6f44efe9f24e9ad6747b97c3f959b015b11979da00ef0
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-storage
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: cae6b33cf7d7e61c8edabc6d59a1f08d0c96594f42af65964c99706c315a6d40
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/aws-well-architected-review
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: c8246a7cb49aa543a972f9b088852dfdf12b4d2f8e67405a6d4bc3ca01d7d892
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/launch-with-aws
 - contents:
-  - git:
-      commitTitle: 'fix(redshift): correct svv_tables_space_usage column names in
-        redshift-guide storage references (#451)...'
-      sha: fea6667159ecf09a75310e5f70c1d76908d8abab
+  - configDigest: 0786df30a96a99682c324fdbadd320f9bd4f93e981dcb27f7baa74a17fae6695
+    git:
+      commitTitle: 'feat(aws-startup-advisor): add claude-apps-to-bedrock skill for
+        moving Claude Desktop and Claude Code to Bedrock (#690)...'
+      sha: 947a491774eed33d2a117bbecea50debc6ac1a20
     path: .
   path: .agents/skills/signing-in-to-aws
 - contents:
-  - git:
+  - configDigest: 094e4162c1d7d642bf12b3d6a729090e048e37a0dcb44b95c4ba32b22971e28a
+    git:
       commitTitle: 'Merge pull request #60 from wheresryan22/fix/capture-wait-load...'
       sha: e6600ffc4e8e6620eeb45bf49bcdbd5e4b84163f
       tags:
@@ -201,7 +230,8 @@ directories:
     path: .
   path: .agents/skills/anatomy
 - contents:
-  - git:
+  - configDigest: 23fe067209b1a06d5b349ac9d65350c091267081e1ea33ee674424df0811b858
+    git:
       commitTitle: 'Merge pull request #2447 from vercel-labs/qua/fx-universal-skills...'
       sha: 13e4063a1cf913f5606d57d42ab83a86f5001e04
       tags:
@@ -209,133 +239,155 @@ directories:
     path: .
   path: .agents/skills/find-skills
 - contents:
-  - git:
+  - configDigest: a0be648dfaf014abb8e069bae7d908617d7d4331426ca1cfb74b9221d0af0519
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/agents-sdk
 - contents:
-  - git:
+  - configDigest: 6eb50497327609a37c4e9033aed3d6b1bf8cdfe71c280a7ae82f6159ed45b3e1
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/basin
 - contents:
-  - git:
+  - configDigest: 629c084f3415253cd987e3e4e541133b844c261ac77d278227340dfa4bbdf960
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cf-cli
 - contents:
-  - git:
+  - configDigest: d82ed98935ba9ef76445a220e0a34f57b34cd966315c1189fad0469a37b94952
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare-app-bootstrap
 - contents:
-  - git:
+  - configDigest: 2b12081105dec6e621d62963b1605fd3adad72f9a84fb06d45690ae1a57fda96
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare-email-service
 - contents:
-  - git:
+  - configDigest: 3b13d142c4cf5bb94d9c919e1a650dd1ee07179872c3302e9b49cdfadd595192
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare-one-migrations
 - contents:
-  - git:
+  - configDigest: fb7b25b48e97f0a267b8a5af8a39e5cb21dd71c6c62a74fcca32c1100188b756
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare-one
 - contents:
-  - git:
+  - configDigest: 0bfbfa5786fc439b1046173d75e662758778418d9a660b586e481c26be5af45d
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/cloudflare
 - contents:
-  - git:
+  - configDigest: 8af640d97693f8714cb4469e711877c189635f1a33ca5d1a22e904413e067701
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/durable-objects
 - contents:
-  - git:
+  - configDigest: 14ef46bfdd0d58a0dd0e94a9dc4e3daaaa5de1d57521cfe4a7baa84ac59345f5
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/frameworks-on-cloudflare
 - contents:
-  - git:
+  - configDigest: a2de154fc5a23557f7c63de8b0428fc1bacac8430f83af14e9fbbe8cb0f36128
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/gateway-workers
 - contents:
-  - git:
+  - configDigest: c9b040e62dcaf49455c3047e81c600b3cde4dc57d34f450287bb692bd044c482
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/k2
 - contents:
-  - git:
+  - configDigest: a272db33006d34d5ade06feda172d51c46a365901c4254becd341507cbade856
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/nextjs-on-cloudflare
 - contents:
-  - git:
+  - configDigest: 2aed6977ff385b65cb6b7c7086633fec993c44ad2bd71fc530cae9d49d0589df
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/sandbox-migrate-to-next
 - contents:
-  - git:
+  - configDigest: 610cf232951df071999fdcbec4109baaac6f531a8aa9664506fe1d212d169b5a
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/sandbox-next
 - contents:
-  - git:
+  - configDigest: cea55af7e87c8ff5a587e426e50dff8a5ad0ef75eada1896a4bc7b8e6ef208b6
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/sandbox-stable
 - contents:
-  - git:
+  - configDigest: 494ff0f84c5e3f71b82f0f4214356b6cf6d1c0c9a5c20b2c41e8417f63b0dc73
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/turnstile-spin
 - contents:
-  - git:
+  - configDigest: 9008d1f47da7ec2b05aeb6c4717637f49678790f3d84b26a86250c91f89d0879
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/web-perf
 - contents:
-  - git:
+  - configDigest: 3ac1017e49716c4095e854294489a1fe28f81f17016351cd99016503648f7609
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/workers-best-practices
 - contents:
-  - git:
+  - configDigest: 292dd321379118b071e186be469eefecba67407b1dfe4c1cd57d7235d90adb1e
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/workers-development
 - contents:
-  - git:
+  - configDigest: 0cb8d3d1fd420d5fd01be439e2d2ea0eb4b9a2338c5dfe3d29244354fb4dc566
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .
   path: .agents/skills/workers-profiling
 - contents:
-  - git:
+  - configDigest: 37f3c034fb6df8c04dc23f2008480013c5bcb523ba6f70bbf2a487af49260ae2
+    git:
       commitTitle: 'Merge pull request #280 from nu11waredev/workers-best-practices-vitest-plugin...'
       sha: cbf893b954222276bf1af57e5f23379231e0efb9
     path: .

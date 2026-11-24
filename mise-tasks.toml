@@ -3,16 +3,16 @@ description = "Linuxの設定とツールを導入し、共通指示・スキル
 tools = { "github:aquaproj/aqua" = "2.65.0" }
 confirm = { message = "スキルと設定を配置し、管理対象ツールを導入します。", default = "no" }
 run = [
-  { task = "setup:files" },
   "mise -C {{ env.HOME | quote }} install",
   "aqua -c {{ config_root | quote }}/aqua.yaml install",
+  { task = "setup:files" },
 ]
 depends_post = ["skill-creator:dependencies"]
 
 ["skill-creator:dependencies"]
 description = "skill-creatorの検証用Python環境をロックファイルから準備する"
 dir = "{{ vars.public_root | default(value=config_root) }}"
-run = "uv sync --project .config/skill-creator-validation --locked"
+run = "aqua -c {{ config_root | quote }}/aqua.yaml exec -- uv sync --project .config/skill-creator-validation --locked"
 
 ["setup:files"]
 description = "スキルを導入し、競合を確認して設定を配置・検査する"
@@ -43,7 +43,7 @@ run = [
 description = "スキルの配置先と、直下の実体・リンク切れを確認する"
 vars.target = "{{ env.DOTFILES_SKILLS_TARGET | default(value=env.HOME ~ '/.agents/skills') }}"
 run = [
-  "mise dot status --missing {{ vars.target | quote }}",
+  """mise dot status --missing --json {{ vars.target | quote }} | jq -e '(.files | length == 1) and (.files | all(.[]; .state == "applied" or .state == "absent"))'""",
   "test -d {{ vars.target | quote }}",
   '''test -n "$(find {{ vars.target | quote }}/ -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
   '''test -z "$(find {{ vars.target | quote }}/ -name SKILL.md -type l -print)"''',
@@ -56,10 +56,21 @@ run = [
   "test -f linux/mise.toml",
   "test -f windows/mise.toml",
   "test -f windows/mise-tasks.toml",
-  "rg -q 'run_windows' windows/mise-tasks.toml",
-  "rg -F 'chezmoi/.chezmoiexternal.toml' windows/mise.toml",
-  "! rg -n 'wslp\\x61th|power\\x73hell' mise-tasks.toml",
-  "! rg -n 'openai/codex' aqua.yaml",
+  '''aqua -c {{ config_root | quote }}/aqua.yaml exec -- yq -e '[.directories[].contents[] | select(has("git")) | .lazy == true] | all' vendir.yml''',
+  '''test -z "$(git ls-files -- agents)"''',
+  "test ! -e agents",
+  "test -f .agents/hooks/guard.jq",
+  "test -f .agents/prh/rules-technical-ja.yml",
+  "test -d .agents/licenses",
+  '''aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -F 'root = "~/git/honahuku/dotfiles/.agents/hooks"' mise.toml''',
+  '''aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -F 'root = "~/git/honahuku/dotfiles/.agents/prh"' mise.toml''',
+  '''aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -F '"~/.local/share/dotfiles/agents/skills" = { mode = "absent" }' mise.toml''',
+  '''aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -F '.agents/hooks/tests/policy-cases.json' mise-tasks.toml''',
+  '''! aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -n 'root = "~/git/honahuku/dotfiles/agents/' mise.toml''',
+  "aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -q 'run_windows' windows/mise-tasks.toml",
+  "aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -F 'chezmoi/.chezmoiexternal.toml' windows/mise.toml",
+  "! aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -n 'wslp\\x61th|power\\x73hell' mise-tasks.toml",
+  "! aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg -n 'openai/codex' aqua.yaml",
   "mise -C {{ config_root | quote }}/linux dot status",
   "mise -C {{ config_root | quote }}/linux dot diff",
   "mise -C {{ config_root | quote }}/linux dot apply --dry-run",
@@ -71,16 +82,17 @@ run = [
   { task = "skills:check" },
   { task = "opencode:check" },
   { task = "hooks:check" },
+  "test ! -L ~/.local/share/dotfiles/agents/skills",
   "test -f ~/.codex/hooks.json",
-  "mise dot status --missing ~/.agents/skills ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc",
+  """mise dot status --missing --json ~/.agents/skills ~/.agents/hooks ~/.agents/prh ~/.codex/hooks.json ~/.config/opencode/opencode.jsonc | jq -e '(.files | length == 5) and (.files | all(.[]; .state == "applied" or .state == "absent"))'""",
 ]
 
 ["opencode:check"]
-description = "OpenCodeのグローバル設定に必要なMCPサーバーとスキーマがあることを確認する"
+description = "OpenCodeのグローバル設定に必要なモデル、ポリシー、MCPサーバーとスキーマがあることを確認する"
 run = [
-  """grep -F '"~/.config/opencode/AGENTS.md" = "agents/AGENTS.md"' mise.toml""",
-  """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .skills == ["~/.agents/skills"] and any(.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and any(.agents.general.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
-  """rg --fixed-strings '"~/.agents/skills" = ".agents/skills"' mise.toml""",
+  """grep -F '"~/.config/opencode/AGENTS.md" = ".agents/AGENTS.md"' mise.toml""",
+  """jq -e '."$schema" == "https://opencode.ai/config.json" and .shell == "/bin/bash" and .skills == ["~/.agents/skills"] and .model == "openai/gpt-6-luna" and any(.policies[]; .action == "provider.use" and .resource == "opencode" and .effect == "deny") and any(.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and any(.agents.general.permissions[]; .action == "skill" and .resource == "*" and .effect == "allow") and .mcp.servers["cloudflare-api"].type == "remote" and .mcp.servers["cloudflare-api"].url == "https://mcp.cloudflare.com/mcp" and .mcp.servers.openstatus.type == "remote" and .mcp.servers.openstatus.url == "https://api.openstatus.dev/mcp"' .config/opencode/opencode.jsonc""",
+  """aqua -c {{ config_root | quote }}/aqua.yaml exec -- rg --fixed-strings '"~/.agents/skills" = ".agents/skills"' mise.toml""",
   '''test -n "$(find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -type f -print -quit)"''',
 ]
 
@@ -88,7 +100,7 @@ run = [
 description = "共通hookの登録漏れと拒否・通過の判定を検証する"
 run = [
   '''jq -e '.hooks.PreToolUse as $groups | all(["Bash", "exec_command", "functions.exec_command", "apply_patch"][]; . as $tool | any($groups[]; .matcher as $pattern | $tool | test($pattern)))' .codex/hooks.json''',
-  '''jq -e -L agents/hooks 'include "command-policy"; include "hook-settings-policy"; all(.[]; . as $case | ([ $case.input | (deny_sensitive_commands, deny_hook_settings) ] | first | .hookSpecificOutput.permissionDecision // "allow") == $case.expected)' agents/hooks/tests/policy-cases.json''',
+  '''jq -e -L .agents/hooks 'include "command-policy"; include "hook-settings-policy"; all(.[]; . as $case | ([ $case.input | (deny_sensitive_commands, deny_hook_settings) ] | first | .hookSpecificOutput.permissionDecision // "allow") == $case.expected)' .agents/hooks/tests/policy-cases.json''',
 ]
 
 ["docs:tree"]

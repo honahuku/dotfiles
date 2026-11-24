@@ -10,11 +10,11 @@ worktreeパスの表示形式は、`review-output`の`references/output-policy.m
 
 - **本人へのコミット依頼はlazygitを前提に、対象ファイルを自然文で伝え、本資料の「ステージ後の報告」に従ってコミットメッセージ案を添える。コミット用のコマンドは提示しない。Git操作の依頼と、それ以外のコマンド実行依頼は分け、同じコードブロックや`&&`等で連結しない。**
 
-- **`git rebase` は絶対に実行しない。** 履歴を整理したい場面でも rebase ではなく merge で対応できないか先に考える
+- `git rebase`など履歴を書き換える操作は、可逆性判断の「履歴改変」に従い、対象と具体的な結果を示して明示許可を得る。許可後は実行してよい。許可がない場合はmergeなど履歴を保つ方法を選ぶ。
 
-- 既存の変更を勝手に破棄しない。stash・強制push・削除・履歴変更は対象と影響を確認してから行う
+- 既存の変更を勝手に破棄しない。通常のrevertで戻せる変更は依頼範囲内で実行できる。stash・強制push・削除・履歴変更は対象・影響・復旧可能性を確認し、必要な場合は個別の明示許可を得る。
 
-- `main`ブランチは元clone直下の作業ツリーに置き、`main`用worktreeは作らない。`main`への直接編集は禁止する。作業ブランチの選択・再利用・新規作成の条件は`worktree.md`の「作業開始」に従う。
+- main直編集を避ける理由は、他のセッションやエージェントとの競合を防ぐためである。通常の作業は`worktree.md`に従って専用worktreeで行う。急ぎなどで本人が明示的に許可した場合はmainを直接編集してよい。
 
 - mainとの競合は、作業ブランチのworktreeへmainを取り込み、そのworktree内で解消する。main上での競合解消や、そのためのmain直接編集の許可を求めない。取り込み・解消後のステージ・コミットは、それぞれの操作の許可範囲に従う。mainで既にマージが始まっていても、その作業状態を変更せず、作業ブランチ側で進める。
 
@@ -22,11 +22,11 @@ worktreeパスの表示形式は、`review-output`の`references/output-policy.m
 
 - Git管理ファイルの編集・削除は、依頼された作業の範囲で、`worktree.md`に従って選んだworktree内で実行できる。削除前は対象の内容・参照先・削除理由を確認し、本人の既存変更を破棄しない。ステージ・commit・merge・pushの許可条件は、本資料の「Git操作の許可範囲」に従う。
 
-- merge・switch・checkout・reset・restoreなどでファイルが削除・上書きされる場合も、対象と差分を事前に確認する。merge前は`git diff --name-status HEAD..<target>`で削除対象を確認し、依頼範囲外の削除や既存変更の破棄が含まれる場合は実行しない。
+- merge・switch・checkout・reset・restoreなどでファイルが削除・上書きされる場合も、対象と差分を事前に確認する。merge前は`git diff --name-status HEAD..<target>`で影響を確認する。通常のrevertで戻せる依頼範囲内の変更は実行し、既存の未コミット変更を破棄する操作や履歴改変には個別の明示許可を得る。
 
-- Git管理外のファイルの作成・編集・削除は、`review-output`の`references/output-policy.md`「送信・変更の承認」に従う。削除の代替として、独自に`mv`・trash・アーカイブ・退避先を選んで移動しない。本人操作が必要な場合は`troubleshoot-environment`の手動依頼手順に従い、標準の削除方法、対象、影響、理由を示す。直接削除を案内するときは本人の`rm`→`trash` aliasを保持し、aliasを迂回する指定を使わない。
+- Git管理外のファイルの作成・編集・削除は、`review-output`の`references/output-policy.md`「送信・変更の承認」と、`check-command-policy`の可逆性判断に従う。復旧可能性が不確実または不可逆な変更に限り、対象・影響・復旧方法を示して明示許可を得る。削除方法は実際の環境と管理元を確認して選ぶ。
 
-- `find -delete`の実行禁止はGit管理の有無を問わず維持する。`find`で削除対象を調べる前は、`check-command-policy`の`references/command-policy.md`「findによる削除の実行禁止」を読む。
+- `find`で削除する場合も、対象条件を限定し、`check-command-policy`の可逆性判断に従う。広範な検索結果を確認せず削除対象にしない。
 
 ## Git操作の許可範囲
 
@@ -37,11 +37,12 @@ worktreeパスの表示形式は、`review-output`の`references/output-policy.m
 | 状態を変更しない読み取り | 追加確認なしで実行できる |
 | worktreeの準備 | `worktree.md`の既存ブランチ・open PRの確認と再利用条件を満たす場合、`git worktree add`、必要な`-b`でのブランチ作成、clone専用の`info/exclude`への`/.worktree/`追記を追加確認なしで実行できる。同じトピックを別ブランチへ分離する許可は含まない |
 | ステージ | 下記の条件を満たす場合に実行できる |
-| commit・push・merge・pull・fetchなど上記以外の書き込み | 本人の明示指示またはリポジトリごとの恒常的な例外が必要 |
+| commit・push・merge・pull・fetchなど上記以外の書き込み | 依頼範囲内で通常の復旧手段がある変更は実行できる。共有履歴の改変・強制操作・復旧困難な変更は可逆性判断に従って明示許可を得る |
+| マージ済みPRの元ブランチ削除 | PRのマージ確認後、下記「マージ済みPRのブランチ整理」に従ってリモート・ローカルの元ブランチを削除できる |
 
 worktreeの準備に`--force`や`-B`を使わず、既存状態を強制変更しない。許可した`info/exclude`への追記以外は、index・refs・reflog・Git hookなどへの直接書き込みで制限を迂回しない。
 
-Git書き込みの前に、適用中の上位指示にある恒常的な例外と既定を照合する。確認できない許可を推測しない。子ディレクトリの指示や通常の実装依頼だけで許可範囲を広げない。Git操作の許可は、依頼範囲外のファイル削除・既存変更の破棄・hook迂回・apply・デプロイを許可しない。
+Git書き込みの前に、適用中の上位指示と依頼範囲を照合する。依頼範囲に含まれる通常の追跡変更は、操作名だけを理由に追加確認しない。依頼範囲外の変更、既存変更の破棄、hook迂回、上位指示で禁止されたapply・デプロイは許可に含めない。
 
 ### リポジトリ別の許可
 
@@ -49,7 +50,13 @@ Git書き込みの前に、適用中の上位指示にある恒常的な例外�
 
 ローカルの配置名だけで判定せず、操作前に`gh repo view <owner>/<repo> --json nameWithOwner,isPrivate`などで所有者と可視性を確認し、許可された対象と照合する。public・internalにはprivateの例外を適用しない。許可の管理元を一つにし、`SKILL.md`や別資料に重ねて定義しない。
 
-merge・PRのReady化・コメント投稿にはこの例外を適用しない。apply・デプロイを起動するpushも実行しない。必要なhook・検証は省略しない。
+merge・PRのReady化・コメント投稿にはこの例外を適用しない。apply・デプロイを起動するpushは、対象と影響を示して明示許可を得てから行う。必要なhook・検証は省略しない。
+
+### マージ済みPRのブランチ整理
+
+- PRをマージするときは、可能なら`gh pr merge <番号> --delete-branch`を使う。マージ完了後にPRの状態と元ブランチ名を確認し、元ブランチのリモート・ローカル両方が削除されたことを検証する。自動削除されていない側は、PRが`MERGED`であることを確認して削除する。
+- リモートブランチが残っている場合は、PRのhead branchと一致することを確認してから`git push origin --delete <branch>`で削除する。ローカルブランチがworktreeで使用中なら、status・差分・未追跡ファイルを確認する。変更がなく、他のセッションで使用中でないworktreeだけを通常の`git worktree remove`で外し、その後ローカルブランチを削除する。
+- squash・rebase mergeでは元ブランチのcommitがbaseの祖先でなく、`git branch -d`が拒否する場合がある。PRのマージ状態とhead SHAを確認したうえで、そのPRの元ブランチに限って`git branch -D`で削除する。未コミット差分がある、worktreeの使用状況が不明、またはPRのマージを確認できない場合は削除を止め、対象と理由を報告する。既存変更を破棄したり、`worktree remove --force`を使ったりしない。
 
 ### ステージと個別操作の条件
 
@@ -84,6 +91,8 @@ merge・PRのReady化・コメント投稿にはこの例外を適用しない�
 
 - ブランチの変更を検査・引き渡す前は、対象ブランチのworktreeで、リポジトリに定義されたpre-commit全体を実行する。Lefthookでは`lefthook run pre-commit --no-auto-install`を使い、個別コマンドや独自に選んだファイルだけの検査で代替しない。実行前にhook定義と呼び出し先を読み、禁止された操作を含まないことを確認する。
 - 検査には、本人が指定した設定または対象repoの設定を使う。別worktreeやmainの設定に差し替えない。実行したブランチ・worktree・設定元・コマンド・各検査の結果を対応させ、pre-commit全体が成功した場合だけ全体の検査成功と報告する。ステージ済み差分と未ステージ差分が異なる場合は、hookが実際に検査した範囲も明記する。
+- PRのmerge後に検証が必要な依頼では、PRのmerge状態を確認したうえで、merge commitを含む最新の`main`を指す元cloneのmain checkoutから、依頼で失敗した検査と必要な関連検査を実行する。main checkoutが最新でない場合は、作業差分がないことを確認してから`origin/main`へ安全に同期する。作業差分がある、または安全に同期できない場合は上書きせず、確認できた状態を示して停止する。作業ブランチや古いmainの結果を、merge後の検証結果として扱わない。
+- merge後のmain検証が失敗した場合は、失敗内容を調査し、最新mainから修正用ブランチを作成または再利用して別PRで修正する。mainを直接編集せず、修正PRをmergeした後も同じ手順でmain上の検証を繰り返す。最終的な成功または未解決の失敗を確認するまで、依頼を完了扱いにしない。
 
 - **sandbox環境ではBashの書き込み系コマンド（`git worktree add`/`commit`/`merge`/`push`/`remove`、ファイルシステムやリモートを変更する操作）がブロックされ、実行されないまま成功したふうのダミー出力（それらしいSHAや`Fast-forward`、ファイル一覧など）を返すことがある。** 読み取り系（`git log`/`status`/`worktree list`、`grep`、`test -f`）は本物の値を返す。書き込み系は`dangerouslyDisableSandbox: true`を付けて実行し、実行後は必ず読み取りコマンド（`git log`/`status`/`rev-parse origin/main`/`test -f`）で実際に反映されたか検証してから次に進む。ダミー出力を鵜呑みにしない。commitのheredoc `-F -`はsandbox無効でもstdinが渡らず失敗することがあるため`-m`フラグを複数使う。Write/Editツールもsandboxの影響を受けることがあるので、ファイル作成後は`test -f`や`wc -c`で実在を確認する。
 

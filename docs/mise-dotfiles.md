@@ -42,11 +42,11 @@ Windows側は共通指示と、インストール済みWindows Terminalの設定
 
 | 配置先                         | 管理元                                                                                   |
 | ------------------------------ | ---------------------------------------------------------------------------------------- |
-| `~/.codex/AGENTS.md`           | `agents/AGENTS.md`                                                                       |
-| `~/.config/opencode/AGENTS.md` | `agents/AGENTS.md`                                                                       |
+| `~/.codex/AGENTS.md`           | `.agents/AGENTS.md`                                                                      |
+| `~/.config/opencode/AGENTS.md` | `.agents/AGENTS.md`                                                                      |
 | `~/.agents/skills/`            | 自作スキルとvendir取得先を含む`.agents/skills/`全体へのリンク                            |
-| `~/.agents/hooks/`             | 共通判定。登録方法と確認手順は[共通hook](../agents/hooks/README.md)を参照                |
-| `~/.agents/prh/`               | `agents/prh/`の技術日本語ルール                                                          |
+| `~/.agents/hooks/`             | `.agents/hooks/`の共通判定。登録方法と確認手順は[共通hook](../.agents/hooks/README.md)を参照 |
+| `~/.agents/prh/`               | `.agents/prh/`の技術日本語ルール                                                          |
 
 取得スキルと自作版の名前が衝突する場合は、自作版を別名にする。
 
@@ -68,7 +68,7 @@ vendirは、その方法で選択したスキルに配布されるファイル�
 
 | 取得元 | 選んだ配布方法と範囲 |
 | --- | --- |
-| [mattpocock/skills](https://github.com/mattpocock/skills/blob/d81f3a183412e71a5b1e84ca21bc1a35eea03a60/README.md#installation-30-second-setup) | スキルを選択する`npx skills add`。選択したスキルのディレクトリ一式 |
+| [mattpocock/skills](https://github.com/mattpocock/skills/blob/v1.3.2/README.md#installation-30-second-setup) | スキルを選択する`npx skills add`。選択したスキルのディレクトリ一式 |
 | [nanaism/yomiyasu](https://github.com/nanaism/yomiyasu/blob/v1.1.2/README.md#インストール) | 推奨される`npx skills add`。`skills/yomiyasu/`一式 |
 | [aws/agent-toolkit-for-aws](https://github.com/aws/agent-toolkit-for-aws#skills) | スキル導入用の`npx skills add`。選択したスキルのディレクトリ一式 |
 | [wheresryan22/anatomy](https://github.com/wheresryan22/anatomy/blob/e6600ffc4e8e6620eeb45bf49bcdbd5e4b84163f/README.md#install) | `npx skills add`。examplesを含むリポジトリ一式 |
@@ -83,3 +83,5 @@ vendirは、その方法で選択したスキルに配布されるファイル�
 手動検査は`./bin/check-public-candidate.sh --all`、変更範囲だけなら`--worktree`を使う。日本語の自動検査は英語だけの説明行を検出する補助であり、翻訳の正確さは原文と照合する。
 
 共通資料・スキルは`.agents`へ集約し、OpenCodeは`~/.agents/skills`から読み込む。OpenCodeのグローバル権限設定は[設定ファイル](../.config/opencode/opencode.jsonc)で管理する。
+
+旧配置の`~/.local/share/dotfiles/agents/skills`はmiseで撤去し、`.agents/skills`だけをスキルの管理元にする。

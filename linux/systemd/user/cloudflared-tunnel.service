@@ -1,0 +1,14 @@
+[Unit]
+Description=Cloudflare Tunnel for remote development access
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+UMask=0077
+ExecStart=%h/.local/share/aquaproj-aqua/bin/cloudflared tunnel --no-autoupdate run --token-file %h/.config/cloudflared/tunnel-token
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target

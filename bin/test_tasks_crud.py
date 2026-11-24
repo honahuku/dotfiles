@@ -2,12 +2,44 @@
 `tasks`フィクスチャはconftest.pyで定義する。
 """
 
+import builtins
 import datetime as _datetime
 import json
 
 import pytest
 
 # ---------- 追加 ----------
+
+
+def test_add_without_title_prompts_for_task_and_uses_defaults(tasks, capsys, monkeypatch):
+    answers = iter(["prepare release", "", "", "", "", ""])
+    prompts = []
+
+    def answer(prompt):
+        prompts.append(prompt)
+        return next(answers)
+
+    monkeypatch.setattr(builtins, "input", answer)
+    tasks.run("add")
+
+    task = tasks.by_title("prepare release")
+    assert task["from"] == "me"
+    assert task["due"] is None
+    assert task["source"] == "local"
+    assert task["source_url"] is None
+    assert task["notes"] == ""
+    assert len(prompts) == 6
+    capsys.readouterr()
+
+
+def test_add_without_title_reprompts_when_title_is_empty(tasks, capsys, monkeypatch):
+    answers = iter(["", "valid title", "", "", "", "", ""])
+    monkeypatch.setattr(builtins, "input", lambda _prompt: next(answers))
+
+    tasks.run("add")
+
+    assert tasks.by_title("valid title")["status"] == "open"
+    capsys.readouterr()
 
 
 @pytest.mark.parametrize("option", ["--normalize", "--by-tier"])
@@ -1159,14 +1191,6 @@ def test_blocked_by_task_id_cancel_clears_blocked_by(tasks, capsys):
     b = tasks.by_title("B")
     assert b["status"] == "open"
     assert b.get("blocked_by") is None
-
-
-# ---------- add: title なし（argparse 必須引数） ----------
-
-
-def test_add_without_title_exits(tasks):
-    with pytest.raises(SystemExit):
-        tasks.run("add")
 
 
 # ---------- list: 空ストア ----------

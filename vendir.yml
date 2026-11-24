@@ -1,13 +1,13 @@
 apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
-# lockfileが指す過去のcommitも復元できるよう、shallow cloneを使わない。
+# lockfileが指す過去のcommitも取得できるようdepthは指定せず、変更がない取得先は再取得しない。
 directories:
   - path: .agents/skills/grill-me
     contents:
       - path: .
         git:
           url: https://github.com/mattpocock/skills.git
-          ref: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+          ref: v1.3.2
         includePaths:
           - skills/productivity/grill-me/**/*
         newRootPath: skills/productivity/grill-me
@@ -19,12 +19,13 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/grilling
     contents:
       - path: .
         git:
           url: https://github.com/mattpocock/skills.git
-          ref: d81f3a183412e71a5b1e84ca21bc1a35eea03a60
+          ref: v1.3.2
         includePaths:
           - skills/productivity/grilling/**/*
         newRootPath: skills/productivity/grilling
@@ -36,12 +37,13 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/yomiyasu
     contents:
       - path: .
         git:
           url: https://github.com/nanaism/yomiyasu.git
-          ref: v1.1.2
+          ref: v3.2.3
         includePaths:
           - skills/yomiyasu/**/*
         newRootPath: skills/yomiyasu
@@ -53,6 +55,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/amazon-bedrock
     contents:
       - path: .
@@ -70,6 +73,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-ai-ml
     contents:
       - path: .
@@ -87,6 +91,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-auth
     contents:
       - path: .
@@ -104,6 +109,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-billing-and-cost-management
     contents:
       - path: .
@@ -121,6 +127,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-blocks
     contents:
       - path: .
@@ -138,6 +145,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-cdk
     contents:
       - path: .
@@ -155,6 +163,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-cloudformation
     contents:
       - path: .
@@ -172,6 +181,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-compute
     contents:
       - path: .
@@ -189,6 +199,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-containers
     contents:
       - path: .
@@ -206,6 +217,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-database
     contents:
       - path: .
@@ -223,6 +235,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-deployment
     contents:
       - path: .
@@ -240,6 +253,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-iam
     contents:
       - path: .
@@ -257,6 +271,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-messaging-and-streaming
     contents:
       - path: .
@@ -274,6 +289,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-networking
     contents:
       - path: .
@@ -291,6 +307,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-observability
     contents:
       - path: .
@@ -308,6 +325,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-sdk-js-v3-usage
     contents:
       - path: .
@@ -325,6 +343,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-sdk-python-usage
     contents:
       - path: .
@@ -342,6 +361,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-sdk-swift-usage
     contents:
       - path: .
@@ -359,6 +379,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-security
     contents:
       - path: .
@@ -376,6 +397,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-serverless
     contents:
       - path: .
@@ -393,6 +415,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-storage
     contents:
       - path: .
@@ -410,6 +433,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/aws-well-architected-review
     contents:
       - path: .
@@ -427,6 +451,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/launch-with-aws
     contents:
       - path: .
@@ -444,6 +469,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/signing-in-to-aws
     contents:
       - path: .
@@ -461,6 +487,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/anatomy
     contents:
       - path: .
@@ -475,6 +502,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/find-skills
     contents:
       - path: .
@@ -492,6 +520,7 @@ directories:
           - '**/__pypackages__'
           - '**/__pypackages__/**/*'
           - '**/metadata.json'
+        lazy: true
   - path: .agents/skills/agents-sdk
     contents:
       - path: .
@@ -501,6 +530,7 @@ directories:
         includePaths:
           - skills/agents-sdk/**/*
         newRootPath: skills/agents-sdk
+        lazy: true
   - path: .agents/skills/basin
     contents:
       - path: .
@@ -510,6 +540,7 @@ directories:
         includePaths:
           - skills/basin/**/*
         newRootPath: skills/basin
+        lazy: true
   - path: .agents/skills/cf-cli
     contents:
       - path: .
@@ -519,6 +550,7 @@ directories:
         includePaths:
           - skills/cf-cli/**/*
         newRootPath: skills/cf-cli
+        lazy: true
   - path: .agents/skills/cloudflare-app-bootstrap
     contents:
       - path: .
@@ -528,6 +560,7 @@ directories:
         includePaths:
           - skills/cloudflare-app-bootstrap/**/*
         newRootPath: skills/cloudflare-app-bootstrap
+        lazy: true
   - path: .agents/skills/cloudflare-email-service
     contents:
       - path: .
@@ -537,6 +570,7 @@ directories:
         includePaths:
           - skills/cloudflare-email-service/**/*
         newRootPath: skills/cloudflare-email-service
+        lazy: true
   - path: .agents/skills/cloudflare-one-migrations
     contents:
       - path: .
@@ -546,6 +580,7 @@ directories:
         includePaths:
           - skills/cloudflare-one-migrations/**/*
         newRootPath: skills/cloudflare-one-migrations
+        lazy: true
   - path: .agents/skills/cloudflare-one
     contents:
       - path: .
@@ -555,6 +590,7 @@ directories:
         includePaths:
           - skills/cloudflare-one/**/*
         newRootPath: skills/cloudflare-one
+        lazy: true
   - path: .agents/skills/cloudflare
     contents:
       - path: .
@@ -564,6 +600,7 @@ directories:
         includePaths:
           - skills/cloudflare/**/*
         newRootPath: skills/cloudflare
+        lazy: true
   - path: .agents/skills/durable-objects
     contents:
       - path: .
@@ -573,6 +610,7 @@ directories:
         includePaths:
           - skills/durable-objects/**/*
         newRootPath: skills/durable-objects
+        lazy: true
   - path: .agents/skills/frameworks-on-cloudflare
     contents:
       - path: .
@@ -582,6 +620,7 @@ directories:
         includePaths:
           - skills/frameworks-on-cloudflare/**/*
         newRootPath: skills/frameworks-on-cloudflare
+        lazy: true
   - path: .agents/skills/gateway-workers
     contents:
       - path: .
@@ -591,6 +630,7 @@ directories:
         includePaths:
           - skills/gateway-workers/**/*
         newRootPath: skills/gateway-workers
+        lazy: true
   - path: .agents/skills/k2
     contents:
       - path: .
@@ -600,6 +640,7 @@ directories:
         includePaths:
           - skills/k2/**/*
         newRootPath: skills/k2
+        lazy: true
   - path: .agents/skills/nextjs-on-cloudflare
     contents:
       - path: .
@@ -609,6 +650,7 @@ directories:
         includePaths:
           - skills/nextjs-on-cloudflare/**/*
         newRootPath: skills/nextjs-on-cloudflare
+        lazy: true
   - path: .agents/skills/sandbox-migrate-to-next
     contents:
       - path: .
@@ -618,6 +660,7 @@ directories:
         includePaths:
           - skills/sandbox-migrate-to-next/**/*
         newRootPath: skills/sandbox-migrate-to-next
+        lazy: true
   - path: .agents/skills/sandbox-next
     contents:
       - path: .
@@ -627,6 +670,7 @@ directories:
         includePaths:
           - skills/sandbox-next/**/*
         newRootPath: skills/sandbox-next
+        lazy: true
   - path: .agents/skills/sandbox-stable
     contents:
       - path: .
@@ -636,6 +680,7 @@ directories:
         includePaths:
           - skills/sandbox-stable/**/*
         newRootPath: skills/sandbox-stable
+        lazy: true
   - path: .agents/skills/turnstile-spin
     contents:
       - path: .
@@ -645,6 +690,7 @@ directories:
         includePaths:
           - skills/turnstile-spin/**/*
         newRootPath: skills/turnstile-spin
+        lazy: true
   - path: .agents/skills/web-perf
     contents:
       - path: .
@@ -654,6 +700,7 @@ directories:
         includePaths:
           - skills/web-perf/**/*
         newRootPath: skills/web-perf
+        lazy: true
   - path: .agents/skills/workers-best-practices
     contents:
       - path: .
@@ -663,6 +710,7 @@ directories:
         includePaths:
           - skills/workers-best-practices/**/*
         newRootPath: skills/workers-best-practices
+        lazy: true
   - path: .agents/skills/workers-development
     contents:
       - path: .
@@ -672,6 +720,7 @@ directories:
         includePaths:
           - skills/workers-development/**/*
         newRootPath: skills/workers-development
+        lazy: true
   - path: .agents/skills/workers-profiling
     contents:
       - path: .
@@ -681,6 +730,7 @@ directories:
         includePaths:
           - skills/workers-profiling/**/*
         newRootPath: skills/workers-profiling
+        lazy: true
   - path: .agents/skills/wrangler
     contents:
       - path: .
@@ -690,3 +740,4 @@ directories:
         includePaths:
           - skills/wrangler/**/*
         newRootPath: skills/wrangler
+        lazy: true

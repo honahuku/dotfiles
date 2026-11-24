@@ -4,7 +4,7 @@ LinuxとWindowsで、それぞれの環境にあるmiseを使って設定と管�
 
 ## 初期準備
 
-インターネット接続と、Bash、Git、OpenSSHクライアント、CA証明書、curl、tar、gzip、unzip、xzを用意する。OSパッケージマネージャーの利用は、ブートストラップとOS統合に必要な最小限に留める。導入済みのものは再導入しない。jqなどのCLIはaquaから導入する。C/C++コンパイラー、make、pkg-configや開発用ライブラリは、ソースからのビルドが必要になった場合に追加する。
+インターネット接続と、Bash、Git、OpenSSHクライアント、CA証明書、curl、tar、gzip、unzip、xz、GIO（`gio`）を用意する。`gio`は[Trash Specification](https://specifications.freedesktop.org/trash/latest/)に沿ったゴミ箱へ`rm`対象を移すために使う。未対応のファイルシステムで移動に失敗した場合は、元ファイルを残す。既存の`~/.trash`は自動移行せず、そのまま残す。OSパッケージマネージャーの利用は、ブートストラップとOS統合に必要な最小限に留める。導入済みのものは再導入しない。jqなどのCLIはaquaから導入する。C/C++コンパイラー、make、pkg-configや開発用ライブラリは、ソースからのビルドが必要になった場合に追加する。
 
 <details>
 <summary>Debian / Ubuntu</summary>
@@ -12,7 +12,7 @@ LinuxとWindowsで、それぞれの環境にあるmiseを使って設定と管�
 ```sh
 sudo apt update
 sudo apt install --no-install-recommends bash git openssh-client ca-certificates \
-  curl tar gzip unzip xz-utils
+  curl tar gzip unzip xz-utils libglib2.0-bin
 ```
 
 </details>
@@ -23,7 +23,7 @@ sudo apt install --no-install-recommends bash git openssh-client ca-certificates
 部分更新を避けるため、システム更新も同時に行う。
 
 ```sh
-sudo pacman -Syu --needed bash git openssh ca-certificates curl tar gzip unzip xz
+sudo pacman -Syu --needed bash git openssh ca-certificates curl tar gzip unzip xz glib2
 ```
 
 </details>
@@ -84,9 +84,9 @@ fi
 CLIは`aqua.yaml`、言語環境とaqua本体は`.config/mise/config.toml`に従って導入する。Linuxは`mise -C linux run setup`、Windowsは`mise -C windows run setup`を設定配置と管理対象ツール導入の入口にし、変更後も繰り返し実行する。独立したシェル・Pythonスクリプトを追加する前にmiseのサブコマンドとタスクで対応し、対応できない場合だけgo-taskを使う。
 
 1. `type -a gh node go python nvim`などで実行候補を列挙し、シンボリックリンクの実体とパッケージ所有元を確認する。Archでは`pacman -Qo /usr/bin/gh`、Debian / Ubuntuでは`dpkg-query -S /usr/bin/gh`で確認できる。aqua・miseの設定だけに記載され、まだ導入されていない場合もあるため、設定と実行パスの両方を見る。
-2. OS管理版とdotfiles指定版の一覧を作る。アンインストールを予定するパッケージの逆依存、任意依存、削除時に影響するコマンドを確認する。Archでは`pacman -Qi <package>`と`pacman -R --print <package>`、Debian / Ubuntuでは`apt-cache rdepends --installed <package>`と`apt-get --simulate remove <package>`を使う。これらは確認用であり、削除は実行しない。
-3. 具体的な削除対象、導入先とバージョン差分、同時に削除されるパッケージ、利用できなくなる期間をユーザーに示し、アンインストールの許可を得る。許可を得るまで削除しない。OSのPythonなど、他のOSパッケージに必要な実体は残す。依存関係が解決できない場合は強制削除せず、その対象の移行を保留する。
-4. 許可されたOS管理版をアンインストールしてから、Linuxでは`mise -C linux run setup`、Windowsでは`mise -C windows run setup`で管理対象版を導入する。依存・設定の自動削除や未承認パッケージの連鎖削除は行わない。ユーザーがインストールを自分で実行すると指定している場合は、エージェントはコマンドの提示まで行う。
+2. OS管理版とdotfiles指定版の一覧を作る。アンインストールを予定するパッケージの逆依存、任意依存、削除時に影響するコマンドを確認する。Archでは`pacman -Qi <package>`と`pacman -R --print <package>`、Debian / Ubuntuでは`apt-cache rdepends --installed <package>`と`apt-get --simulate remove <package>`を使う。これらは確認用であり、削除は可逆性判断に従う。
+3. 具体的な削除対象、導入先とバージョン差分、同時に削除されるパッケージ、利用できなくなる期間、復旧方法をユーザーに示す。不可逆または復旧が不確実な削除は、明示許可を得てから行う。OSのPythonなど、他のOSパッケージに必要な実体は残す。依存関係が解決できない場合は強制削除せず、その対象の移行を保留する。
+4. OS管理版を外した後、Linuxでは`mise -C linux run setup`、Windowsでは`mise -C windows run setup`で管理対象版を導入する。依存・設定の自動削除や未承認パッケージの連鎖削除は行わない。ユーザーがインストールを自分で実行すると指定している場合は、エージェントはコマンドの提示まで行う。
 5. 新しいシェルで`type -a gh node go python nvim`と各コマンドのバージョンを確認する。aqua・mise側が選ばれることと、必要な既存設定・認証情報が残っていることを確認する。nvmなど旧管理元の削除とプロジェクトのバージョン指定変更は、OSパッケージの移行とは別に対象を確認する。
 
 設定配置前にはLinuxで`mise -C linux run setup:check`、Windowsで`mise -C windows run setup:check`を使って差分を確認する。旧方式の`~/.bashrc`・`~/.profile`リンクがある場合は、リンク先と内容を保存したうえで実ファイルへの移行方法を決める。管理ブロックの追加によってリポジトリのリンク元を直接書き換えないようにする。ユーザー固有の設定を失う置換は行わない。
@@ -115,7 +115,7 @@ Windows Terminalの設定変更後は、PowerShellから`mise -C windows run win
 | ツールの役割と管理元 | [ツールの説明](tools.md) |
 | シェル | [shell/](../shell/) |
 | Neovim設定 | [nvim/](../nvim/) |
-| Windows Terminal設定 | [win/terminal/](../win/terminal/) |
+| Windows Terminal設定 | [Windows Terminal設定](../windows/terminal/) |
 
 ## READMEのtreeを更新する
 

@@ -4,11 +4,11 @@ min_version = "2026.10.17"
 includes = ["mise-tasks.toml"]
 
 [dotfiles]
-"~/.local/share/dotfiles/agents/skills" = "agents/skills"
+"~/.local/share/dotfiles/agents/skills" = { mode = "absent" }
 "~/.agents/skills" = ".agents/skills"
-"~/.codex/AGENTS.md" = "agents/AGENTS.md"
+"~/.codex/AGENTS.md" = ".agents/AGENTS.md"
 "~/.codex/hooks.json" = ".codex/hooks.json"
-"~/.config/opencode/AGENTS.md" = "agents/AGENTS.md"
+"~/.config/opencode/AGENTS.md" = ".agents/AGENTS.md"
 "~/.config/mise/config.toml" = ".config/mise/config.toml"
 "~/.config/lazygit/config.yml" = ".config/lazygit/config.yml"
 "~/.config/opencode/opencode.jsonc" = ".config/opencode/opencode.jsonc"
@@ -17,11 +17,11 @@ includes = ["mise-tasks.toml"]
 "~/.config/nvim" = "nvim"
 
 [dotfile_groups.public-agent-hooks]
-root = "~/git/honahuku/dotfiles/agents/hooks"
+root = "~/git/honahuku/dotfiles/.agents/hooks"
 target = "~/.agents/hooks"
 mode = "symlink-each"
 
 [dotfile_groups.public-agent-prh]
-root = "~/git/honahuku/dotfiles/agents/prh"
+root = "~/git/honahuku/dotfiles/.agents/prh"
 target = "~/.agents/prh"
 mode = "symlink-each"
