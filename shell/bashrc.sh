@@ -39,9 +39,6 @@ for _p in "${_path_parts[@]}"; do
   _new_path="${_new_path:+$_new_path:}$_p"
 done
 PATH="$_new_path"
-PATH="/mnt/c/Program Files/Rancher Desktop/resources/resources/linux/bin:$PATH"
-PATH="/mnt/c/Program Files/Rancher Desktop/resources/resources/linux/docker-cli-plugins:$PATH"
-# 個別導入版やRancher Desktopより管理対象のCLIを優先する。
 PATH="${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}/bin:$PATH"
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 unset _new_path _p _path_parts
@@ -141,6 +138,7 @@ alias nrlogin='codex mcp login newrelic'
 alias wizlogin='codex mcp login wiz'
 alias nsanlogin='codex mcp login notion-main'
 alias npologin='codex mcp login notion-helppage'
+alias cx='codex'
 
 if [[ -f "$HOME/.bash_aliases" ]]; then
   # 個別aliasは、このrepoの解析には含めない。
@@ -225,3 +223,4 @@ fi
 # 子シェルの初期化を省略しないよう、.profile用の印はexportしない。
 # shellcheck disable=SC2034
 DOTFILES_SHELL_LOADED=1
+
