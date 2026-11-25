@@ -139,6 +139,7 @@ alias wizlogin='codex mcp login wiz'
 alias nsanlogin='codex mcp login notion-main'
 alias npologin='codex mcp login notion-helppage'
 alias cx='codex'
+alias riselogin='codex mcp login rize'
 
 if [[ -f "$HOME/.bash_aliases" ]]; then
   # 個別aliasは、このrepoの解析には含めない。
