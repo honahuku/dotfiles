@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - "renovate.json"
+      - "os-packages/nucbox-g3/mise.toml"
       - ".github/workflows/renovate-config.yml"
   push:
     branches: ["**"]
     paths:
       - "renovate.json"
+      - "os-packages/nucbox-g3/mise.toml"
       - ".github/workflows/renovate-config.yml"
 
 permissions:
@@ -24,3 +26,11 @@ jobs:
           persist-credentials: false
       - name: Validate Renovate configuration
         run: npx --yes --package renovate -- renovate-config-validator
+      - name: Extract OS packages with Renovate
+        run: |
+          expected=$(grep -c '^"apt:' os-packages/nucbox-g3/mise.toml)
+          actual=$(npx --yes --package renovate -- renovate --platform=local --dry-run=extract | grep -c '"datasource": "deb"')
+          echo "Expected $expected Debian packages; Renovate extracted $actual."
+          if [[ "$actual" -ne "$expected" ]]; then
+            exit 1
+          fi
