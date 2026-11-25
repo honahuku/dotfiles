@@ -54,10 +54,10 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = [["tasks", "~/.local/bin/tasks"]],
+    pattern = ["tasks"],
     decision = "allow",
     justification = "タスクストアの操作とvaultバックアップを自動実行するため",
-    match = ["tasks list", "tasks vault-backup", "~/.local/bin/tasks list", "~/.local/bin/tasks vault-backup"],
+    match = ["tasks list", "tasks vault-backup"],
 )
 
 prefix_rule(
